@@ -78,18 +78,18 @@ public static void main(String[] args) {
 }
 ```
 
-JSON serialization is simple.
+JSON encoding and decoding is pretty simple.
 
 ```java
 import com.ca.alog.*;
 import com.ca.alog.json*;
 
-public Amap deserialize() throws IOException {
+public Amap decode() throws IOException {
     //Notice it can detected zipped documents.
     return new JsonReader(new File("aon.zip")).getMap();
 }
 
-public void serialize(Amap map) throws IOException {
+public void encode(Amap map) throws IOException {
     //Zipping is easy.
     new JsonWriter(new File("aon.zip"), "aon.json")
             .value(map)

@@ -58,7 +58,8 @@
  * }
  * </pre>
  * <p>
- * Serialization is done with implementations of Awriter and Areader.
+ * Use implementations of Awriter and Areader for encoding / decoding.  See package
+ * com.ca.aon.json.
  *
  * @author Aaron Hansen
  */
