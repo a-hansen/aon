@@ -1,0 +1,46 @@
+apply plugin: 'findbugs'
+apply plugin: 'idea'
+apply plugin: 'java'
+apply plugin: 'maven'
+
+group 'aon'
+version '1.0.0'
+
+sourceCompatibility = 1.7
+targetCompatibility = 1.7
+
+repositories {
+    mavenLocal()
+    mavenCentral()
+}
+
+configurations {
+    provided
+}
+
+idea {
+    module {
+        scopes.PROVIDED.plus += [configurations.provided]
+    }
+}
+
+findbugsMain {
+    reports {
+        xml.enabled = false
+        html.enabled = true
+    }
+}
+
+dependencies {
+    provided 'com.google.code.findbugs:annotations:3.0.1'
+    testCompile 'com.fasterxml.jackson.core:jackson-core:2.8.6'
+    testCompile 'com.fasterxml.jackson.core:jackson-databind:2.8.6'
+    testCompile 'com.google.code.gson:gson:2.8.0'
+    testCompile 'net.sf.flexjson:flexjson:2.1'
+    testCompile 'com.owlike:genson:1.4'
+    testCompile 'junit:junit:4.12'
+}
+
+compileJava {
+    sourceSets.main.compileClasspath += configurations.provided
+}
