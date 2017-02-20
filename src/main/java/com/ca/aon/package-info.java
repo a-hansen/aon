@@ -4,7 +4,7 @@
  * <li>Preserve key order.
  * <li>Support additional encodings besides JSON.
  * <li>Support very large documents.
- * <li>Everything is index accessible so the structure can be traversed without 
+ * <li>Everything is index accessible so the structure can be traversed without
  * object creation.
  * </ul>
  * <p>
@@ -14,7 +14,7 @@
  * <p>
  * <pre>
  * import com.ca.aon.*;
- * 
+ *
  * public static void main(String[] args) {
  *     Amap map = new Amap()
  *             .put("boolean", true)
@@ -48,7 +48,7 @@
  * <p>
  * <pre>
  * import com.ca.aon.*;
- * 
+ *
  * public static void main(String[] args) {
  *     Aobj aBool = Aobj.make(false);
  *     Aobj aDbl = Aobj.make(1d);

@@ -86,7 +86,7 @@ public class JsonWriter implements Awriter {
      * Will create a zip file using the zipFileName as file name inside the zip.
      */
     public JsonWriter(File file, String zipFileName) {
-        setOutput(file,zipFileName);
+        setOutput(file, zipFileName);
     }
 
     /**
@@ -100,7 +100,7 @@ public class JsonWriter implements Awriter {
      * Will write a zip file to the given stream.
      */
     public JsonWriter(OutputStream out, String zipFileName) {
-        setOutput(out,zipFileName);
+        setOutput(out, zipFileName);
     }
 
 

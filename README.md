@@ -20,7 +20,7 @@ creation.
 
 This has a fast JSON encoder/decoder, but because key order preservation, it'll 
 never be the fastest.  It's slower than Jackson, on-par with Genson, and faster than 
-Gson and Flex-json.  The tests include a benchmark for comparing all of those.
+Gson and Flexjson.  The tests include a benchmark for comparing all of those.
 
 Requirements
 ------------

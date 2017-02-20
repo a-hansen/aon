@@ -209,12 +209,12 @@ public class AobjTest {
         testPrimitiveMap(map);
         Alist list = primitiveList();
         testPrimitiveList(list);
-        map.put("map",primitiveMap());
-        map.put("list",primitiveList());
+        map.put("map", primitiveMap());
+        map.put("list", primitiveList());
         Assert.assertTrue(map.get(6).isMap());
         Assert.assertTrue(map.get(7).isList());
         testMap(map);
-        //serialize and reconstitute
+        //encode and reconstitute
         ByteArrayOutputStream out = new ByteArrayOutputStream();
         new JsonWriter(out, "UTF-8").value(map).close();
         ByteArrayInputStream in = new ByteArrayInputStream(out.toByteArray());
@@ -248,7 +248,7 @@ public class AobjTest {
         }
         Assert.assertTrue(map.get("mustNotContain", null) == null);
         Assert.assertTrue(map.isNull("mustNotContain"));
-        map.put("mustNotContain",10);
+        map.put("mustNotContain", 10);
         Assert.assertFalse(map.isNull("mustNotContain"));
         Assert.assertFalse(map.isEmpty());
         Assert.assertTrue(map.size() == (size + 1));
@@ -260,7 +260,7 @@ public class AobjTest {
         Assert.assertTrue(map.remove("mustNotContain").isNull());
         Assert.assertTrue(map.size() == size);
         map.putNull("mustNotContain");
-        map.put("mustNotContain",10);
+        map.put("mustNotContain", 10);
         Assert.assertTrue(map.size() == (size + 1));
         Assert.assertTrue(map.remove("mustNotContain").toInt() == 10);
         Assert.assertTrue(map.size() == size);

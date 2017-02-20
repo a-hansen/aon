@@ -21,6 +21,9 @@ import flexjson.JSONDeserializer;
 import flexjson.JSONSerializer;
 
 /**
+ * Compares the performance of various JSON libraries.  Also a nice test of
+ * Aons compatibility.
+ *
  * @author Aaron Hansen
  */
 public class AonBenchmark {
@@ -29,7 +32,8 @@ public class AonBenchmark {
     // Constants
     ///////////////////////////////////////////////////////////////////////////
 
-    public static int ITERATIONS = 50;
+    private static int ITERATIONS = 100;
+    private static int SIZE = 500;
 
     ///////////////////////////////////////////////////////////////////////////
     // Fields
@@ -47,19 +51,20 @@ public class AonBenchmark {
     public void run() throws Exception {
         System.out.println("Configuring benchmark");
         byte[] test = testMap();
-        System.out.println("Test Size = " + test.length + " bytes");
         Target aon = new AonTarget();
         Target jackson = new JacksonTarget();
         Target genson = new GensonTarget();
         Target gson = new GsonTarget();
         Target flex = new FlexjsonTarget();
-        System.out.println("Warming up benchmark");
+        System.out.println("Test Size = " + test.length + " bytes");
         //warm up
+        System.out.println("Warming up benchmark");
         run(aon, test, false);
         run(flex, test, false);
         run(genson, test, false);
         run(gson, test, false);
         run(jackson, test, false);
+        //actual benchmark
         System.out.println("Begin benchmark");
         run(aon, test, true);
         run(flex, test, true);
@@ -71,32 +76,32 @@ public class AonBenchmark {
 
     public void run(Target target, byte[] doc, boolean print) {
         long start = System.currentTimeMillis();
-        //deserialize
-        long time = runDeserialize(target, doc);
-        if (print) System.out.println(target + ", Deserialize, " + time + "ms");
-        //serialize
-        time = runSerialize(target, doc);
-        if (print) System.out.println(target + ", Serialize, " + time + "ms");
+        //decode
+        long time = runDecode(target, doc);
+        if (print) System.out.println(target + ", Decode, " + time + "ms");
+        //encode
+        time = runEncode(target, doc);
+        if (print) System.out.println(target + ", Encode, " + time + "ms");
         time = System.currentTimeMillis() - start;
         if (print) System.out.println(target + ", TOTAL, " + time + "ms");
         if (print) System.out.println();
     }
 
-    public long runDeserialize(Target target, byte[] doc) {
+    public long runDecode(Target target, byte[] doc) {
         long start = System.currentTimeMillis();
         for (int i = 0; i < ITERATIONS; i++) {
-            target.deserialize(new ByteArrayInputStream(doc));
+            target.decode(new ByteArrayInputStream(doc));
         }
         return System.currentTimeMillis() - start;
     }
 
-    public long runSerialize(Target target, byte[] doc) {
+    public long runEncode(Target target, byte[] doc) {
         long start = System.currentTimeMillis();
-        Object map = target.deserialize(new ByteArrayInputStream(doc));
+        Object map = target.decode(new ByteArrayInputStream(doc));
         ByteArrayOutputStream out = new ByteArrayOutputStream();
         for (int i = 0; i < ITERATIONS; i++) {
             out.reset();
-            target.serialize(map, out);
+            target.encode(map, out);
         }
         return System.currentTimeMillis() - start;
     }
@@ -121,7 +126,7 @@ public class AonBenchmark {
         complexList.add(primitiveList.copy());
         complexList.add(primitiveMap.copy());
         Amap testMap = new Amap();
-        for (int i = 0; i < 500; i++) {
+        for (int i = 0; i < SIZE; i++) {
             testMap.put("map" + i, complexMap.copy());
             testMap.put("list" + i, complexList.copy());
         }
@@ -134,33 +139,24 @@ public class AonBenchmark {
     // Inner Classes
     ///////////////////////////////////////////////////////////////////////////
 
-    public Amap deserialize() throws IOException {
-        return new JsonReader(new File("aon.zip")).getMap();
-    }
-
-    public void serialize(Amap map) throws IOException {
-        new JsonWriter(new File("aon.zip"), "aon.json")
-                .value(map)
-                .close();
-    }
-
     /**
      * Interface for the various implementations
      */
     public static interface Target {
-        public Object deserialize(InputStream in);
+        public Object decode(InputStream in);
 
-        public void serialize(Object map, OutputStream out);
+        public void encode(Object map, OutputStream out);
     }
 
     public static class AonTarget implements Target {
         JsonReader reader = new JsonReader();
         JsonWriter writer = new JsonWriter();
-        public Object deserialize(InputStream in) {
+
+        public Object decode(InputStream in) {
             return reader.setInput(in, "UTF-8").getMap();
         }
 
-        public void serialize(Object map, OutputStream out) {
+        public void encode(Object map, OutputStream out) {
             writer.setOutput(out).setMinify(true).value((Amap) map);
         }
 
@@ -173,11 +169,11 @@ public class AonBenchmark {
         private JSONSerializer serializer = new JSONSerializer();
         private JSONDeserializer deserializer = new JSONDeserializer();
 
-        public Object deserialize(InputStream in) {
+        public Object decode(InputStream in) {
             return deserializer.deserialize(new InputStreamReader(in));
         }
 
-        public void serialize(Object map, OutputStream out) {
+        public void encode(Object map, OutputStream out) {
             serializer.serialize(map, new OutputStreamWriter(out));
         }
 
@@ -189,11 +185,11 @@ public class AonBenchmark {
     public static class GensonTarget implements Target {
         private Genson genson = new Genson();
 
-        public Object deserialize(InputStream in) {
+        public Object decode(InputStream in) {
             return genson.deserialize(in, Map.class);
         }
 
-        public void serialize(Object map, OutputStream out) {
+        public void encode(Object map, OutputStream out) {
             genson.serialize(map, new OutputStreamWriter(out));
         }
 
@@ -206,11 +202,11 @@ public class AonBenchmark {
         private Gson gson = new Gson();
         private JsonParser parser = new JsonParser();
 
-        public Object deserialize(InputStream in) {
+        public Object decode(InputStream in) {
             return parser.parse(new InputStreamReader(in));
         }
 
-        public void serialize(Object map, OutputStream out) {
+        public void encode(Object map, OutputStream out) {
             gson.toJson(map, new OutputStreamWriter(out));
         }
 
@@ -222,7 +218,7 @@ public class AonBenchmark {
     public static class JacksonTarget implements Target {
         ObjectMapper mapper = new ObjectMapper();
 
-        public Object deserialize(InputStream in) {
+        public Object decode(InputStream in) {
             try {
                 return mapper.readTree(in);
             } catch (IOException x) {
@@ -230,7 +226,7 @@ public class AonBenchmark {
             }
         }
 
-        public void serialize(Object map, OutputStream out) {
+        public void encode(Object map, OutputStream out) {
             try {
                 mapper.writeValue(out, map);
             } catch (IOException x) {
