@@ -32,6 +32,7 @@ public class JsonWriter implements Awriter {
     // Constants
     // ---------
 
+    private static final int BUF_SIZE = 8192;
     private static final char[] HEX =
             {
                     '0', '1', '2', '3', '4', '5', '6', '7',
@@ -50,7 +51,7 @@ public class JsonWriter implements Awriter {
     // Fields
     // ------
 
-    private StringBuilder buf = new StringBuilder();
+    private StringBuilder buf = new StringBuilder(BUF_SIZE);
     private int depth = 0;
     private int last = LAST_INIT;
     private boolean minify = false;
@@ -116,16 +117,14 @@ public class JsonWriter implements Awriter {
                 case LAST_DONE:
                     throw new IllegalStateException("Nesting error.");
             }
-            buf.setLength(0);
             if ((last == LAST_END) || (last == LAST_VAL))
-                buf.append(',');
+                append(',');
             if (!minify) {
                 if ((last != LAST_INIT) && (last != LAST_KEY)) {
                     newLineIndent();
                 }
             }
-            buf.append('[');
-            out.append(buf);
+            append('[');
             last = LAST_LIST;
             depth++;
         } catch (IOException x) {
@@ -143,16 +142,14 @@ public class JsonWriter implements Awriter {
                 case LAST_DONE:
                     throw new IllegalStateException("Nesting error.");
             }
-            buf.setLength(0);
             if ((last == LAST_END) || (last == LAST_VAL))
-                buf.append(',');
+                append(',');
             if (!minify) {
                 if ((last != LAST_INIT) && (last != LAST_KEY)) {
                     newLineIndent();
                 }
             }
-            buf.append('{');
-            out.append(buf);
+            append('{');
             last = LAST_MAP;
             depth++;
         } catch (IOException x) {
@@ -164,6 +161,7 @@ public class JsonWriter implements Awriter {
     @Override
     public void close() {
         try {
+            flush();
             if (depth > 0)
                 throw new IllegalStateException("Nesting error.");
             if (zout != null) {
@@ -190,12 +188,10 @@ public class JsonWriter implements Awriter {
             if (last == LAST_MAP)
                 throw new IllegalStateException("Expecting map end.");
             depth--;
-            buf.setLength(0);
             if (!minify) {
                 newLineIndent();
             }
-            buf.append(']');
-            out.append(buf);
+            append(']');
             if (depth == 0)
                 last = LAST_DONE;
             else
@@ -213,13 +209,11 @@ public class JsonWriter implements Awriter {
                 throw new IllegalStateException("Nesting error.");
             if (last == LAST_LIST)
                 throw new IllegalStateException("Expecting list end.");
-            buf.setLength(0);
             depth--;
             if (!minify) {
                 newLineIndent();
             }
-            buf.append('}');
-            out.append(buf);
+            append('}');
             if (depth == 0)
                 last = LAST_DONE;
             else
@@ -233,8 +227,13 @@ public class JsonWriter implements Awriter {
     @Override
     public JsonWriter flush() {
         try {
-            if (out instanceof Flushable)
+            if (buf.length() > 0) {
+                out.append(buf);
+                buf.setLength(0);
+            }
+            if (out instanceof Flushable) {
                 ((Flushable) out).flush();
+            }
         } catch (IOException x) {
             throw new RuntimeException(x);
         }
@@ -266,19 +265,17 @@ public class JsonWriter implements Awriter {
                 case LAST_LIST:
                     throw new IllegalStateException("Not expecting key: " + arg);
             }
-            buf.setLength(0);
             if ((last == LAST_VAL) || (last == LAST_END))
-                buf.append(',');
+                append(',');
             if (!minify) {
                 newLineIndent();
             }
             writeString(arg);
             if (minify) {
-                buf.append(':');
+                append(':');
             } else {
-                buf.append(" : ");
+                append(" : ");
             }
-            out.append(buf);
             last = LAST_KEY;
         } catch (IOException x) {
             throw new RuntimeException(x);
@@ -290,11 +287,7 @@ public class JsonWriter implements Awriter {
      * Writes a raw new line character, useful for custom formatting.
      */
     public JsonWriter newLine() {
-        try {
-            out.append('\n');
-        } catch (IOException x) {
-            throw new RuntimeException(x);
-        }
+        append('\n');
         return this;
     }
 
@@ -311,6 +304,7 @@ public class JsonWriter implements Awriter {
     public JsonWriter reset() {
         depth = 0;
         last = LAST_INIT;
+        buf.setLength(0);
         return this;
     }
 
@@ -333,7 +327,7 @@ public class JsonWriter implements Awriter {
     public JsonWriter setOutput(File arg) {
         try {
             if (arg == null) throw new NullPointerException();
-            this.out = new BufferedWriter(new FileWriter(arg));
+            this.out = new FileWriter(arg);
         } catch (IOException x) {
             throw new RuntimeException(x);
         }
@@ -352,7 +346,7 @@ public class JsonWriter implements Awriter {
             zout = new ZipOutputStream(
                     new BufferedOutputStream(new FileOutputStream(file)));
             zout.putNextEntry(new ZipEntry(zipFileName));
-            this.out = new PrintWriter(zout);
+            this.out = new PrintWriter(zout, false);
             this.zip = true;
         } catch (IOException x) {
             throw new RuntimeException(x);
@@ -367,7 +361,7 @@ public class JsonWriter implements Awriter {
      */
     public JsonWriter setOutput(OutputStream arg) {
         if (arg == null) throw new NullPointerException();
-        this.out = new PrintWriter(arg);
+        this.out = new PrintWriter(arg,false);
         return reset();
     }
 
@@ -382,7 +376,7 @@ public class JsonWriter implements Awriter {
             if (zipFileName == null) throw new NullPointerException();
             ZipOutputStream zout = new ZipOutputStream(out);
             zout.putNextEntry(new ZipEntry(zipFileName));
-            this.out = new PrintWriter(zout);
+            this.out = new PrintWriter(zout, false);
             this.zip = true;
         } catch (IOException x) {
             throw new RuntimeException(x);
@@ -444,9 +438,8 @@ public class JsonWriter implements Awriter {
                 case LAST_MAP:
                     throw new IllegalStateException("Not expecting value: " + arg);
             }
-            buf.setLength(0);
             if ((last == LAST_VAL) || (last == LAST_END)) {
-                buf.append(',');
+                append(',');
             }
             if (!minify) {
                 if ((last == LAST_VAL) || (last == LAST_END) || (last == LAST_LIST)) {
@@ -454,10 +447,9 @@ public class JsonWriter implements Awriter {
                 }
             }
             if (arg)
-                buf.append("true");
+                append("true");
             else
-                buf.append("false");
-            out.append(buf);
+                append("false");
             last = LAST_VAL;
         } catch (IOException x) {
             throw new RuntimeException(x);
@@ -475,9 +467,8 @@ public class JsonWriter implements Awriter {
                 case LAST_MAP:
                     throw new IllegalStateException("Not expecting value: " + arg);
             }
-            buf.setLength(0);
             if ((last == LAST_VAL) || (last == LAST_END)) {
-                buf.append(',');
+                append(',');
             }
             if (!minify) {
                 if ((last == LAST_VAL) || (last == LAST_END) || (last == LAST_LIST)) {
@@ -486,14 +477,13 @@ public class JsonWriter implements Awriter {
             }
             if (Double.isInfinite(arg)) {
                 if (arg < 0)
-                    buf.append(DBL_NEG_INF);
+                    append(DBL_NEG_INF);
                 else
-                    buf.append(DBL_POS_INF);
+                    append(DBL_POS_INF);
             } else if (Double.isNaN(arg))
-                buf.append(DBL_NAN);
+                append(DBL_NAN);
             else
-                buf.append(String.valueOf(arg));
-            out.append(buf);
+                append(String.valueOf(arg));
             last = LAST_VAL;
         } catch (IOException x) {
             throw new RuntimeException(x);
@@ -511,17 +501,15 @@ public class JsonWriter implements Awriter {
                 case LAST_MAP:
                     throw new IllegalStateException("Not expecting value: " + arg);
             }
-            buf.setLength(0);
             if ((last == LAST_VAL) || (last == LAST_END)) {
-                buf.append(',');
+                append(',');
             }
             if (!minify) {
                 if ((last == LAST_VAL) || (last == LAST_END) || (last == LAST_LIST)) {
                     newLineIndent();
                 }
             }
-            buf.append(String.valueOf(arg));
-            out.append(buf);
+            append(String.valueOf(arg));
             last = LAST_VAL;
         } catch (IOException x) {
             throw new RuntimeException(x);
@@ -539,17 +527,15 @@ public class JsonWriter implements Awriter {
                 case LAST_MAP:
                     throw new IllegalStateException("Not expecting value: " + arg);
             }
-            buf.setLength(0);
             if ((last == LAST_VAL) || (last == LAST_END)) {
-                buf.append(',');
+                append(',');
             }
             if (!minify) {
                 if ((last == LAST_VAL) || (last == LAST_END) || (last == LAST_LIST)) {
                     newLineIndent();
                 }
             }
-            buf.append(String.valueOf(arg));
-            out.append(buf);
+            append(String.valueOf(arg));
             last = LAST_VAL;
         } catch (IOException x) {
             throw new RuntimeException(x);
@@ -567,9 +553,8 @@ public class JsonWriter implements Awriter {
                 case LAST_MAP:
                     throw new IllegalStateException("Not expecting value: " + arg);
             }
-            buf.setLength(0);
             if ((last == LAST_VAL) || (last == LAST_END)) {
-                buf.append(',');
+                append(',');
             }
             if (!minify) {
                 if ((last == LAST_VAL) || (last == LAST_END) || (last == LAST_LIST)) {
@@ -577,10 +562,9 @@ public class JsonWriter implements Awriter {
                 }
             }
             if (arg == null)
-                buf.append("null");
+                append("null");
             else
                 writeString(arg);
-            out.append(buf);
             last = LAST_VAL;
         } catch (IOException x) {
             throw new RuntimeException(x);
@@ -598,13 +582,38 @@ public class JsonWriter implements Awriter {
     // Private Methods
     // ---------------
 
+    private void append(char ch) {
+        try {
+            buf.append(ch);
+            if (buf.length() >= BUF_SIZE) {
+                out.append(buf);
+                buf.setLength(0);
+            }
+        } catch (IOException x) {
+            throw new RuntimeException(x);
+        }
+    }
+
+    private void append(String str) {
+        try {
+            buf.append(str);
+            if (buf.length() >= BUF_SIZE) {
+                out.append(buf);
+                buf.setLength(0);
+            }
+        } catch (IOException x) {
+            throw new RuntimeException(x);
+        }
+    }
+
     /**
      * Two spaces per level.
      */
     private void newLineIndent() throws IOException {
-        buf.append('\n');
+        append('\n');
         for (int i = depth; --i >= 0; ) {
-            buf.append(' ').append(' ');
+            append(' ');
+            append(' ');
         }
     }
 
@@ -613,51 +622,51 @@ public class JsonWriter implements Awriter {
      */
     private void writeString(Object arg) throws IOException {
         String s = arg.toString();
-        buf.append('"');
+        append('"');
         char ch;
         for (int i = 0, len = s.length(); i < len; i++) {
             ch = s.charAt(i);
             switch (ch) {
                 case '"':
                 case '\\':
-                    buf.append('\\');
-                    buf.append(ch);
+                    append('\\');
+                    append(ch);
                     break;
                 case '\b':
-                    buf.append("\\b");
+                    append("\\b");
                     break;
                 case '\f':
-                    buf.append("\\f");
+                    append("\\f");
                     break;
                 case '\n':
-                    buf.append("\\n");
+                    append("\\n");
                     break;
                 case '\r':
-                    buf.append("\\r");
+                    append("\\r");
                     break;
                 case '\t':
-                    buf.append("\\t");
+                    append("\\t");
                     break;
                 default:
                     if (Character.isISOControl(ch)) {
                         writeUnicode(ch);
                     } else {
-                        buf.append(ch);
+                        append(ch);
                     }
             }
         }
-        buf.append('"');
+        append('"');
     }
 
     /**
      * Encode a unicode char.
      */
     private void writeUnicode(char ch) throws IOException {
-        buf.append("\\u");
-        buf.append(HEX[(ch >>> 12) & 0xf]);
-        buf.append(HEX[(ch >>> 8) & 0xf]);
-        buf.append(HEX[(ch >>> 4) & 0xf]);
-        buf.append(HEX[(ch) & 0xf]);
+        append("\\u");
+        append(HEX[(ch >>> 12) & 0xf]);
+        append(HEX[(ch >>> 8) & 0xf]);
+        append(HEX[(ch >>> 4) & 0xf]);
+        append(HEX[(ch) & 0xf]);
     }
 
 

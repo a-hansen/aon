@@ -1,8 +1,8 @@
 Aon
 ===
 
-* Date: Feb 19, 2017
-* Version: 1.0.0
+* Date: Feb 20, 2017
+* Version: 1.0.1
 * Author: Aaron hansen
 * [Javadocs](https://a-hansen.github.io/aon/)
 
@@ -18,9 +18,9 @@ A JSON compatible data model with some key design goals:
 * Everything is index accessible so the structure can be traversed without object 
 creation.
 
-This has a fast JSON encoder/decoder, but because key order preservation, it'll 
-never be the fastest.  It's slower than Jackson, on-par with Genson, and faster than 
-Gson and Flexjson.  The tests include a benchmark for comparing all of those.
+This has a fast JSON encoder/decoder.  It's slower than Jackson, on-par with Genson, 
+and faster than Gson and Flexjson.  The tests include a benchmark for comparing all 
+of those.
 
 Requirements
 ------------
@@ -113,5 +113,8 @@ public void second(Awriter out) {
 
 History
 -------
+_1.0.1 - 2017-2-20_
+  - Minor performance improvement in JsonWriter.
+  
 _1.0.0 - 2017-2-19_
   - Hello World.
