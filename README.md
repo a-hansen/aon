@@ -23,10 +23,10 @@ creation.
 Other cool features:
 
 * Small and simple.
-* Faster IO nearly all Java JSON libs.
+* Faster IO than most Java JSON libs.
 * Streaming parser/generator.
 * Built-in support for zipped documents.
-* Extremely permissive [ISC license](https://en.wikipedia.org/wiki/ISC_license).
+* Extremely permissive [license](https://en.wikipedia.org/wiki/ISC_license).
 
 This has a pretty fast JSON encoder/decoder.  It's slower than Jackson, on-par with 
 Genson, and faster than Gson, Flexjson and JSON-Simple.  The tests include a 
