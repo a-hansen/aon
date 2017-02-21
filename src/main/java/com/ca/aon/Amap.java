@@ -1,4 +1,6 @@
-/* Copyright 2017 by Aaron Hansen.
+/* ISC License
+ *
+ * Copyright 2017 by Comfort Analytics, LLC.
  *
  * Permission to use, copy, modify, and/or distribute this software for any purpose with
  * or without fee is hereby granted, provided that the above copyright notice and this
@@ -37,8 +39,8 @@ public class Amap extends Agroup {
     /**
      * For preserving order.
      */
-    protected List keys = new ArrayList();
-    protected Map map = new HashMap();
+    protected List<Entry> keys = new ArrayList();
+    protected Map<String, Entry> map = new HashMap();
 
 
     // Constructors
@@ -66,23 +68,28 @@ public class Amap extends Agroup {
     @Override
     public Aobj copy() {
         Amap ret = new Amap();
-        ret.keys.addAll(keys);
-        ret.map.putAll(map);
+        for (int i = 0, len = size(); i < len; i++) {
+            ret.put(getKey(i), get(i).copy());
+        }
         return ret;
     }
 
     @Override
     public Aobj get(int idx) {
-        return (Aobj) map.get(keys.get(idx));
+        return keys.get(idx).getValue();
     }
 
     /**
-     * Returns the object for the given key.
+     * Returns the value for the given key.
      *
      * @return Possibly null.
      */
     public Aobj get(String key) {
-        return (Aobj) map.get(key);
+        Entry e = map.get(key);
+        if (e == null) {
+            return null;
+        }
+        return e.getValue();
     }
 
     /**
@@ -208,7 +215,7 @@ public class Amap extends Agroup {
      * @throws IndexOutOfBoundsException
      */
     public String getKey(int idx) {
-        return (String) keys.get(idx);
+        return keys.get(idx).getKey();
     }
 
     /**
@@ -255,9 +262,9 @@ public class Amap extends Agroup {
      */
     public int indexOf(String key) {
         if (map.get(key) == null) return -1;
-        List l = keys;
+        List<Entry> l = keys;
         for (int i = 0, len = l.size(); i < len; i++) {
-            if (key.equals((String) l.get(i)))
+            if (key.equals(l.get(i).getKey()))
                 return i;
         }
         return -1;
@@ -267,13 +274,29 @@ public class Amap extends Agroup {
      * Adds or replaces the value for the given key and returns this.
      *
      * @param key Must not be null.
-     * @param val Can be null.
+     * @param val Can be null, and can not be an already parented group.
      * @return this
      */
     public Amap put(String key, Aobj val) {
-        if (val == null) val = Anull.NULL;
-        if (map.put(key, val) == null) {
-            keys.add(key);
+        if (val == null) {
+            val = Anull.NULL;
+        }
+        Entry e = map.get(key);
+        if (e != null) {
+            //lets not err if putting same key/val pair.
+            if (e.getValue() != val) {
+                if (val.isGroup()) {
+                    val.toGroup().setParent(this);
+                }
+                e.setValue(val);
+            }
+        } else {
+            if (val.isGroup()) {
+                val.toGroup().setParent(this);
+            }
+            e = new Entry(key, val);
+            map.put(key, e);
+            keys.add(e);
         }
         return this;
     }
@@ -360,16 +383,18 @@ public class Amap extends Agroup {
      * Puts a null value for given key and returns this.
      */
     public Amap putNull(String key) {
-        Aobj ret = Anull.NULL;
-        map.put(key, ret);
-        keys.add(key);
-        return this;
+        return put(key, Anull.NULL);
     }
 
     @Override
     public Aobj remove(int idx) {
-        String key = (String) keys.remove(idx);
-        return (Aobj) map.remove(key);
+        Entry e = keys.remove(idx);
+        map.remove(e.getKey());
+        Aobj ret = e.getValue();
+        if (ret.isGroup()) {
+            ret.toGroup().setParent(null);
+        }
+        return ret;
     }
 
     /**
@@ -378,11 +403,16 @@ public class Amap extends Agroup {
      * @return Possibly null.
      */
     public Aobj remove(String key) {
-        Aobj obj = (Aobj) map.remove(key);
-        if (obj != null) {
-            keys.remove(key);
+        Entry e = map.remove(key);
+        if (e == null) {
+            return null;
         }
-        return obj;
+        keys.remove(e);
+        Aobj ret = e.getValue();
+        if (ret.isGroup()) {
+            ret.toGroup().setParent(null);
+        }
+        return ret;
     }
 
     @Override
@@ -393,6 +423,44 @@ public class Amap extends Agroup {
     @Override
     public Amap toMap() {
         return this;
+    }
+
+    // Inner Classes
+    // -------------
+
+    /**
+     * Allows values to be accessed quickly by index in the list, rather than having
+     * to do a key lookup in the map.
+     */
+    private class Entry {
+        String key;
+        Aobj val;
+
+        Entry(String key, Aobj val) {
+            this.key = key;
+            this.val = val;
+        }
+
+        public boolean equals(Object obj) {
+            Entry e = (Entry) obj;
+            return e.getKey().equals(key);
+        }
+
+        String getKey() {
+            return key;
+        }
+
+        Aobj getValue() {
+            return val;
+        }
+
+        public int hashCode() {
+            return key.hashCode();
+        }
+
+        void setValue(Aobj val) {
+            this.val = val;
+        }
     }
 
 

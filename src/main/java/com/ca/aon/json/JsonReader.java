@@ -1,4 +1,6 @@
-/* Copyright 2017 by Aaron Hansen.
+/* ISC License
+ *
+ * Copyright 2017 by Comfort Analytics, LLC.
  *
  * Permission to use, copy, modify, and/or distribute this software for any purpose with
  * or without fee is hereby granted, provided that the above copyright notice and this
@@ -50,27 +52,19 @@ public class JsonReader implements Areader, AutoCloseable {
     }
 
     public JsonReader(CharSequence in) {
-        this.in = new CharSequenceInput(in);
+        setInput(in);
     }
 
     public JsonReader(File file) {
-        try {
-            this.in = new JsonInput(new FileReader(file));
-        } catch (Exception x) {
-            throw new IllegalArgumentException(x);
-        }
+        setInput(file);
     }
 
     public JsonReader(InputStream in, String charset) {
-        try {
-            this.in = new JsonInput(in, charset);
-        } catch (IOException x) {
-            throw new IllegalStateException("IOException: " + x.getMessage(), x);
-        }
+        setInput(in,charset);
     }
 
     public JsonReader(java.io.Reader in) {
-        this.in = new JsonInput(in);
+        setInput(in);
     }
 
 
@@ -390,7 +384,11 @@ public class JsonReader implements Areader, AutoCloseable {
      */
     public JsonReader setInput(File file) {
         try {
-            this.in = new JsonInput(new FileReader(file));
+            if (in instanceof JsonInput) {
+                ((JsonInput) in).setInput(new FileReader(file));
+            } else {
+                in = new JsonInput(new FileReader(file));
+            }
         } catch (Exception x) {
             throw new IllegalStateException(x);
         }
@@ -400,9 +398,13 @@ public class JsonReader implements Areader, AutoCloseable {
     /**
      * Sets the input source, resets to ROOT, and returns this.
      */
-    public JsonReader setInput(InputStream in, String charset) {
+    public JsonReader setInput(InputStream inputStream, String charset) {
         try {
-            this.in = new JsonInput(in, charset);
+            if (this.in instanceof JsonInput) {
+                ((JsonInput) this.in).setInput(inputStream, charset);
+            } else {
+                this.in = new JsonInput(inputStream, charset);
+            }
             return reset();
         } catch (IOException x) {
             throw new IllegalStateException("IOException: " + x.getMessage(), x);
@@ -412,8 +414,12 @@ public class JsonReader implements Areader, AutoCloseable {
     /**
      * Sets the input source, resets to ROOT, and returns this.
      */
-    public JsonReader setInput(Reader in) {
-        this.in = new JsonInput(in);
+    public JsonReader setInput(Reader reader) {
+        if (this.in instanceof JsonInput) {
+            ((JsonInput) this.in).setInput(reader);
+        } else {
+            this.in = new JsonInput(reader);
+        }
         return reset();
     }
 
@@ -581,10 +587,10 @@ public class JsonReader implements Areader, AutoCloseable {
         return (char) ret;
     }
 
-    private static void validate(int ch1, char ch2) {
-        char ch = (char) ch1;
-        if (ch != ch2)
-            throw new IllegalStateException("Expecting " + ch2 + ", but got " + ch);
+    private static void validate(int ch1, int ch2) {
+        if (ch1 != ch2) {
+            throw new IllegalStateException("Expecting " + ch2 + ", but got " + ch1);
+        }
     }
 
 

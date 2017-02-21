@@ -1,4 +1,6 @@
-/* Copyright 2017 by Aaron Hansen.
+/* ISC License
+ *
+ * Copyright 2017 by Comfort Analytics, LLC.
  *
  * Permission to use, copy, modify, and/or distribute this software for any purpose with
  * or without fee is hereby granted, provided that the above copyright notice and this
@@ -11,7 +13,6 @@
  * PROFITS, WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION,
  * ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  */
-
 package com.ca.aon;
 
 import com.ca.aon.json.JsonWriter;
@@ -22,6 +23,11 @@ import com.ca.aon.json.JsonWriter;
  * @author Aaron Hansen
  */
 public abstract class Agroup extends Aobj {
+
+    // Fields
+    // --------------
+
+    private Agroup parent;
 
     // Public Methods
     // --------------
@@ -207,6 +213,13 @@ public abstract class Agroup extends Aobj {
     }
 
     /**
+     * Returns the parent group or null.
+     */
+    public Agroup getParent() {
+        return parent;
+    }
+
+    /**
      * Primitive getter.
      *
      * @throws IndexOutOfBoundsException
@@ -317,6 +330,26 @@ public abstract class Agroup extends Aobj {
      */
     public Aobj removeLast() {
         return remove(size() - 1);
+    }
+
+    /**
+     * Sets the parent and returns this for un-parented groups, otherwise throws an
+     * IllegalStateException.
+     *
+     * @param arg The new parent.
+     * @return This
+     * @throws IllegalStateException If already parented.
+     */
+    protected Agroup setParent(Agroup arg) {
+        if (arg == null) {
+            this.parent = null;
+            return this;
+        }
+        if (this.parent != null) {
+            throw new IllegalStateException("Already parented");
+        }
+        this.parent = arg;
+        return this;
     }
 
     @Override

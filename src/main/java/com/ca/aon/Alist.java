@@ -1,4 +1,6 @@
-/* Copyright 2017 by Aaron Hansen.
+/* ISC License
+ *
+ * Copyright 2017 by Comfort Analytics, LLC.
  *
  * Permission to use, copy, modify, and/or distribute this software for any purpose with
  * or without fee is hereby granted, provided that the above copyright notice and this
@@ -38,12 +40,14 @@ public class Alist extends Agroup {
     /**
      * Adds the value and returns this.
      *
-     * @param val Can be null.
+     * @param val Can be null, and can not be an already parented group.
      * @return this
      */
     public Alist add(Aobj val) {
         if (val == null) {
             return addNull();
+        } else if (val.isGroup()) {
+            val.toGroup().setParent(this);
         }
         list.add(val);
         return this;
@@ -133,8 +137,7 @@ public class Alist extends Agroup {
     @Override
     public Aobj copy() {
         Alist ret = new Alist();
-        int len = list.size();
-        for (int i = 0; i < len; i++) {
+        for (int i = 0, len = list.size(); i < len; i++) {
             ret.add(get(i).copy());
         }
         return ret;
@@ -159,6 +162,10 @@ public class Alist extends Agroup {
      * @throws IndexOutOfBoundsException
      */
     public Alist put(int idx, Aobj val) {
+        if (idx == list.size()) {
+            add(val);
+            return this;
+        }
         if (val == null) val = Anull.NULL;
         list.set(idx, val);
         return this;
@@ -170,7 +177,7 @@ public class Alist extends Agroup {
      * @throws IndexOutOfBoundsException
      */
     public Alist put(int idx, boolean val) {
-        list.set(idx, Abool.make(val));
+        put(idx, Abool.make(val));
         return this;
     }
 
@@ -180,7 +187,7 @@ public class Alist extends Agroup {
      * @throws IndexOutOfBoundsException
      */
     public Alist put(int idx, double val) {
-        list.set(idx, Adbl.make(val));
+        put(idx, Adbl.make(val));
         return this;
     }
 
@@ -190,7 +197,7 @@ public class Alist extends Agroup {
      * @throws IndexOutOfBoundsException
      */
     public Alist put(int idx, int val) {
-        list.set(idx, Aint.make(val));
+        put(idx, Aint.make(val));
         return this;
     }
 
@@ -200,7 +207,7 @@ public class Alist extends Agroup {
      * @throws IndexOutOfBoundsException
      */
     public Alist put(int idx, long val) {
-        list.set(idx, Along.make(val));
+        put(idx, Along.make(val));
         return this;
     }
 
@@ -210,13 +217,17 @@ public class Alist extends Agroup {
      * @throws IndexOutOfBoundsException
      */
     public Alist put(int idx, String val) {
-        list.set(idx, Astr.make(val));
+        put(idx, Astr.make(val));
         return this;
     }
 
     @Override
     public Aobj remove(int idx) {
-        return (Aobj) list.remove(idx);
+        Aobj ret = (Aobj) list.remove(idx);
+        if (ret.isGroup()) {
+            ret.toGroup().setParent(null);
+        }
+        return ret;
     }
 
     @Override

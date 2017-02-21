@@ -1,8 +1,8 @@
 Aon
 ===
 
-* Date: Feb 20, 2017
-* Version: 1.0.1
+* Date: Feb 21, 2017
+* Version: 1.1.0
 * Author: Aaron hansen
 * [Javadocs](https://a-hansen.github.io/aon/)
 
@@ -10,7 +10,9 @@ Aon
 Overview
 --------
 
-A JSON compatible data model with some key design goals:
+A JSON compatible data model and parser/generator. 
+
+Key design goals:
 
 * Preserve key order.
 * Support additional encodings besides JSON.
@@ -18,9 +20,17 @@ A JSON compatible data model with some key design goals:
 * Everything is index accessible so the structure can be traversed without object 
 creation.
 
-This has a fast JSON encoder/decoder.  It's slower than Jackson, on-par with Genson, 
-and faster than Gson and Flexjson.  The tests include a benchmark for comparing all 
-of those.
+Other cool features:
+
+* Small and simple.
+* Faster IO nearly all Java JSON libs.
+* Streaming parser/generator.
+* Built-in support for zipped documents.
+* Extremely permissive [ISC license](https://en.wikipedia.org/wiki/ISC_license).
+
+This has a pretty fast JSON encoder/decoder.  It's slower than Jackson, on-par with 
+Genson, and faster than Gson, Flexjson and JSON-Simple.  The tests include a 
+benchmark for comparing all of those.
 
 Requirements
 ------------
@@ -44,6 +54,7 @@ public static void main(String[] args) {
             .put("string", "abcdefghij\r\njklmnopqrs\u0000\u0001\u0002tuvwxyz\r\n")
             .putNull("null");
     System.out.println("The int value in the map is " + map.getInt("int"));
+    System.out.println("The value by index is faster: " + map.getInt(2));
     Alist list = new Alist()
             .add(true)
             .add(100.1d)
@@ -85,8 +96,11 @@ import com.ca.alog.*;
 import com.ca.alog.json*;
 
 public Amap decode() throws IOException {
-    //Notice it can detected zipped documents.
-    return new JsonReader(new File("aon.zip")).getMap();
+    //Notice it can auto-detect zipped documents.
+    JsonReader reader = new JsonReader(new File("aon.zip"));
+    Amap map = reader.getMap();
+    reader.close();
+    return map;
 }
 
 public void encode(Amap map) throws IOException {
@@ -113,6 +127,12 @@ public void second(Awriter out) {
 
 History
 -------
+_1.1.0 - 2017-2-21_
+  - Made JsonWriter Appendable.
+  - Added parenting to groups.
+  - Added JSON-Simple to the benchmark.
+  - Changed how benchmark results are printed.
+  
 _1.0.1 - 2017-2-20_
   - Minor performance improvement in JsonWriter.
   
