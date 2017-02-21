@@ -10,7 +10,7 @@ Aon
 Overview
 --------
 
-A JSON compatible data model and parser/generator. 
+A JSON compatible data model and parser/generator.  It is not a Java object mapper.
 
 Key design goals:
 
@@ -23,14 +23,13 @@ creation.
 Other cool features:
 
 * Small and simple.
-* Faster IO than most Java JSON libs.
 * Streaming parser/generator.
 * Built-in support for zipped documents.
 * Extremely permissive [license](https://en.wikipedia.org/wiki/ISC_license).
 
-This has a pretty fast JSON encoder/decoder.  It's slower than Jackson, on-par with 
-Genson, and faster than Gson, Flexjson and JSON-Simple.  The tests include a 
-benchmark for comparing all of those.
+This has a pretty fast JSON encoder/decoder.  It's slower than Boon and Jackson, 
+on-par with Genson, and faster than Gson, Flexjson and JSON-Simple.  The tests 
+include a benchmark for comparing all of those.
 
 Requirements
 ------------

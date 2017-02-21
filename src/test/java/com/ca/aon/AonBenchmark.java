@@ -24,6 +24,7 @@ import com.google.gson.JsonParser;
 import com.owlike.genson.Genson;
 import java.io.*;
 import java.util.Map;
+import org.boon.json.JsonFactory;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.junit.Test;
@@ -62,6 +63,7 @@ public class AonBenchmark {
         System.out.println("Configuring benchmark");
         byte[] test = makeMap();
         Target aon = new AonTarget();
+        Target boon = new BoonTarget();
         Target flex = new FlexjsonTarget();
         Target genson = new GensonTarget();
         Target gson = new GsonTarget();
@@ -71,6 +73,7 @@ public class AonBenchmark {
         //warm up
         System.out.println("Warming up benchmark");
         run(aon, test, false);
+        run(boon, test, false);
         run(flex, test, false);
         run(genson, test, false);
         run(gson, test, false);
@@ -79,6 +82,7 @@ public class AonBenchmark {
         //actual benchmark
         System.out.println("Begin benchmark");
         run(aon, test, true);
+        run(boon, test, true);
         run(flex, test, true);
         run(genson, test, true);
         run(gson, test, true);
@@ -200,6 +204,24 @@ public class AonBenchmark {
 
         public String toString() {
             return "Aon";
+        }
+    }
+
+    /**
+     * Boon
+     */
+    public static class BoonTarget implements Target {
+
+        public Object decode(InputStream in) {
+            return JsonFactory.fromJson(new InputStreamReader(in));
+        }
+
+        public void encode(Object map, OutputStream out) {
+            JsonFactory.toJson(map, new OutputStreamWriter(out));
+        }
+
+        public String toString() {
+            return "Boon";
         }
     }
 
