@@ -92,7 +92,7 @@ JSON encoding and decoding is pretty simple.
 
 ```java
 import com.ca.alog.*;
-import com.ca.alog.json*;
+import com.ca.alog.json.*;
 
 public Amap decode() throws IOException {
     //Notice it can auto-detect zipped documents.
