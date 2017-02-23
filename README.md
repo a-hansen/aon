@@ -1,15 +1,16 @@
 Aon
 ===
 
-* Date: Feb 21, 2017
-* Version: 1.1.0
+* Date: Feb 23, 2017
+* Version: 2.0.0
 * [Javadocs](https://a-hansen.github.io/aon/)
 
 
 Overview
 --------
 
-A JSON compatible data model and parser/generator.  It is not a Java object mapper.
+A JSON compatible data model and parser/generator.  It is not for Java object 
+serialization.
 
 Key design goals:
 
@@ -19,7 +20,7 @@ Key design goals:
 * Everything is index accessible so the structure can be traversed without object 
 creation.
 
-Other cool features:
+Other features:
 
 * Small and simple.
 * Streaming parser/generator.
@@ -125,6 +126,9 @@ public void second(Awriter out) {
 
 History
 -------
+_2.0.0 - 2017-2-23_
+  - Package change.
+
 _1.1.0 - 2017-2-21_
   - Made JsonWriter Appendable.
   - Added parenting to groups.
