@@ -16,20 +16,23 @@
 
 package com.comfortanalytics.aon.json;
 
+import com.comfortanalytics.aon.Alist;
+import com.comfortanalytics.aon.Amap;
+import com.comfortanalytics.aon.Aobj;
+import com.comfortanalytics.aon.Awriter;
 import java.io.*;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
 /**
- * Json implementation of Awriter intended for OutputStreams and Writers.  While
- * JsonAppender can also handle OutputStreams and Writer, this is more performant.
+ * Json implementation of Awriter intended for Appendables such as StringBuilders.
+ * This can be used for OutputStreams and Writers as well, but JsonWriter will be faster.
  * <p>The same instance can be reused with the setOutput methods.</p>
  * <p>This class is not thread safe.</p>
  *
  * @author Aaron Hansen
- * @see com.comfortanalytics.aon.Awriter
  */
-public class JsonWriter extends AbstractJsonWriter {
+public class JsonAppender extends AbstractJsonWriter {
 
     // Constants
     // ---------
@@ -37,9 +40,8 @@ public class JsonWriter extends AbstractJsonWriter {
     // Fields
     // ------
 
-    private char[] buf = new char[BUF_SIZE];
-    private int buflen = 0;
-    private Writer out;
+    private StringBuilder buf = new StringBuilder(BUF_SIZE);
+    private Appendable out;
     private boolean zip = false;
     private ZipOutputStream zout;
 
@@ -50,34 +52,41 @@ public class JsonWriter extends AbstractJsonWriter {
     /**
      * Be sure to call one of the setOutput methods.
      */
-    public JsonWriter() {
+    public JsonAppender() {
+    }
+
+    /**
+     * Will write directly to the given appendable.
+     */
+    public JsonAppender(Appendable arg) {
+        setOutput(arg);
     }
 
     /**
      * Creates an underlying FileWriter.
      */
-    public JsonWriter(File arg) {
+    public JsonAppender(File arg) {
         setOutput(arg);
     }
 
     /**
      * Will create a zip file using the zipFileName as file name inside the zip.
      */
-    public JsonWriter(File file, String zipFileName) {
+    public JsonAppender(File file, String zipFileName) {
         setOutput(file, zipFileName);
     }
 
     /**
      * Creates an underlying OutputStreamWriter.
      */
-    public JsonWriter(OutputStream arg) {
+    public JsonAppender(OutputStream arg) {
         setOutput(arg);
     }
 
     /**
      * Will write a zip file to the given stream.
      */
-    public JsonWriter(OutputStream out, String zipFileName) {
+    public JsonAppender(OutputStream out, String zipFileName) {
         setOutput(out, zipFileName);
     }
 
@@ -90,10 +99,15 @@ public class JsonWriter extends AbstractJsonWriter {
      */
     @Override
     public Appendable append(char ch) {
-        if (buflen + 1 >= BUF_SIZE) {
-            flush();
+        try {
+            buf.append(ch);
+            if (buf.length() >= BUF_SIZE) {
+                out.append(buf);
+                buf.setLength(0);
+            }
+        } catch (IOException x) {
+            throw new RuntimeException(x);
         }
-        buf[buflen++] = ch;
         return this;
     }
 
@@ -101,12 +115,16 @@ public class JsonWriter extends AbstractJsonWriter {
      * Append the chars and return this.  Can be used for custom formatting.
      */
     @Override
-    public AbstractJsonWriter append(char[] ch, int off, int len) {
-        if (buflen + len >= BUF_SIZE) {
-            flush();
+    public JsonAppender append(char[] ch, int off, int len) {
+        try {
+            buf.append(ch, off, len);
+            if (buf.length() >= BUF_SIZE) {
+                out.append(buf);
+                buf.setLength(0);
+            }
+        } catch (IOException x) {
+            throw new RuntimeException(x);
         }
-        System.arraycopy(ch, off, buf, buflen, len);
-        buflen += len;
         return this;
     }
 
@@ -115,8 +133,14 @@ public class JsonWriter extends AbstractJsonWriter {
      */
     @Override
     public Appendable append(CharSequence csq) {
-        for (int i = 0, len = csq.length(); i < len; i++) {
-            append(csq.charAt(i));
+        try {
+            buf.append(csq);
+            if (buf.length() >= BUF_SIZE) {
+                out.append(buf);
+                buf.setLength(0);
+            }
+        } catch (IOException x) {
+            throw new RuntimeException(x);
         }
         return this;
     }
@@ -126,8 +150,15 @@ public class JsonWriter extends AbstractJsonWriter {
      */
     @Override
     public Appendable append(CharSequence csq, int start, int end) {
-        for (int i = start; i < end; i++)
-            append(csq.charAt(i));
+        try {
+            buf.append(csq, start, end);
+            if (buf.length() >= BUF_SIZE) {
+                out.append(buf);
+                buf.setLength(0);
+            }
+        } catch (IOException x) {
+            throw new RuntimeException(x);
+        }
         return this;
     }
 
@@ -142,10 +173,11 @@ public class JsonWriter extends AbstractJsonWriter {
                     zout.closeEntry();
                 } catch (Exception x) {
                 }
-                zout.close();
                 zout = null;
-            } else {
-                out.close();
+            }
+            if (out instanceof Closeable) {
+                ((Closeable) out).close();
+                out = null;
             }
         } catch (IOException x) {
             throw new RuntimeException(x);
@@ -153,11 +185,14 @@ public class JsonWriter extends AbstractJsonWriter {
     }
 
     @Override
-    public JsonWriter flush() {
+    public JsonAppender flush() {
         try {
-            if (buflen > 0) {
-                out.write(buf, 0, buflen);
-                buflen = 0;
+            if (buf.length() > 0) {
+                out.append(buf);
+                buf.setLength(0);
+            }
+            if (out instanceof Flushable) {
+                ((Flushable) out).flush();
             }
         } catch (IOException x) {
             throw new RuntimeException(x);
@@ -173,15 +208,24 @@ public class JsonWriter extends AbstractJsonWriter {
     }
 
     @Override
-    public JsonWriter reset() {
-        buflen = 0;
-        return (JsonWriter) super.reset();
+    public JsonAppender reset() {
+        buf.setLength(0);
+        return (JsonAppender) super.reset();
     }
 
     /**
      * Sets the sink, resets the state and returns this.
      */
-    public JsonWriter setOutput(File arg) {
+    public JsonAppender setOutput(Appendable arg) {
+        if (arg == null) throw new NullPointerException();
+        this.out = arg;
+        return reset();
+    }
+
+    /**
+     * Sets the sink, resets the state and returns this.
+     */
+    public JsonAppender setOutput(File arg) {
         try {
             if (arg == null) throw new NullPointerException();
             this.out = new FileWriter(arg);
@@ -195,7 +239,7 @@ public class JsonWriter extends AbstractJsonWriter {
      * Will create a zip file using the zipFileName as file name inside the zip.  Resets
      * the state and returns this.
      */
-    public JsonWriter setOutput(File file, String zipFileName) {
+    public JsonAppender setOutput(File file, String zipFileName) {
         try {
             if (file == null) throw new NullPointerException();
             zout = new ZipOutputStream(
@@ -212,7 +256,7 @@ public class JsonWriter extends AbstractJsonWriter {
     /**
      * Sets the sink, resets the state and returns this.
      */
-    public JsonWriter setOutput(OutputStream arg) {
+    public JsonAppender setOutput(OutputStream arg) {
         if (arg == null) throw new NullPointerException();
         this.out = new OutputStreamWriter(arg);
         return reset();
@@ -221,7 +265,7 @@ public class JsonWriter extends AbstractJsonWriter {
     /**
      * Will write a zip file to the given stream.  Resets the state and returns this.
      */
-    public JsonWriter setOutput(OutputStream out, String zipFileName) {
+    public JsonAppender setOutput(OutputStream out, String zipFileName) {
         try {
             if (out == null) throw new NullPointerException();
             if (zipFileName == null) throw new NullPointerException();
@@ -232,14 +276,6 @@ public class JsonWriter extends AbstractJsonWriter {
         } catch (IOException x) {
             throw new RuntimeException(x);
         }
-        return reset();
-    }
-
-    /**
-     * Sets the sink, resets the state and returns this.
-     */
-    public JsonWriter setOutput(Writer out) {
-        this.out = out;
         return reset();
     }
 

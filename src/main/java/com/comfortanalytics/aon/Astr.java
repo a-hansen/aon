@@ -60,6 +60,11 @@ class Astr extends Aobj {
     }
 
     @Override
+    public int hashCode() {
+        return value.hashCode();
+    }
+
+    @Override
     public boolean isString() {
         return true;
     }

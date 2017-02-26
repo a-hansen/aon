@@ -60,6 +60,11 @@ class Aint extends Aobj {
     }
 
     @Override
+    public int hashCode() {
+        return value;
+    }
+
+    @Override
     public boolean isInt() {
         return true;
     }
@@ -73,9 +78,7 @@ class Aint extends Aobj {
      * Attempts to reuse some common values before creating a new instance.
      */
     public static Aint make(int arg) {
-        Aint ret = null;
-        int i = (int) arg;
-        if (arg == i) ret = IntCache.get(i);
+        Aint ret = IntCache.get(arg);
         if (ret == null) ret = new Aint(arg);
         return ret;
     }

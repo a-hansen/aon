@@ -15,7 +15,7 @@
  */
 package com.comfortanalytics.aon;
 
-import com.comfortanalytics.aon.json.JsonWriter;
+import com.comfortanalytics.aon.json.JsonAppender;
 
 /**
  * A index accessible collection of objects such as lists and maps.
@@ -55,6 +55,15 @@ public abstract class Agroup extends Aobj {
             }
         }
         return true;
+    }
+
+    @Override
+    public int hashCode() {
+        int hashCode = 1;
+        for (int i = size(); --i >= 0; ) {
+            hashCode = 31 * hashCode + get(i).hashCode();
+        }
+        return hashCode;
     }
 
     /**
@@ -368,7 +377,7 @@ public abstract class Agroup extends Aobj {
     @Override
     public String toString() {
         StringBuilder buf = new StringBuilder();
-        new JsonWriter(buf).value(this).close();
+        new JsonAppender(buf).value(this).close();
         return buf.toString();
     }
 

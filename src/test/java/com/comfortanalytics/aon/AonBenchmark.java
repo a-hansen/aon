@@ -43,8 +43,11 @@ public class AonBenchmark {
     // Constants
     ///////////////////////////////////////////////////////////////////////////
 
-    private static int ITERATIONS = 100;
-    private static int SIZE_FACTOR = 500;
+    private static final boolean AON_ONLY = false;
+    private static final int LARGE_ITERATIONS = 25;
+    private static final int LARGE_MAP_FACTOR = 1000;
+    private static final int SMALL_ITERATIONS = 10000;
+
 
     ///////////////////////////////////////////////////////////////////////////
     // Fields
@@ -61,7 +64,8 @@ public class AonBenchmark {
     @Test
     public void run() throws Exception {
         System.out.println("Configuring benchmark");
-        byte[] test = makeMap();
+        byte[] smallMap = makeSmallMap();
+        byte[] largeMap = makeLargeMap();
         Target aon = new AonTarget();
         Target boon = new BoonTarget();
         Target flex = new FlexjsonTarget();
@@ -69,51 +73,79 @@ public class AonBenchmark {
         Target gson = new GsonTarget();
         Target jackson = new JacksonTarget();
         Target simple = new JsonSimpleTarget();
-        System.out.println("Test Size = " + test.length + " bytes");
+        System.out.println("Small document size = " + smallMap.length + " bytes");
+        System.out.println("Large document size = " + largeMap.length + " bytes");
         //warm up
         System.out.println("Warming up benchmark");
-        run(aon, test, false);
-        run(boon, test, false);
-        run(flex, test, false);
-        run(genson, test, false);
-        run(gson, test, false);
-        run(jackson, test, false);
-        run(simple, test, false);
+        run(aon, largeMap, LARGE_ITERATIONS, false);
+        printField(aon, 15);
+        System.out.println(" complete.");
+        if (!AON_ONLY) {
+            run(boon, largeMap, LARGE_ITERATIONS, false);
+            printField(boon, 15);
+            System.out.println(" complete.");
+            run(flex, largeMap, LARGE_ITERATIONS, false);
+            printField(flex, 15);
+            System.out.println(" complete.");
+            run(genson, largeMap, LARGE_ITERATIONS, false);
+            printField(genson, 15);
+            System.out.println(" complete.");
+            run(gson, largeMap, LARGE_ITERATIONS, false);
+            printField(gson, 15);
+            System.out.println(" complete.");
+            run(jackson, largeMap, LARGE_ITERATIONS, false);
+            printField(jackson, 15);
+            System.out.println(" complete.");
+            run(simple, largeMap, LARGE_ITERATIONS, false);
+            printField(simple, 15);
+            System.out.println(" complete.");
+        }
         //actual benchmark
-        System.out.println("Begin benchmark");
-        run(aon, test, true);
-        run(boon, test, true);
-        run(flex, test, true);
-        run(genson, test, true);
-        run(gson, test, true);
-        run(jackson, test, true);
-        run(simple, test, true);
-        System.out.println("End benchmark");
+        System.out.println("\nBegin large document benchmark");
+        run(aon, largeMap, LARGE_ITERATIONS, true);
+        if (!AON_ONLY) {
+            run(boon, largeMap, LARGE_ITERATIONS, true);
+            run(flex, largeMap, LARGE_ITERATIONS, true);
+            run(genson, largeMap, LARGE_ITERATIONS, true);
+            run(gson, largeMap, LARGE_ITERATIONS, true);
+            run(jackson, largeMap, LARGE_ITERATIONS, true);
+            run(simple, largeMap, LARGE_ITERATIONS, true);
+        }
+        System.out.println("\nBegin small document benchmark");
+        run(aon, smallMap, SMALL_ITERATIONS, true);
+        if (!AON_ONLY) {
+            run(boon, smallMap, SMALL_ITERATIONS, true);
+            run(flex, smallMap, SMALL_ITERATIONS, true);
+            run(genson, smallMap, SMALL_ITERATIONS, true);
+            run(gson, smallMap, SMALL_ITERATIONS, true);
+            run(jackson, smallMap, SMALL_ITERATIONS, true);
+            run(simple, smallMap, SMALL_ITERATIONS, true);
+        }
+        System.out.println("End benchmark\n");
     }
 
-    public void run(Target target, byte[] doc, boolean print) {
+    public void run(Target target, byte[] doc, int iterations, boolean print) {
         long start = System.currentTimeMillis();
-        //decode
-        long decode = runDecode(target, doc);
-        long encode = runEncode(target, doc);
+        long decode = runDecode(target, doc, iterations);
+        long encode = runEncode(target, doc, iterations);
         if (print) {
-            printResults(target,encode,decode,encode+decode);
+            printResults(target, encode, decode, encode + decode);
         }
     }
 
-    public long runDecode(Target target, byte[] doc) {
+    public long runDecode(Target target, byte[] doc, int iterations) {
         long start = System.currentTimeMillis();
-        for (int i = 0; i < ITERATIONS; i++) {
+        for (int i = 0; i < iterations; i++) {
             target.decode(new ByteArrayInputStream(doc));
         }
         return System.currentTimeMillis() - start;
     }
 
-    public long runEncode(Target target, byte[] doc) {
-        long start = System.currentTimeMillis();
+    public long runEncode(Target target, byte[] doc, int iterations) {
         Object map = target.decode(new ByteArrayInputStream(doc));
+        long start = System.currentTimeMillis();
         ByteArrayOutputStream out = new ByteArrayOutputStream();
-        for (int i = 0; i < ITERATIONS; i++) {
+        for (int i = 0; i < iterations; i++) {
             out.reset();
             target.encode(map, out);
         }
@@ -124,7 +156,7 @@ public class AonBenchmark {
     // Private Methods
     ///////////////////////////////////////////////////////////////////////////
 
-    private byte[] makeMap() {
+    private byte[] makeLargeMap() {
         Amap primitiveMap = new Amap()
                 .put("boolean", true)
                 .put("double", 100.001d)
@@ -144,12 +176,35 @@ public class AonBenchmark {
         complexList.add(primitiveList.copy());
         complexList.add(primitiveMap.copy());
         Amap testMap = new Amap();
-        for (int i = 0; i < SIZE_FACTOR; i++) {
+        for (int i = 0; i < LARGE_MAP_FACTOR; i++) {
+            if ((i % 100) == 0) {
+                Amap tmp = new Amap();
+                tmp.put("map", testMap);
+                testMap = tmp;
+            }
             testMap.put("map" + i, complexMap.copy());
             testMap.put("list" + i, complexList.copy());
         }
         ByteArrayOutputStream out = new ByteArrayOutputStream();
         new JsonWriter(out).value(testMap).close();
+        return out.toByteArray();
+    }
+
+    private byte[] makeSmallMap() {
+        Amap map = new Amap()
+                .put("boolean", true)
+                .put("double", 100.001d)
+                .put("int", 100001)
+                .put("long", 100001l)
+                .put("string", "abcdefghij\r\njklmnopqrs\u0000\u0001\u0002tuvwxyz\r\n")
+                .put("list", new Alist()
+                        .add(true)
+                        .add(100.001d)
+                        .add(100001)
+                        .add(100001l)
+                        .add("abcdefghij\r\njklmnopqrs\u0000\u0001\u0002tuvwxyz\r\n"));
+        ByteArrayOutputStream out = new ByteArrayOutputStream();
+        new JsonWriter(out).value(map).close();
         return out.toByteArray();
     }
 
@@ -162,13 +217,13 @@ public class AonBenchmark {
     }
 
     private void printResults(Target target, long encode, long decode, long total) {
-        printField(target,15);
+        printField(target, 15);
         System.out.print(", Encode:");
-        printField(encode+"ms",7);
+        printField(encode + "ms", 7);
         System.out.print(", Decode:");
-        printField(decode+"ms",7);
+        printField(decode + "ms", 7);
         System.out.print(", TOTAL:");
-        printField(total+"ms",7);
+        printField(total + "ms", 7);
         System.out.println();
     }
 
@@ -192,14 +247,20 @@ public class AonBenchmark {
     public static class AonTarget implements Target {
 
         private JsonReader reader = new JsonReader();
-        private JsonWriter writer = new JsonWriter().setMinify(true);
+        private JsonWriter writer = (JsonWriter) new JsonWriter()
+                .setMinify(true);
 
         public Object decode(InputStream in) {
-            return reader.setInput(in, "UTF-8").getMap();
+            try {
+                return reader.setInput(new InputStreamReader(in, "UTF-8"))
+                             .getMap();
+            } catch (IOException io) {
+                throw new RuntimeException(io);
+            }
         }
 
         public void encode(Object map, OutputStream out) {
-            writer.setOutput(out).value((Amap) map);
+            writer.setOutput(new OutputStreamWriter(out)).value((Amap) map);
         }
 
         public String toString() {

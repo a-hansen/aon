@@ -242,6 +242,16 @@ public class Amap extends Agroup {
         return o.toString();
     }
 
+    @Override
+    public int hashCode() {
+        int hashCode = 1;
+        for (int i = size(); --i >= 0; ) {
+            hashCode = 31 * hashCode + getKey(i).hashCode();
+            hashCode = 31 * hashCode + get(i).hashCode();
+        }
+        return hashCode;
+    }
+
     /**
      * Returns true.
      */
@@ -433,7 +443,7 @@ public class Amap extends Agroup {
      * Allows values to be accessed quickly by index in the list, rather than having
      * to do a key lookup in the map.
      */
-    private class Entry {
+    private static class Entry {
         String key;
         Aobj val;
 
@@ -442,7 +452,11 @@ public class Amap extends Agroup {
             this.val = val;
         }
 
+        @Override
         public boolean equals(Object obj) {
+            if (!(obj instanceof Entry)) {
+                return false;
+            }
             Entry e = (Entry) obj;
             return e.getKey().equals(key);
         }

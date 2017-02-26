@@ -61,6 +61,11 @@ class Along extends Aobj {
     }
 
     @Override
+    public int hashCode() {
+        return (int)(value^(value>>>32));
+    }
+
+    @Override
     public boolean isLong() {
         return true;
     }

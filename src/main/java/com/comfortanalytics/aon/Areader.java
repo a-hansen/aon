@@ -18,10 +18,11 @@ package com.comfortanalytics.aon;
 
 /**
  * An Aobj decoder that can be used to decode an entire graph in pieces, or one large
- * Aobj, or somewhere in between. To simply decode an entire graph, use the getObj()
- * method. Otherwise, use the next method to iterate the elements of the input document.
+ * Aobj, or somewhere in between. To decode an entire graph, call getObj(), getMap()
+ * or getList(). Otherwise, use the next() method to iterate the elements of the input
+ * document.
  * <p>
- * When next() or last() returns:
+ * When next() returns:
  * <ul>
  * <li>ROOT - The initial state, not in a list or map, call next() or getObj().
  * <li>BEGIN_LIST - Call getList() to decode the entire list, or call next again to get
@@ -73,7 +74,7 @@ public interface Areader extends Aconstants {
     public int getInt();
 
     /**
-     * This should only be called when last() == BEGIN_LIST and it will deserialize the
+     * This should only be called when last() == BEGIN_LIST and it will decode the
      * entire list.  Call next rather than this method to get the list in pieces.
      */
     public Alist getList();
@@ -84,7 +85,7 @@ public interface Areader extends Aconstants {
     public long getLong();
 
     /**
-     * This should only be called when last() == BEGIN_MAP and it will deserialize the
+     * This should only be called when last() == BEGIN_MAP and it will decode the
      * entire map.  Call next rather than this method get the map in pieces.
      */
     public Amap getMap();
@@ -100,7 +101,8 @@ public interface Areader extends Aconstants {
     public String getString();
 
     /**
-     * The last value returned from next().
+     * The last value returned from next(). At the beginning of a document, before
+     * next has been called, this will return ROOT.
      */
     public Token last();
 

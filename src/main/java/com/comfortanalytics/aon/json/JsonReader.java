@@ -23,19 +23,24 @@ import com.comfortanalytics.aon.Areader;
 import java.io.*;
 
 /**
- * Json implementation of Areader.  This is not thread safe.
+ * Json implementation of Areader.  The same instance can be re-used with the
+ * setInput methods.  This class is not thread safe.
  *
  * @author Aaron Hansen
+ * @see com.comfortanalytics.aon.Areader
  */
 public class JsonReader implements Areader, AutoCloseable {
 
     // Constants
     // ---------
 
+    private static final int BUFLEN = 8192;
+
     // Fields
     // ---------
 
-    private StringBuilder buf = new StringBuilder();
+    private char[] buf = new char[BUFLEN];
+    private int buflen = 0;
     private Input in;
     private Token last = Token.ROOT;
     private boolean valBoolean;
@@ -215,16 +220,16 @@ public class JsonReader implements Areader, AutoCloseable {
                 case KEY:
                     throw new IllegalStateException("Unexpected key in map");
                 case BOOLEAN:
-                    ret.put(key, getBoolean());
+                    ret.put(key, Aobj.make(valBoolean));
                     break;
                 case DOUBLE:
-                    ret.put(key, getDouble());
+                    ret.put(key, Aobj.make(valDouble));
                     break;
                 case INT:
-                    ret.put(key, getInt());
+                    ret.put(key, Aobj.make(valInt));
                     break;
                 case LONG:
-                    ret.put(key, getLong());
+                    ret.put(key, Aobj.make(valLong));
                     break;
                 case BEGIN_LIST:
                     ret.put(key, getList());
@@ -236,7 +241,7 @@ public class JsonReader implements Areader, AutoCloseable {
                     ret.putNull(key);
                     break;
                 case STRING:
-                    ret.put(key, getString());
+                    ret.put(key, Aobj.make(valString));
                     break;
                 default:
                     throw new IllegalStateException("Unexpected token in map: " + last);
@@ -251,15 +256,15 @@ public class JsonReader implements Areader, AutoCloseable {
         }
         switch (last) {
             case KEY:
-                return Aobj.make(getString());
+                return Aobj.make(valString);
             case BOOLEAN:
-                return Aobj.make(getBoolean());
+                return Aobj.make(valBoolean);
             case DOUBLE:
-                return Aobj.make(getDouble());
+                return Aobj.make(valDouble);
             case INT:
-                return Aobj.make(getInt());
+                return Aobj.make(valInt);
             case LONG:
-                return Aobj.make(getLong());
+                return Aobj.make(valLong);
             case BEGIN_LIST:
                 return getList();
             case BEGIN_MAP:
@@ -267,7 +272,7 @@ public class JsonReader implements Areader, AutoCloseable {
             case NULL:
                 return Aobj.makeNull();
             case STRING:
-                return Aobj.make(getString());
+                return Aobj.make(valString);
         }
         throw new IllegalStateException("Not a value");
     }
@@ -293,7 +298,6 @@ public class JsonReader implements Areader, AutoCloseable {
             while (true) {
                 ch = readNextClue();
                 switch (ch) {
-                    //terminators
                     case '[':
                         return last = Token.BEGIN_LIST;
                     case '{':
@@ -321,7 +325,7 @@ public class JsonReader implements Areader, AutoCloseable {
                     //values
                     case '"':
                         readString();
-                        String str = buf.toString();
+                        String str = bufToString();
                         if ((str.length() > 0) && (str.charAt(0) == '\u001B')) {
                             if (str.equals(DBL_NEG_INF)) {
                                 valDouble = Double.NEGATIVE_INFINITY;
@@ -449,6 +453,21 @@ public class JsonReader implements Areader, AutoCloseable {
     // Private Methods
     // ---------------
 
+    private void bufAppend(char ch) {
+        if (buflen == buf.length) {
+            char[] tmp = new char[buflen * 2];
+            System.arraycopy(buf,0,tmp,0,buflen);
+            buf = tmp;
+        }
+        buf[buflen++] = ch;
+    }
+
+    private String bufToString() {
+        String ret = new String(buf,0,buflen);
+        buflen = 0;
+        return ret;
+    }
+
     /**
      * Scans for the next relevant character, skipping over whitespace etc.
      */
@@ -486,7 +505,6 @@ public class JsonReader implements Areader, AutoCloseable {
     }
 
     private Token readNumber(char clue) throws IOException {
-        buf.setLength(0);
         char ch = clue;
         boolean hasDecimal = false;
         boolean hasMore = true;
@@ -508,7 +526,7 @@ public class JsonReader implements Areader, AutoCloseable {
                 case '7':
                 case '8':
                 case '9':
-                    buf.append(ch);
+                    bufAppend(ch);
                     ch = (char) in.read();
                     break;
                 default:
@@ -517,10 +535,10 @@ public class JsonReader implements Areader, AutoCloseable {
             }
         }
         if (hasDecimal) {
-            valDouble = Double.parseDouble(buf.toString());
+            valDouble = Double.parseDouble(bufToString());
             return last = Token.DOUBLE;
         }
-        long l = Long.parseLong(buf.toString());
+        long l = Long.parseLong(bufToString());
         if ((l < Integer.MIN_VALUE) || (l > Integer.MAX_VALUE)) {
             valLong = l;
             return last = Token.LONG;
@@ -530,7 +548,6 @@ public class JsonReader implements Areader, AutoCloseable {
     }
 
     private void readString() throws IOException {
-        buf.setLength(0);
         char ch = (char) in.read();
         while (ch != '"') {
             if (ch == '\\') {
@@ -562,10 +579,10 @@ public class JsonReader implements Areader, AutoCloseable {
                         throw new IOException("Unexpected escape: \\" + ch);
                 }
             }
-            buf.append(ch);
+            bufAppend(ch);
             ch = (char) in.read();
         }
-        valString = buf.toString();
+        valString = bufToString();
     }
 
     private char readUnicode() throws IOException {

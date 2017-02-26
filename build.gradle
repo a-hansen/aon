@@ -4,7 +4,7 @@ apply plugin: 'java'
 apply plugin: 'maven'
 
 group 'aon'
-version '2.0.0'
+version '3.0.0'
 
 sourceCompatibility = 1.7
 targetCompatibility = 1.7
@@ -45,4 +45,9 @@ dependencies {
 
 compileJava {
     sourceSets.main.compileClasspath += configurations.provided
+}
+
+task benchmark(type: Test) {
+    outputs.upToDateWhen { false }
+    testLogging.showStandardStreams = true
 }

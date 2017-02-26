@@ -1,19 +1,9 @@
 /**
- * A JSON inspired data model. Key design goals:
- * <ul>
- * <li>Preserve key order.
- * <li>Support additional encodings besides JSON.
- * <li>Support very large documents.
- * <li>Everything is index accessible so the structure can be traversed without
- * object creation.
- * </ul>
- * <p>
- * <b>Usage</b>
  * <p>
  * Create data structures with Alist and Amap:
  * <p>
  * <pre>
- * import com.ca.aon.*;
+ * import com.comfortanalytics.aon.*;
  *
  * public static void main(String[] args) {
  *     Amap map = new Amap()
@@ -47,7 +37,7 @@
  * Create primitives with static make methods on Aobj.
  * <p>
  * <pre>
- * import com.ca.aon.*;
+ * import com.comfortanalytics.aon.*;
  *
  * public static void main(String[] args) {
  *     Aobj aBool = Aobj.make(false);
@@ -59,7 +49,7 @@
  * </pre>
  * <p>
  * Use implementations of Awriter and Areader for encoding / decoding.  See package
- * com.ca.aon.json.
+ * com.comfortanalytics.aon.json.
  *
  * @author Aaron Hansen
  */

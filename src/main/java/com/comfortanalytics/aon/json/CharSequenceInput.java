@@ -18,6 +18,8 @@ package com.comfortanalytics.aon.json;
 
 /**
  * Wraps a CharSequence for JsonReader.
+ *
+ * @author Aaron Hansen
  */
 class CharSequenceInput implements JsonReader.Input {
 
@@ -30,20 +32,21 @@ class CharSequenceInput implements JsonReader.Input {
         this.len = in.length();
     }
 
-    public void close()
-            throws Exception {
-        if (in instanceof AutoCloseable)
+    public void close() throws Exception {
+        if (in instanceof AutoCloseable) {
             ((AutoCloseable) in).close();
+        }
     }
 
     public int read() {
-        if (next >= len)
+        if (next >= len) {
             return -1;
+        }
         return in.charAt(next++);
     }
 
     public void unread() {
-        if (next > 0) next--;
+        next--;
     }
 
 }

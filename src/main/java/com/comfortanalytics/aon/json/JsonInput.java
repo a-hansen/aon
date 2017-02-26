@@ -21,6 +21,8 @@ import java.util.zip.ZipInputStream;
 
 /**
  * Allows unreading of a byte for JsonReader.
+ *
+ * @author Aaron Hansen
  */
 class JsonInput implements JsonReader.Input {
 

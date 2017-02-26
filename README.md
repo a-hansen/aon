@@ -1,40 +1,47 @@
 Aon
 ===
 
-* Date: Feb 23, 2017
-* Version: 2.0.0
-* [Javadocs](https://a-hansen.github.io/aon/)
+* Date: Feb 26, 2017
+* Version: 3.0.0
+* JDK 1.7+
+* [ISC License](https://en.wikipedia.org/wiki/ISC_license).
+* [Javadoc](https://a-hansen.github.io/aon/)
 
 
 Overview
 --------
 
-A JSON compatible data model and parser/generator.  It is not for Java object 
-serialization.
+A JSON compatible data model and parser/generator. This is not intended for Java 
+object serialization.  It is an alternative to JSONObject with the following design goals:
 
-Key design goals:
-
-* Preserve key order.
-* Support additional encodings besides JSON.
+* Preserve key insertion order.
+* Support additional encodings besides JSON (future).
 * Support very large documents.
 * Everything is index accessible so the structure can be traversed without object 
 creation.
 
 Other features:
 
-* Small and simple.
+* Small, simple and no dependencies.
 * Streaming parser/generator.
-* Built-in support for zipped documents.
-* Extremely permissive [license](https://en.wikipedia.org/wiki/ISC_license).
+* [Extremely permissive license](https://en.wikipedia.org/wiki/ISC_license).
 
-This has a pretty fast JSON encoder/decoder.  It's slower than Boon and Jackson, 
-on-par with Genson, and faster than Gson, Flexjson and JSON-Simple.  The tests 
-include a benchmark for comparing all of those.
+Performance
+-----------
 
-Requirements
-------------
+This has a pretty fast JSON encoder/decoder.  With large documents it's slower than Boon
+ and Jackson, but with small documents it's faster than Boon.  In either case it's faster 
+ than Flexjson, Genson, Gson and JSON-Simple.  Testing includes a benchmark for comparing 
+ all of those.
 
-Java 1.7 or higher is required.
+Run the benchmark with the gradle wrapper:
+
+```
+gradlew benchmark
+```
+
+Don't run the benchmark task from within your IDE, it'll probably double print the 
+output.  Just run all tests, or AonBenchmark specifically.
 
 Usage
 -----
@@ -42,7 +49,7 @@ Usage
 Create data structures with Alist and Amap.
 
 ```java
-import com.ca.aon.*;
+import com.comfortanalytics.aon.*;
 
 public static void main(String[] args) {
     Amap map = new Amap()
@@ -77,7 +84,7 @@ public static void main(String[] args) {
 Create primitives with static make methods on Aobj.
 
 ```java
-import com.ca.aon.*;
+import com.comfortanalytics.aon.*;
 
 public static void main(String[] args) {
     Aobj aBool = Aobj.make(true);
@@ -88,22 +95,21 @@ public static void main(String[] args) {
 }
 ```
 
-JSON encoding and decoding is pretty simple.
+JSON encoding and decoding is straightforward.
 
 ```java
-import com.ca.alog.*;
-import com.ca.alog.json.*;
+import com.comfortanalytics.aon.*;
+import com.comfortanalytics.aon.json.*;
 
 public Amap decode() throws IOException {
-    //Notice it can auto-detect zipped documents.
-    JsonReader reader = new JsonReader(new File("aon.zip"));
-    Amap map = reader.getMap();
-    reader.close();
-    return map;
+    //It can auto-detect zipped documents.
+    try (JsonReader reader = new JsonReader(new File("aon.zip"))) {
+        return reader.getMap();
+    }
 }
 
 public void encode(Amap map) throws IOException {
-    //Zipping is easy.
+    //If your document is large, zip it.
     new JsonWriter(new File("aon.zip"), "aon.json")
             .value(map)
             .close();
@@ -113,7 +119,7 @@ public void encode(Amap map) throws IOException {
 Streaming io is supported as well.  The following two methods produce the same result.
 
 ```java
-import com.ca.alog.*;
+import com.comfortanalytics.aon.*;
 
 public void first(Awriter out) {
     out.value(new Amap().put("a",1).put("b",2).put("c",3));
@@ -126,17 +132,22 @@ public void second(Awriter out) {
 
 History
 -------
-_2.0.0 - 2017-2-23_
+_3.0.0_
+  - Split JsonAppender from JsonWriter for performance reasons.
+  - Better performance!
+  - Addressed some FindBugs issues.
+
+_2.0.0_
   - Package change.
 
-_1.1.0 - 2017-2-21_
+_1.1.0_
   - Made JsonWriter Appendable.
   - Added parenting to groups.
   - Added JSON-Simple to the benchmark.
   - Changed how benchmark results are printed.
   
-_1.0.1 - 2017-2-20_
+_1.0.1_
   - Minor performance improvement in JsonWriter.
   
-_1.0.0 - 2017-2-19_
+_1.0.0_
   - Hello World.

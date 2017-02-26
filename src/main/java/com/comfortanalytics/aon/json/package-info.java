@@ -2,8 +2,8 @@
  * The JSON binding for Aon.
  * <p>
  * <pre>
- * import com.ca.alog.*;
- * import com.ca.alog.json*;
+ * import com.comfortanalytics.aon.*;
+ * import com.comfortanalytics.aon.json*;
  *
  * public Amap decode() throws IOException {
  *     //It can detected zipped documents.

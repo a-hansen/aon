@@ -63,6 +63,12 @@ class Adbl extends Aobj {
     }
 
     @Override
+    public int hashCode() {
+        long v = Double.doubleToLongBits(value);
+        return (int)(v^(v>>>32));
+    }
+
+    @Override
     public boolean isDouble() {
         return true;
     }

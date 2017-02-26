@@ -156,7 +156,7 @@ public class Alist extends Agroup {
     }
 
     /**
-     * Replaces a value and returns the old value.
+     * Replaces a value and returns this.
      *
      * @param val Can be null.
      * @throws IndexOutOfBoundsException
