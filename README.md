@@ -1,7 +1,6 @@
 Aon
 ===
 
-* Date: Feb 26, 2017
 * Version: 3.0.0
 * JDK 1.7+
 * [ISC License](https://en.wikipedia.org/wiki/ISC_license).
@@ -11,8 +10,8 @@ Aon
 Overview
 --------
 
-A JSON compatible data model and parser/generator. This is not intended for Java 
-object serialization.  It is an alternative to JSONObject with the following design goals:
+A JSON compatible data model and parser/generator. This is an alternative to JSONObject 
+with the following goals:
 
 * Preserve key insertion order.
 * Support additional encodings besides JSON (future).
