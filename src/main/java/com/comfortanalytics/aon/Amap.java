@@ -40,8 +40,8 @@ public class Amap extends Agroup {
     /**
      * For preserving order.
      */
-    protected List<Entry> keys = new ArrayList();
-    protected Map<String, Entry> map = new HashMap();
+    protected List<Entry> keys = new ArrayList<Entry>();
+    protected Map<String, Entry> map = new HashMap<String, Entry>();
 
 
     // Constructors

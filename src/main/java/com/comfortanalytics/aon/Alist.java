@@ -28,7 +28,7 @@ public class Alist extends Agroup {
     // Fields
     // ------
 
-    protected ArrayList list = new ArrayList();
+    protected ArrayList<Aobj> list = new ArrayList<Aobj>();
 
 
     // Constructors

@@ -1,7 +1,7 @@
 Aon
 ===
 
-* Version: 3.0.0
+* Version: 3.1.0
 * JDK 1.7+
 * [ISC License](https://en.wikipedia.org/wiki/ISC_license).
 * [Javadoc](https://a-hansen.github.io/aon/)
@@ -28,10 +28,10 @@ Other features:
 Performance
 -----------
 
-This has a pretty fast JSON encoder/decoder.  With large documents it's slower than Boon
- and Jackson, but with small documents it's faster than Boon.  In either case it's faster 
- than Flexjson, Genson, Gson and JSON-Simple.  Testing includes a benchmark for comparing 
- all of those.
+This has a pretty fast JSON encoder/decoder.  With large documents it's slower than Boon,
+ Jackson, and Jasoniter, but with small documents it's faster than Boon.  In either case 
+ it's faster than Flexjson, Genson, Gson and JSON-Simple.  Testing includes a benchmark 
+ for comparing all of those.
 
 Run the benchmark with the gradle wrapper:
 
@@ -131,6 +131,11 @@ public void second(Awriter out) {
 
 History
 -------
+_3.1.0_
+  - Added Jsoniter to the benchmark, wow fast!
+  - Now compatible with jdk 1.5
+  - Removed idea and findbugs from the gradle script.
+  
 _3.0.0_
   - Split JsonAppender from JsonWriter for performance reasons.
   - Better performance!

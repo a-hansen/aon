@@ -16,6 +16,9 @@
 
 package com.comfortanalytics.aon.json;
 
+import java.io.Closeable;
+import java.io.IOException;
+
 /**
  * Wraps a CharSequence for JsonReader.
  *
@@ -32,9 +35,9 @@ class CharSequenceInput implements JsonReader.Input {
         this.len = in.length();
     }
 
-    public void close() throws Exception {
-        if (in instanceof AutoCloseable) {
-            ((AutoCloseable) in).close();
+    public void close() throws IOException {
+        if (in instanceof Closeable) {
+            ((Closeable) in).close();
         }
     }
 

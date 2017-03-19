@@ -21,6 +21,9 @@ import com.comfortanalytics.aon.json.JsonWriter;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.gson.Gson;
 import com.google.gson.JsonParser;
+import com.jsoniter.JsonIterator;
+import com.jsoniter.any.Any;
+import com.jsoniter.output.JsonStream;
 import com.owlike.genson.Genson;
 import java.io.*;
 import java.util.Map;
@@ -72,6 +75,7 @@ public class AonBenchmark {
         Target genson = new GensonTarget();
         Target gson = new GsonTarget();
         Target jackson = new JacksonTarget();
+        Target jsoniter = new JsoniterTarget();
         Target simple = new JsonSimpleTarget();
         System.out.println("Small document size = " + smallMap.length + " bytes");
         System.out.println("Large document size = " + largeMap.length + " bytes");
@@ -96,6 +100,9 @@ public class AonBenchmark {
             run(jackson, largeMap, LARGE_ITERATIONS, false);
             printField(jackson, 15);
             System.out.println(" complete.");
+            run(jsoniter, largeMap, LARGE_ITERATIONS, false);
+            printField(jsoniter, 15);
+            System.out.println(" complete.");
             run(simple, largeMap, LARGE_ITERATIONS, false);
             printField(simple, 15);
             System.out.println(" complete.");
@@ -109,6 +116,7 @@ public class AonBenchmark {
             run(genson, largeMap, LARGE_ITERATIONS, true);
             run(gson, largeMap, LARGE_ITERATIONS, true);
             run(jackson, largeMap, LARGE_ITERATIONS, true);
+            run(jsoniter, largeMap, LARGE_ITERATIONS, true);
             run(simple, largeMap, LARGE_ITERATIONS, true);
         }
         System.out.println("\nBegin small document benchmark");
@@ -119,13 +127,13 @@ public class AonBenchmark {
             run(genson, smallMap, SMALL_ITERATIONS, true);
             run(gson, smallMap, SMALL_ITERATIONS, true);
             run(jackson, smallMap, SMALL_ITERATIONS, true);
+            run(jsoniter, smallMap, SMALL_ITERATIONS, true);
             run(simple, smallMap, SMALL_ITERATIONS, true);
         }
         System.out.println("End benchmark\n");
     }
 
     public void run(Target target, byte[] doc, int iterations, boolean print) {
-        long start = System.currentTimeMillis();
         long decode = runDecode(target, doc, iterations);
         long encode = runEncode(target, doc, iterations);
         if (print) {
@@ -373,6 +381,35 @@ public class AonBenchmark {
 
         public String toString() {
             return "Jackson";
+        }
+    }
+
+    /**
+     * Json Iterator
+     */
+    public static class JsoniterTarget implements Target {
+
+
+        public Object decode(InputStream in) {
+            try {
+                return JsonIterator.parse(in,8192).readAny();
+            } catch (Exception x) {
+                throw new RuntimeException(x);
+            }
+        }
+
+        public void encode(Object map, OutputStream out) {
+            try {
+                JsonStream stream = new JsonStream(out,8192);
+                stream.writeVal((Any)map);
+                stream.close();
+            } catch (IOException x) {
+                throw new RuntimeException(x);
+            }
+        }
+
+        public String toString() {
+            return "Json Iterator";
         }
     }
 

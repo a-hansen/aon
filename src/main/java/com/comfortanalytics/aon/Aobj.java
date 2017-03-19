@@ -126,35 +126,35 @@ public abstract class Aobj {
     }
 
     /**
-     * Creates an Aobj representation of the the primitive.
+     * Creates an Aobj representation of the primitive.
      */
     public static Aobj make(boolean arg) {
         return Abool.make(arg);
     }
 
     /**
-     * Creates an Aobj representation of the the primitive.
+     * Creates an Aobj representation of the primitive.
      */
     public static Aobj make(double arg) {
         return Adbl.make(arg);
     }
 
     /**
-     * Creates an Aobj representation of the the primitive.
+     * Creates an Aobj representation of the primitive.
      */
     public static Aobj make(int arg) {
         return Aint.make(arg);
     }
 
     /**
-     * Creates an Aobj representation of the the primitive.
+     * Creates an Aobj representation of the primitive.
      */
     public static Aobj make(long arg) {
         return Along.make(arg);
     }
 
     /**
-     * Creates an Aobj representation of the the primitive.
+     * Creates an Aobj representation of the primitive.
      */
     public static Aobj make(String arg) {
         if (arg == null) {

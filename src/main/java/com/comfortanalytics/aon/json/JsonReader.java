@@ -29,7 +29,7 @@ import java.io.*;
  * @author Aaron Hansen
  * @see com.comfortanalytics.aon.Areader
  */
-public class JsonReader implements Areader, AutoCloseable {
+public class JsonReader implements Areader, Closeable {
 
     // Constants
     // ---------
@@ -65,7 +65,7 @@ public class JsonReader implements Areader, AutoCloseable {
     }
 
     public JsonReader(InputStream in, String charset) {
-        setInput(in,charset);
+        setInput(in, charset);
     }
 
     public JsonReader(java.io.Reader in) {
@@ -456,14 +456,14 @@ public class JsonReader implements Areader, AutoCloseable {
     private void bufAppend(char ch) {
         if (buflen == buf.length) {
             char[] tmp = new char[buflen * 2];
-            System.arraycopy(buf,0,tmp,0,buflen);
+            System.arraycopy(buf, 0, tmp, 0, buflen);
             buf = tmp;
         }
         buf[buflen++] = ch;
     }
 
     private String bufToString() {
-        String ret = new String(buf,0,buflen);
+        String ret = new String(buf, 0, buflen);
         buflen = 0;
         return ret;
     }
@@ -639,7 +639,7 @@ public class JsonReader implements Areader, AutoCloseable {
     /**
      * Needed for the ability to unread (pushback) a char.
      */
-    static interface Input extends AutoCloseable {
+    static interface Input extends Closeable {
         public int read() throws IOException;
 
         public void unread();
