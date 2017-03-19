@@ -2,7 +2,7 @@ Aon
 ===
 
 * Version: 3.1.0
-* JDK 1.7+
+* JDK 1.5+
 * [ISC License](https://en.wikipedia.org/wiki/ISC_license).
 * [Javadoc](https://a-hansen.github.io/aon/)
 
