@@ -166,7 +166,15 @@ public class Alist extends Agroup {
             add(val);
             return this;
         }
-        if (val == null) val = Anull.NULL;
+        Aobj old = list.get(idx);
+        if (old.isGroup()) {
+            old.toGroup().setParent(null);
+        }
+        if (val == null) {
+            val = Anull.NULL;
+        } else if (val.isGroup()) {
+            val.toGroup().setParent(this);
+        }
         list.set(idx, val);
         return this;
     }

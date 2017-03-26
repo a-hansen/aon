@@ -173,7 +173,7 @@ public class AobjTest {
 
     private void test(Aobj obj, String value) {
         Assert.assertTrue(obj.aonType() == Atype.STRING);
-        if (value.isEmpty())
+        if (value.length() == 0)
             Assert.assertTrue(Aobj.make("") == obj);
         Assert.assertFalse(obj.isBoolean());
         Assert.assertFalse(obj.isDouble());
@@ -329,6 +329,14 @@ public class AobjTest {
         Assert.assertTrue(map.indexOf("long") == 3);
         Assert.assertTrue(map.indexOf("string") == 4);
         Assert.assertTrue(map.indexOf("null") == 5);
+        Assert.assertTrue(map.getBoolean("boolean"));
+        Assert.assertTrue(map.getDouble("double") == 105.001d);
+        Assert.assertTrue(map.getInt("int") == 100001);
+        Assert.assertTrue(map.getInt("long") == 123l);
+        Assert.assertTrue(
+                map.getString("string")
+                   .equals("abcdefghij\r\njklmnopqrs\u0000\u0001\u0002tuvwxyz\r\n"));
+        Assert.assertTrue(map.get("null").isNull());
     }
 
     private void testNull(Aobj obj) {

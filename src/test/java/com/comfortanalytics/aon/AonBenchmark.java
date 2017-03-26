@@ -255,8 +255,7 @@ public class AonBenchmark {
     public static class AonTarget implements Target {
 
         private JsonReader reader = new JsonReader();
-        private JsonWriter writer = (JsonWriter) new JsonWriter()
-                .setMinify(true);
+        private JsonWriter writer = (JsonWriter) new JsonWriter();
 
         public Object decode(InputStream in) {
             try {

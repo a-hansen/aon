@@ -16,9 +16,7 @@
 
 package com.comfortanalytics.aon.json;
 
-import com.comfortanalytics.aon.Alist;
-import com.comfortanalytics.aon.Amap;
-import com.comfortanalytics.aon.Aobj;
+import com.comfortanalytics.aon.AbstractReader;
 import com.comfortanalytics.aon.Areader;
 import java.io.*;
 
@@ -29,12 +27,16 @@ import java.io.*;
  * @author Aaron Hansen
  * @see com.comfortanalytics.aon.Areader
  */
-public class JsonReader implements Areader, Closeable {
+public class JsonReader extends AbstractReader implements Closeable {
 
     // Constants
     // ---------
 
     private static final int BUFLEN = 8192;
+
+    private static final char[] alse = new char[]{'a', 'l', 's', 'e'};
+    private static final char[] rue = new char[]{'r', 'u', 'e'};
+    private static final char[] ull = new char[]{'u', 'l', 'l'};
 
     // Fields
     // ---------
@@ -42,12 +44,6 @@ public class JsonReader implements Areader, Closeable {
     private char[] buf = new char[BUFLEN];
     private int buflen = 0;
     private Input in;
-    private Token last = Token.ROOT;
-    private boolean valBoolean;
-    private double valDouble;
-    private int valInt;
-    private long valLong;
-    private String valString;
 
 
     // Constructors
@@ -76,218 +72,12 @@ public class JsonReader implements Areader, Closeable {
     // Public Methods
     // --------------
 
-    @Override
     public void close() {
         try {
             in.close();
         } catch (Exception x) {
             throw new RuntimeException(x);
         }
-    }
-
-    @Override
-    public boolean getBoolean() {
-        if (last != Token.BOOLEAN) {
-            throw new IllegalStateException("Not a boolean");
-        }
-        return valBoolean;
-    }
-
-    @Override
-    public double getDouble() {
-        switch (last) {
-            case DOUBLE:
-                break;
-            case INT:
-                return (double) valInt;
-            case LONG:
-                return (double) valLong;
-            default:
-                throw new IllegalStateException("Not a double");
-        }
-        return valDouble;
-    }
-
-    @Override
-    public int getInt() {
-        switch (last) {
-            case DOUBLE:
-                return (int) valDouble;
-            case INT:
-                break;
-            case LONG:
-                return (int) valLong;
-            default:
-                throw new IllegalStateException("Not a long");
-        }
-        return valInt;
-    }
-
-    @Override
-    public Alist getList() {
-        if (last == Token.ROOT) {
-            next();
-        }
-        if (last != Token.BEGIN_LIST) {
-            throw new IllegalStateException("Not a list");
-        }
-        Alist ret = new Alist();
-        int token = 0;
-        while (true) {
-            switch (next()) {
-                case END_INPUT:
-                    throw new IllegalStateException("Unexpected end of input");
-                case END_LIST:
-                    return ret;
-                case END_MAP:
-                    throw new IllegalStateException("Unexpected end of map in list");
-                case KEY:
-                    throw new IllegalStateException("Unexpected key in list");
-                case BOOLEAN:
-                    ret.add(valBoolean);
-                    break;
-                case DOUBLE:
-                    ret.add(valDouble);
-                    break;
-                case INT:
-                    ret.add(valInt);
-                    break;
-                case LONG:
-                    ret.add(valLong);
-                    break;
-                case BEGIN_LIST:
-                    ret.add(getList());
-                    break;
-                case BEGIN_MAP:
-                    ret.add(getMap());
-                    break;
-                case NULL:
-                    ret.addNull();
-                    break;
-                case STRING:
-                    ret.add(valString);
-                    break;
-                default:
-                    throw new IllegalStateException(
-                            "Unexpected token in list: " + last);
-            }
-        }
-    }
-
-    @Override
-    public long getLong() {
-        switch (last) {
-            case DOUBLE:
-                return (long) valDouble;
-            case INT:
-                return (long) valInt;
-            case LONG:
-                break;
-            default:
-                throw new IllegalStateException("Not an int");
-        }
-        return valLong;
-    }
-
-    @Override
-    public Amap getMap() {
-        if (last == Token.ROOT) {
-            next();
-        }
-        if (last != Token.BEGIN_MAP) {
-            throw new IllegalStateException("Not a map");
-        }
-        Amap ret = new Amap();
-        String key = null;
-        while (true) {
-            switch (next()) {
-                case KEY:
-                    key = valString;
-                    break;
-                case END_MAP:
-                case END_INPUT:
-                    return ret;
-                default:
-                    throw new IllegalStateException("Expecting a key or map end");
-            }
-            switch (next()) {
-                case END_INPUT:
-                    throw new IllegalStateException("Unexpected end of input");
-                case END_LIST:
-                    throw new IllegalStateException("Unexpected end of list in map");
-                case END_MAP:
-                    return ret;
-                case KEY:
-                    throw new IllegalStateException("Unexpected key in map");
-                case BOOLEAN:
-                    ret.put(key, Aobj.make(valBoolean));
-                    break;
-                case DOUBLE:
-                    ret.put(key, Aobj.make(valDouble));
-                    break;
-                case INT:
-                    ret.put(key, Aobj.make(valInt));
-                    break;
-                case LONG:
-                    ret.put(key, Aobj.make(valLong));
-                    break;
-                case BEGIN_LIST:
-                    ret.put(key, getList());
-                    break;
-                case BEGIN_MAP:
-                    ret.put(key, getMap());
-                    break;
-                case NULL:
-                    ret.putNull(key);
-                    break;
-                case STRING:
-                    ret.put(key, Aobj.make(valString));
-                    break;
-                default:
-                    throw new IllegalStateException("Unexpected token in map: " + last);
-            }
-        }
-    }
-
-    @Override
-    public Aobj getObj() {
-        if (last == Token.ROOT) {
-            next();
-        }
-        switch (last) {
-            case KEY:
-                return Aobj.make(valString);
-            case BOOLEAN:
-                return Aobj.make(valBoolean);
-            case DOUBLE:
-                return Aobj.make(valDouble);
-            case INT:
-                return Aobj.make(valInt);
-            case LONG:
-                return Aobj.make(valLong);
-            case BEGIN_LIST:
-                return getList();
-            case BEGIN_MAP:
-                return getMap();
-            case NULL:
-                return Aobj.makeNull();
-            case STRING:
-                return Aobj.make(valString);
-        }
-        throw new IllegalStateException("Not a value");
-    }
-
-    @Override
-    public String getString() {
-        if ((last != Token.STRING) && (last != Token.KEY)) {
-            throw new IllegalStateException("Not a string");
-        }
-        return valString;
-    }
-
-    @Override
-    public Token last() {
-        return last;
     }
 
     @Override
@@ -299,75 +89,65 @@ public class JsonReader implements Areader, Closeable {
                 ch = readNextClue();
                 switch (ch) {
                     case '[':
-                        return last = Token.BEGIN_LIST;
+                        return setBeginList();
                     case '{':
-                        return last = Token.BEGIN_MAP;
+                        return setBeginMap();
                     case ':':
-                        if (last != Token.STRING)
+                        if (last() != Token.STRING)
                             throw new IllegalStateException("Invalid key");
-                        return last = Token.KEY;
+                        return setNextKey();
                     case ',':
-                        if ((last == Token.END_LIST) || (last == Token.END_MAP))
+                        if ((last() == Token.END_LIST) || (last() == Token.END_MAP))
                             break;
-                        return last;
+                        return last();
                     case ']':
-                        if (!hasValue) return last = Token.END_LIST;
+                        if (!hasValue) return setEndList();
                         in.unread();
-                        return last;
+                        return last();
                     case '}':
-                        if (!hasValue) return last = Token.END_MAP;
+                        if (!hasValue) return setEndMap();
                         in.unread();
-                        return last;
+                        return last();
                     case -1:
-                        if (!hasValue) return last = Token.END_INPUT;
+                        if (!hasValue) return setEndInput();
                         in.unread();
-                        return last;
+                        return last();
                     //values
                     case '"':
-                        readString();
-                        String str = bufToString();
+                        String str = readString();
                         if ((str.length() > 0) && (str.charAt(0) == '\u001B')) {
                             if (str.equals(DBL_NEG_INF)) {
-                                valDouble = Double.NEGATIVE_INFINITY;
-                                last = Token.DOUBLE;
+                                setNextValue(Double.NEGATIVE_INFINITY);
+                                hasValue = true;
                                 break;
                             }
                             if (str.equals(DBL_POS_INF)) {
-                                valDouble = Double.POSITIVE_INFINITY;
-                                last = Token.DOUBLE;
+                                setNextValue(Double.POSITIVE_INFINITY);
+                                hasValue = true;
                                 break;
                             }
                             if (str.equals(DBL_NAN)) {
-                                valDouble = Double.NaN;
-                                last = Token.DOUBLE;
+                                setNextValue(Double.NaN);
+                                hasValue = true;
                                 break;
                             }
                         }
-                        last = Token.STRING;
+                        setNextValue(str);
                         hasValue = true;
                         break;
                     case 't':
-                        validate(in.read(), 'r');
-                        validate(in.read(), 'u');
-                        validate(in.read(), 'e');
-                        valBoolean = true;
-                        last = Token.BOOLEAN;
+                        validateNextChars(rue);
+                        setNextValue(true);
                         hasValue = true;
                         break;
                     case 'f':
-                        validate(in.read(), 'a');
-                        validate(in.read(), 'l');
-                        validate(in.read(), 's');
-                        validate(in.read(), 'e');
-                        valBoolean = false;
-                        last = Token.BOOLEAN;
+                        validateNextChars(alse);
+                        setNextValue(false);
                         hasValue = true;
                         break;
                     case 'n':
-                        validate(in.read(), 'u');
-                        validate(in.read(), 'l');
-                        validate(in.read(), 'l');
-                        last = Token.NULL;
+                        validateNextChars(ull);
+                        setNextValueNull();
                         hasValue = true;
                         break;
                     case '-':
@@ -391,16 +171,10 @@ public class JsonReader implements Areader, Closeable {
         }
     }
 
-    @Override
-    public JsonReader reset() {
-        last = Token.ROOT;
-        return this;
-    }
-
     /**
      * Sets the input source, resets to ROOT, and returns this.
      */
-    public JsonReader setInput(CharSequence in) {
+    public Areader setInput(CharSequence in) {
         this.in = new CharSequenceInput(in);
         return reset();
     }
@@ -408,7 +182,7 @@ public class JsonReader implements Areader, Closeable {
     /**
      * Sets the input source, resets to ROOT, and returns this.
      */
-    public JsonReader setInput(File file) {
+    public Areader setInput(File file) {
         try {
             if (in instanceof JsonInput) {
                 ((JsonInput) in).setInput(new FileReader(file));
@@ -424,7 +198,7 @@ public class JsonReader implements Areader, Closeable {
     /**
      * Sets the input source, resets to ROOT, and returns this.
      */
-    public JsonReader setInput(InputStream inputStream, String charset) {
+    public Areader setInput(InputStream inputStream, String charset) {
         try {
             if (this.in instanceof JsonInput) {
                 ((JsonInput) this.in).setInput(inputStream, charset);
@@ -440,7 +214,7 @@ public class JsonReader implements Areader, Closeable {
     /**
      * Sets the input source, resets to ROOT, and returns this.
      */
-    public JsonReader setInput(Reader reader) {
+    public Areader setInput(Reader reader) {
         if (this.in instanceof JsonInput) {
             ((JsonInput) this.in).setInput(reader);
         } else {
@@ -535,19 +309,16 @@ public class JsonReader implements Areader, Closeable {
             }
         }
         if (hasDecimal) {
-            valDouble = Double.parseDouble(bufToString());
-            return last = Token.DOUBLE;
+            return setNextValue(Double.parseDouble(bufToString()));
         }
         long l = Long.parseLong(bufToString());
         if ((l < Integer.MIN_VALUE) || (l > Integer.MAX_VALUE)) {
-            valLong = l;
-            return last = Token.LONG;
+            return setNextValue(l);
         }
-        valInt = (int) l;
-        return last = Token.INT;
+        return setNextValue((int) l);
     }
 
-    private void readString() throws IOException {
+    private String readString() throws IOException {
         char ch = (char) in.read();
         while (ch != '"') {
             if (ch == '\\') {
@@ -582,7 +353,7 @@ public class JsonReader implements Areader, Closeable {
             bufAppend(ch);
             ch = (char) in.read();
         }
-        valString = bufToString();
+        return bufToString();
     }
 
     private char readUnicode() throws IOException {
@@ -632,6 +403,16 @@ public class JsonReader implements Areader, Closeable {
         }
     }
 
+    private void validateNextChars(char[] chars) throws IOException {
+        int ch;
+        for (int i = 0, len = chars.length; i < len; i++) {
+            ch = in.read();
+            if (ch != chars[i]) {
+                throw new IllegalStateException(
+                        "Expecting " + chars[i] + ", but got " + ch);
+            }
+        }
+    }
 
     // Inner Classes
     // -------------

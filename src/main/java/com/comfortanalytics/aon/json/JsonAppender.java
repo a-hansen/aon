@@ -55,39 +55,31 @@ public class JsonAppender extends AbstractJsonWriter {
     public JsonAppender() {
     }
 
-    /**
-     * Will write directly to the given appendable.
-     */
     public JsonAppender(Appendable arg) {
         setOutput(arg);
     }
 
-    /**
-     * Creates an underlying FileWriter.
-     */
     public JsonAppender(File arg) {
         setOutput(arg);
+    }
+
+    public JsonAppender(File file, String charset) {
+        setOutput(file, charset);
     }
 
     /**
      * Will create a zip file using the zipFileName as file name inside the zip.
      */
-    public JsonAppender(File file, String zipFileName) {
-        setOutput(file, zipFileName);
+    public JsonAppender(File file, String charset, String zipFileName) {
+        setOutput(file, charset, zipFileName);
     }
 
-    /**
-     * Creates an underlying OutputStreamWriter.
-     */
     public JsonAppender(OutputStream arg) {
         setOutput(arg);
     }
 
-    /**
-     * Will write a zip file to the given stream.
-     */
-    public JsonAppender(OutputStream out, String zipFileName) {
-        setOutput(out, zipFileName);
+    public JsonAppender(OutputStream out, String charset) {
+        setOutput(out, charset);
     }
 
 
@@ -97,7 +89,6 @@ public class JsonAppender extends AbstractJsonWriter {
     /**
      * Append the char and return this.  Can be used for custom formatting.
      */
-    @Override
     public Appendable append(char ch) {
         try {
             buf.append(ch);
@@ -131,7 +122,6 @@ public class JsonAppender extends AbstractJsonWriter {
     /**
      * Append the chars and return this.  Can be used for custom formatting.
      */
-    @Override
     public Appendable append(CharSequence csq) {
         try {
             buf.append(csq);
@@ -148,7 +138,6 @@ public class JsonAppender extends AbstractJsonWriter {
     /**
      * Append the chars and return this.  Can be used for custom formatting.
      */
-    @Override
     public Appendable append(CharSequence csq, int start, int end) {
         try {
             buf.append(csq, start, end);
@@ -162,11 +151,10 @@ public class JsonAppender extends AbstractJsonWriter {
         return this;
     }
 
-    @Override
     public void close() {
         try {
             flush();
-            if (depth > 0)
+            if (getDepth() > 0)
                 throw new IllegalStateException("Nesting error.");
             if (zout != null) {
                 try {
@@ -184,7 +172,6 @@ public class JsonAppender extends AbstractJsonWriter {
         }
     }
 
-    @Override
     public JsonAppender flush() {
         try {
             if (buf.length() > 0) {
@@ -239,13 +226,28 @@ public class JsonAppender extends AbstractJsonWriter {
      * Will create a zip file using the zipFileName as file name inside the zip.  Resets
      * the state and returns this.
      */
-    public JsonAppender setOutput(File file, String zipFileName) {
+    public JsonAppender setOutput(File file, String charset) {
+        try {
+            if (file == null) throw new NullPointerException();
+            this.out = new OutputStreamWriter(new FileOutputStream(file), charset);
+            this.zip = true;
+        } catch (IOException x) {
+            throw new RuntimeException(x);
+        }
+        return reset();
+    }
+
+    /**
+     * Will create a zip file using the zipFileName as file name inside the zip.  Resets
+     * the state and returns this.
+     */
+    public JsonAppender setOutput(File file, String charset, String zipFileName) {
         try {
             if (file == null) throw new NullPointerException();
             zout = new ZipOutputStream(
                     new BufferedOutputStream(new FileOutputStream(file)));
             zout.putNextEntry(new ZipEntry(zipFileName));
-            this.out = new OutputStreamWriter(zout);
+            this.out = new OutputStreamWriter(zout, charset);
             this.zip = true;
         } catch (IOException x) {
             throw new RuntimeException(x);
@@ -263,21 +265,19 @@ public class JsonAppender extends AbstractJsonWriter {
     }
 
     /**
-     * Will write a zip file to the given stream.  Resets the state and returns this.
+     * Sets the sink, resets the state and returns this.
      */
-    public JsonAppender setOutput(OutputStream out, String zipFileName) {
+    public JsonAppender setOutput(OutputStream out, String charset) {
         try {
             if (out == null) throw new NullPointerException();
-            if (zipFileName == null) throw new NullPointerException();
-            ZipOutputStream zout = new ZipOutputStream(out);
-            zout.putNextEntry(new ZipEntry(zipFileName));
-            this.out = new OutputStreamWriter(zout);
+            this.out = new OutputStreamWriter(zout, charset);
             this.zip = true;
         } catch (IOException x) {
             throw new RuntimeException(x);
         }
         return reset();
     }
+
 
     // Protected Methods
     // -----------------

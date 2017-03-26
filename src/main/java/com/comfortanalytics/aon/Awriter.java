@@ -16,27 +16,26 @@
 
 package com.comfortanalytics.aon;
 
+import java.io.Closeable;
+
 /**
  * An Aobj encoder that can be used to encode large graphs with or without Aobj instances.
  * <p>
  * To simply encode an Amap or Alist, use the value(Aobj) method.  For example:
  * <ul><li>new JsonWriter(out).value(myMap).close(); </li> </ul>
- * </p>
  * <p>
  * Otherwise, you can stream data struct without using any Aobj instances:
  * <ul>
  * <li>out.newMap().key("a").value(1).key("b").value(2).key("c").value(3).endMap();</li>
  * </ul>
- * </p>
  * <p>
  * Be aware that if the underlying encoding (such as JSON) doesn't provide a mechanism to
  * differentiate between data types (such as numbers), values might not decode as the
  * same type they were encoded.
- * </p>
  *
  * @author Aaron Hansen
  */
-public interface Awriter extends Aconstants, AutoCloseable {
+public interface Awriter extends Aconstants, Closeable {
 
     // Public Methods
     // --------------

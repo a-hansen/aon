@@ -1,7 +1,7 @@
 Aon
 ===
 
-* Version: 3.1.0
+* Version: 4.0.0
 * JDK 1.5+
 * [ISC License](https://en.wikipedia.org/wiki/ISC_license)
 * [Javadoc](https://a-hansen.github.io/aon/)
@@ -131,6 +131,10 @@ public void second(Awriter out) {
 
 History
 -------
+_4.0.0_
+  - Added AbstractReader and AbstractWriter, json now uses these.
+  - Minor parenting fixes.
+  
 _3.1.0_
   - Added Jsoniter to the benchmark, wow fast!
   - Now compatible with jdk 1.5
