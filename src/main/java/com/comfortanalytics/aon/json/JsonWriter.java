@@ -40,7 +40,6 @@ public class JsonWriter extends AbstractJsonWriter {
     private char[] buf = new char[BUF_SIZE];
     private int buflen = 0;
     private Writer out;
-    private boolean zip = false;
     private ZipOutputStream zout;
 
 
@@ -133,10 +132,8 @@ public class JsonWriter extends AbstractJsonWriter {
                 } catch (Exception x) {
                 }
                 zout.close();
-                zout = null;
-            } else {
-                out.close();
             }
+            out.close();
         } catch (IOException x) {
             throw new RuntimeException(x);
         }
@@ -152,13 +149,6 @@ public class JsonWriter extends AbstractJsonWriter {
             throw new RuntimeException(x);
         }
         return this;
-    }
-
-    /**
-     * Whether or not this is zipping the output.
-     */
-    public boolean isZip() {
-        return zip;
     }
 
     @Override
@@ -186,7 +176,6 @@ public class JsonWriter extends AbstractJsonWriter {
     public JsonWriter setOutput(File file, String charset) {
         try {
             this.out = new OutputStreamWriter(new FileOutputStream(file), charset);
-            this.zip = true;
         } catch (IOException x) {
             throw new RuntimeException(x);
         }
@@ -204,7 +193,6 @@ public class JsonWriter extends AbstractJsonWriter {
                     new BufferedOutputStream(new FileOutputStream(file)));
             zout.putNextEntry(new ZipEntry(zipFileName));
             this.out = new OutputStreamWriter(zout, charset);
-            this.zip = true;
         } catch (IOException x) {
             throw new RuntimeException(x);
         }

@@ -2,7 +2,7 @@ apply plugin: 'java'
 apply plugin: 'maven'
 
 group 'aon'
-version '4.0.0'
+version '4.0.1'
 
 sourceCompatibility = 1.5
 targetCompatibility = 1.5
@@ -13,16 +13,16 @@ repositories {
 }
 
 dependencies {
-    testCompile 'com.fasterxml.jackson.core:jackson-core:2.8.6'
-    testCompile 'com.fasterxml.jackson.core:jackson-databind:2.8.6'
-    testCompile 'com.google.code.gson:gson:2.8.0'
-    testCompile 'com.googlecode.json-simple:json-simple:1.1.1'
-    testCompile 'com.jsoniter:jsoniter:0.9.8'
-    testCompile 'com.owlike:genson:1.4'
-    testCompile 'io.fastjson:boon:0.34'
-    testCompile 'net.sf.flexjson:flexjson:2.1'
-    testCompile 'junit:junit:4.12'
-    testCompile 'org.javassist:javassist:3.21.0-GA'
+    testCompile 'com.fasterxml.jackson.core:jackson-core:+'
+    testCompile 'com.fasterxml.jackson.core:jackson-databind:+'
+    testCompile 'com.google.code.gson:gson:+'
+    testCompile 'com.googlecode.json-simple:json-simple:+'
+    testCompile 'com.jsoniter:jsoniter:+'
+    testCompile 'com.owlike:genson:+'
+    testCompile 'io.fastjson:boon:+'
+    testCompile 'net.sf.flexjson:flexjson:+'
+    testCompile 'junit:junit:+'
+    testCompile 'org.javassist:javassist:+'
 }
 
 task benchmark(type: Test) {

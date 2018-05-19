@@ -379,7 +379,11 @@ public class Amap extends Agroup {
      * Primitive setter, returns this.
      */
     public Amap put(String key, String val) {
-        put(key, Astr.make(val));
+        if (val == null) {
+            put(key, Anull.NULL);
+        } else {
+            put(key, Astr.make(val));
+        }
         return this;
     }
 

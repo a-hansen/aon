@@ -109,8 +109,6 @@ public abstract class AbstractWriter implements Closeable, Awriter {
         try {
             if (depth == 0)
                 throw new IllegalStateException("Nesting error.");
-            if (last == LAST_MAP)
-                throw new IllegalStateException("Expecting map end.");
             depth--;
             if (prettyPrint) {
                 writeNewLineIndent();
@@ -130,8 +128,6 @@ public abstract class AbstractWriter implements Closeable, Awriter {
         try {
             if (depth == 0)
                 throw new IllegalStateException("Nesting error.");
-            if (last == LAST_LIST)
-                throw new IllegalStateException("Expecting list end.");
             depth--;
             if (prettyPrint) {
                 writeNewLineIndent();
@@ -160,8 +156,6 @@ public abstract class AbstractWriter implements Closeable, Awriter {
                 case LAST_DONE:
                     throw new IllegalStateException("Nesting error: " + arg);
                 case LAST_INIT:
-                case LAST_KEY:
-                case LAST_LIST:
                     throw new IllegalStateException("Not expecting: " + arg + " (" + last + ")");
                 case LAST_VAL:
                 case LAST_END:
@@ -234,7 +228,6 @@ public abstract class AbstractWriter implements Closeable, Awriter {
                 case LAST_DONE:
                     throw new IllegalStateException("Nesting error: " + arg);
                 case LAST_INIT:
-                case LAST_MAP:
                     throw new IllegalStateException("Not expecting value: " + arg);
                 case LAST_VAL:
                 case LAST_END:
@@ -258,7 +251,6 @@ public abstract class AbstractWriter implements Closeable, Awriter {
                 case LAST_DONE:
                     throw new IllegalStateException("Nesting error: " + arg);
                 case LAST_INIT:
-                case LAST_MAP:
                     throw new IllegalStateException("Not expecting value: " + arg);
                 case LAST_VAL:
                 case LAST_END:
@@ -282,7 +274,6 @@ public abstract class AbstractWriter implements Closeable, Awriter {
                 case LAST_DONE:
                     throw new IllegalStateException("Nesting error: " + arg);
                 case LAST_INIT:
-                case LAST_MAP:
                     throw new IllegalStateException("Not expecting value: " + arg);
                 case LAST_VAL:
                 case LAST_END:
@@ -306,7 +297,6 @@ public abstract class AbstractWriter implements Closeable, Awriter {
                 case LAST_DONE:
                     throw new IllegalStateException("Nesting error: " + arg);
                 case LAST_INIT:
-                case LAST_MAP:
                     throw new IllegalStateException("Not expecting value: " + arg);
                 case LAST_VAL:
                 case LAST_END:
@@ -330,7 +320,6 @@ public abstract class AbstractWriter implements Closeable, Awriter {
                 case LAST_DONE:
                     throw new IllegalStateException("Nesting error: " + arg);
                 case LAST_INIT:
-                case LAST_MAP:
                     throw new IllegalStateException("Not expecting value: " + arg);
                 case LAST_VAL:
                 case LAST_END:

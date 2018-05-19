@@ -131,6 +131,10 @@ public void second(Awriter out) {
 
 History
 -------
+_4.0.1_
+  - Fixed NPE in Amap.put(String,String).
+  - Fix zip encoding.
+
 _4.0.0_
   - Added AbstractReader and AbstractWriter, json now uses these.
   - Minor parenting fixes.

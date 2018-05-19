@@ -88,8 +88,9 @@ public abstract class AbstractJsonWriter
     protected void write(double arg) throws IOException {
         if ((arg % 1) == 0) {
             write((long) arg);
+        } else {
+            append(String.valueOf(arg));
         }
-        append(String.valueOf(arg));
     }
 
     /**
@@ -186,7 +187,7 @@ public abstract class AbstractJsonWriter
     /**
      * Two spaces per level.
      */
-    protected void writeNewLineIdent() throws IOException {
+    protected void writeNewLineIndent() throws IOException {
         append('\n');
         for (int i = getDepth(); --i >= 0; ) {
             append(C_INDENT, 0, 2);
