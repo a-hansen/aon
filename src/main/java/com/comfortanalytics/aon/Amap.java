@@ -18,21 +18,15 @@ package com.comfortanalytics.aon;
 
 import java.io.PrintWriter;
 import java.io.StringWriter;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
+import java.util.TreeMap;
 
 /**
- * String keyed collection of Aobjs that preserves the order of addition.  Keys and
- * values can be accessed via index.  This is not thread safe.
+ * String keyed collection of Aobjs that preserves the order of addition. This is not thread safe.
  *
  * @author Aaron Hansen
  */
 public class Amap extends Agroup {
-
-    // Constants
-    // ---------
 
     // Fields
     // ------
@@ -40,19 +34,12 @@ public class Amap extends Agroup {
     /**
      * For preserving order.
      */
-    protected List<Entry> entryList = new ArrayList<Entry>();
-    protected Map<String, Entry> entryMap = new HashMap<String, Entry>();
+    private Map<String, MapEntry> entryMap = new TreeMap<String, MapEntry>();
+    private MapEntry first;
+    private MapEntry last;
 
-
-    // Constructors
-    // ------------
-
-    public Amap() {
-    }
-
-
-    // Public Methods
-    // --------------
+    // Methods
+    // -------
 
     @Override
     public Atype aonType() {
@@ -61,7 +48,8 @@ public class Amap extends Agroup {
 
     @Override
     public Amap clear() {
-        entryList.clear();
+        first = null;
+        last = null;
         entryMap.clear();
         return this;
     }
@@ -69,39 +57,19 @@ public class Amap extends Agroup {
     @Override
     public Aobj copy() {
         Amap ret = new Amap();
-        for (int i = 0, len = size(); i < len; i++) {
-            ret.put(getKey(i), get(i).copy());
+        MapEntry e = getFirstEntry();
+        while (e != null) {
+            ret.put(e.getKey(), e.getValue().copy());
+            e = e.next();
         }
         return ret;
     }
 
-    @Override
-    public boolean equals(Object obj) {
-        if (obj == this) {
-            return true;
-        }
-        if (obj instanceof Amap) {
-            Amap other = (Amap) obj;
-            if (other.size() != size()) {
-                return false;
-            }
-            return other.entryMap.equals(entryMap);
-        }
-        return false;
-    }
-
-    @Override
-    public Aobj get(int idx) {
-        return entryList.get(idx).getValue();
-    }
-
     /**
-     * Returns the value for the given key.
-     *
-     * @return Possibly null.
+     * Returns the value for the given key or null.
      */
     public Aobj get(String key) {
-        Entry e = entryMap.get(key);
+        MapEntry e = entryMap.get(key);
         if (e == null) {
             return null;
         }
@@ -114,7 +82,9 @@ public class Amap extends Agroup {
      */
     public boolean get(String key, boolean def) {
         Aobj ret = get(key);
-        if ((ret == null) || ret.isNull()) return def;
+        if ((ret == null) || ret.isNull()) {
+            return def;
+        }
         try {
             return ret.toBoolean();
         } catch (Exception x) {
@@ -128,7 +98,9 @@ public class Amap extends Agroup {
      */
     public double get(String key, double def) {
         Aobj ret = get(key);
-        if ((ret == null) || ret.isNull()) return def;
+        if ((ret == null) || ret.isNull()) {
+            return def;
+        }
         try {
             return ret.toDouble();
         } catch (Exception x) {
@@ -142,7 +114,9 @@ public class Amap extends Agroup {
      */
     public int get(String key, int def) {
         Aobj ret = get(key);
-        if ((ret == null) || ret.isNull()) return def;
+        if ((ret == null) || ret.isNull()) {
+            return def;
+        }
         try {
             return ret.toInt();
         } catch (Exception x) {
@@ -156,7 +130,9 @@ public class Amap extends Agroup {
      */
     public long get(String key, long def) {
         Aobj ret = get(key);
-        if ((ret == null) || ret.isNull()) return def;
+        if ((ret == null) || ret.isNull()) {
+            return def;
+        }
         try {
             return ret.toLong();
         } catch (Exception x) {
@@ -170,100 +146,94 @@ public class Amap extends Agroup {
      */
     public String get(String key, String def) {
         Aobj ret = get(key);
-        if ((ret == null) || ret.isNull()) return def;
+        if ((ret == null) || ret.isNull()) {
+            return def;
+        }
         return ret.toString();
     }
 
     /**
-     * Primitive getter.
-     *
-     * @throws ClassCastException
-     * @throws NullPointerException
+     * Returns the value, null or throws a ClassCastException.
      */
     public boolean getBoolean(String key) {
         return get(key).toBoolean();
     }
 
     /**
-     * Primitive getter.
-     *
-     * @throws ClassCastException
-     * @throws NullPointerException
+     * Returns the value, null or throws a ClassCastException.
      */
     public double getDouble(String key) {
         return get(key).toDouble();
     }
 
-    Entry getEntry(int idx) {
-        return entryList.get(idx);
+    @Override
+    public MapEntry getFirstEntry() {
+        return first;
     }
 
     /**
-     * Return the list, or null.
-     *
-     * @return Possibly null.
-     * @throws ClassCastException
+     * Returns the value, null or throws a ClassCastException.
+     */
+    public int getInt(String key) {
+        return get(key).toInt();
+    }
+
+    @Override
+    public MapEntry getLastEntry() {
+        return last;
+    }
+
+    /**
+     * Returns the value, null or throws a ClassCastException.
      */
     public Alist getList(String key) {
         Aobj obj = get(key);
-        if (obj == null) return null;
+        if (obj == null) {
+            return null;
+        }
         return obj.toList();
     }
 
     /**
-     * Primitive getter.
-     *
-     * @throws ClassCastException
-     * @throws NullPointerException
+     * Returns the value, null or throws a ClassCastException.
      */
     public long getLong(String key) {
         return get(key).toLong();
     }
 
     /**
-     * Primitive getter.
-     *
-     * @throws ClassCastException
-     */
-    public int getInt(String key) {
-        return get(key).toInt();
-    }
-
-    /**
-     * Returns the key at the given index.
-     *
-     * @throws IndexOutOfBoundsException
-     */
-    public String getKey(int idx) {
-        return entryList.get(idx).getKey();
-    }
-
-    /**
-     * Returns the entryMap value for the given key, or null.
-     *
-     * @return Possibly null.
-     * @throws ClassCastException
+     * Returns the value, null or throws a ClassCastException.
      */
     public Amap getMap(String key) {
         Aobj o = get(key);
-        if (o == null) return null;
+        if (o == null) {
+            return null;
+        }
         return o.toMap();
+    }
+
+    private MapEntry getPrev(String key) {
+        MapEntry prev = null;
+        MapEntry entry = getFirstEntry();
+        while (entry != null) {
+            if (entry.getKey().equals(key)) {
+                return prev;
+            }
+            prev = entry;
+            entry = entry.next();
+        }
+        return prev;
     }
 
     /**
      * Returns the String value for the given key, or null.
-     *
-     * @return Possibly null.
      */
     public String getString(String key) {
         Aobj o = get(key);
-        if (o == null) return null;
+        if (o == null) {
+            return null;
+        }
         return o.toString();
-    }
-
-    @Override
-    public int hashCode() {
-        return entryList.hashCode();
     }
 
     /**
@@ -278,34 +248,10 @@ public class Amap extends Agroup {
      */
     public boolean isNull(String key) {
         Aobj o = get(key);
-        if (o == null) return true;
+        if (o == null) {
+            return true;
+        }
         return o.aonType() == Atype.NULL;
-    }
-
-    /**
-     * Index of the entry using the == operator.
-     */
-    private int indexOf(Entry e) {
-        List<Entry> l = entryList;
-        for (int i = l.size(); --i >= 0; ) {
-            if (l.get(i) == e) {
-                return i;
-            }
-        }
-        return -1;
-    }
-
-    /**
-     * Index of the given key, or -1.
-     */
-    public int indexOf(String key) {
-        if (entryMap.get(key) == null) return -1;
-        List<Entry> l = entryList;
-        for (int i = 0, len = l.size(); i < len; i++) {
-            if (key.equals(l.get(i).getKey()))
-                return i;
-        }
-        return -1;
     }
 
     /**
@@ -319,9 +265,8 @@ public class Amap extends Agroup {
         if (val == null) {
             val = Anull.NULL;
         }
-        Entry e = entryMap.get(key);
+        MapEntry e = entryMap.get(key);
         if (e != null) {
-            //lets not err if putting same key/val pair.
             Aobj curr = e.getValue();
             if (curr != val) {
                 if (val.isGroup()) {
@@ -336,9 +281,15 @@ public class Amap extends Agroup {
             if (val.isGroup()) {
                 val.toGroup().setParent(this);
             }
-            e = new Entry(key, val);
+            e = new MapEntry(key, val);
             entryMap.put(key, e);
-            entryList.add(e);
+            if (first == null) {
+                first = e;
+                last = e;
+            } else {
+                last.setNext(e);
+                last = e;
+            }
         }
         return this;
     }
@@ -347,7 +298,7 @@ public class Amap extends Agroup {
      * Primitive setter, returns this.
      */
     public Amap put(String key, boolean val) {
-        put(key, Abool.make(val));
+        put(key, Abool.valueOf(val));
         return this;
     }
 
@@ -355,7 +306,7 @@ public class Amap extends Agroup {
      * Primitive setter, returns this.
      */
     public Amap put(String key, double val) {
-        put(key, Adbl.make(val));
+        put(key, Adouble.valueOf(val));
         return this;
     }
 
@@ -363,7 +314,7 @@ public class Amap extends Agroup {
      * Primitive setter, returns this.
      */
     public Amap put(String key, int val) {
-        put(key, Aint.make(val));
+        put(key, Aint.valueOf(val));
         return this;
     }
 
@@ -371,7 +322,7 @@ public class Amap extends Agroup {
      * Primitive setter, returns this.
      */
     public Amap put(String key, long val) {
-        put(key, Along.make(val));
+        put(key, Along.valueOf(val));
         return this;
     }
 
@@ -382,7 +333,7 @@ public class Amap extends Agroup {
         if (val == null) {
             put(key, Anull.NULL);
         } else {
-            put(key, Astr.make(val));
+            put(key, Astr.valueOf(val));
         }
         return this;
     }
@@ -432,28 +383,28 @@ public class Amap extends Agroup {
         return put(key, Anull.NULL);
     }
 
-    @Override
-    public Aobj remove(int idx) {
-        Entry e = entryList.remove(idx);
-        entryMap.remove(e.getKey());
-        Aobj ret = e.getValue();
-        if (ret.isGroup()) {
-            ret.toGroup().setParent(null);
-        }
-        return ret;
-    }
-
     /**
      * Removes the key-value pair and returns the removed value.
      *
      * @return Possibly null.
      */
     public Aobj remove(String key) {
-        Entry e = entryMap.remove(key);
+        MapEntry e = entryMap.remove(key);
         if (e == null) {
             return null;
         }
-        entryList.remove(indexOf(e));
+        if (size() == 0) {
+            first = null;
+            last = null;
+        } else if (e == first) {
+            first = first.next();
+        } else {
+            MapEntry prev = getPrev(key);
+            prev.setNext(e.next());
+            if (e == last) {
+                last = prev;
+            }
+        }
         Aobj ret = e.getValue();
         if (ret.isGroup()) {
             ret.toGroup().setParent(null);
@@ -461,9 +412,23 @@ public class Amap extends Agroup {
         return ret;
     }
 
+    public Aobj removeFirst() {
+        if (first != null) {
+            return remove(first.getKey());
+        }
+        return null;
+    }
+
+    public Aobj removeLast() {
+        if (last != null) {
+            return remove(last.getKey());
+        }
+        return null;
+    }
+
     @Override
     public int size() {
-        return entryList.size();
+        return entryMap.size();
     }
 
     @Override
@@ -474,15 +439,13 @@ public class Amap extends Agroup {
     // Inner Classes
     // -------------
 
-    /**
-     * Allows values to be accessed quickly by index in the list, rather than having
-     * to do a key lookup in the entryMap.
-     */
-    static class Entry {
-        String key;
-        Aobj val;
+    public static class MapEntry implements Entry {
 
-        Entry(String key, Aobj val) {
+        private String key;
+        private MapEntry next;
+        private Aobj val;
+
+        MapEntry(String key, Aobj val) {
             this.key = key;
             this.val = val;
         }
@@ -492,28 +455,44 @@ public class Amap extends Agroup {
             if (obj == this) {
                 return true;
             }
-            if (!(obj instanceof Entry)) {
+            if (!(obj instanceof MapEntry)) {
                 return false;
             }
-            Entry e = (Entry) obj;
-            return e.getKey().equals(key);
+            MapEntry e = (MapEntry) obj;
+            if (!e.getKey().equals(key)) {
+                return false;
+            }
+            if (!e.getValue().equals(val)) {
+                return false;
+            }
+            return true;
         }
 
-        String getKey() {
+        public String getKey() {
             return key;
         }
 
-        Aobj getValue() {
+        public Aobj getValue() {
             return val;
         }
 
+        @Override
         public int hashCode() {
-            return key.hashCode();
+            return key.hashCode() ^ val.hashCode();
+        }
+
+        public MapEntry next() {
+            return next;
+        }
+
+        void setNext(MapEntry entry) {
+            next = entry;
         }
 
         void setValue(Aobj val) {
             this.val = val;
         }
+
     }
 
 

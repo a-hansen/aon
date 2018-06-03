@@ -14,14 +14,14 @@
  * ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  */
 
-package com.comfortanalytics.aon;
+package com.comfortanalytics.aon.json;
 
 /**
  * Useful constants.
  *
  * @author Aaron Hansen
  */
-public interface Aconstants {
+public interface JsonConstants {
 
     // Constants
     // ---------
@@ -41,4 +41,4 @@ public interface Aconstants {
      */
     public static String DBL_POS_INF = "\u001BInfinity";
 
-}//Aobj
+}

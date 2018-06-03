@@ -17,6 +17,9 @@
 package com.comfortanalytics.aon;
 
 
+import java.math.BigDecimal;
+import java.math.BigInteger;
+
 /**
  * Represents a boolean value.
  *
@@ -27,14 +30,12 @@ class Abool extends Aobj {
     // Constants
     // ---------
 
-    public static final Abool TRUE = new Abool(true);
     public static final Abool FALSE = new Abool(false);
+    public static final Abool TRUE = new Abool(true);
 
     // Fields
     // ------
-
     private boolean value;
-
 
     // Constructors
     // ------------
@@ -61,12 +62,14 @@ class Abool extends Aobj {
         return true;
     }
 
-    /**
-     * Will return either TRUE or FALSE.
-     */
-    public static Abool make(boolean arg) {
-        if (arg) return TRUE;
-        return FALSE;
+    @Override
+    public BigDecimal toBigDecimal() {
+        return BigDecimal.valueOf(toInt());
+    }
+
+    @Override
+    public BigInteger toBigInt() {
+        return BigInteger.valueOf(toInt());
     }
 
     @Override
@@ -79,7 +82,9 @@ class Abool extends Aobj {
      */
     @Override
     public double toDouble() {
-        if (value) return 1;
+        if (value) {
+            return 1;
+        }
         return 0;
     }
 
@@ -88,7 +93,9 @@ class Abool extends Aobj {
      */
     @Override
     public float toFloat() {
-        if (value) return 1;
+        if (value) {
+            return 1;
+        }
         return 0;
     }
 
@@ -97,7 +104,9 @@ class Abool extends Aobj {
      */
     @Override
     public int toInt() {
-        if (value) return 1;
+        if (value) {
+            return 1;
+        }
         return 0;
     }
 
@@ -106,13 +115,25 @@ class Abool extends Aobj {
      */
     @Override
     public long toLong() {
-        if (value) return 1;
+        if (value) {
+            return 1;
+        }
         return 0;
     }
 
     @Override
     public String toString() {
         return String.valueOf(value);
+    }
+
+    /**
+     * Will return either TRUE or FALSE.
+     */
+    public static Abool valueOf(boolean arg) {
+        if (arg) {
+            return TRUE;
+        }
+        return FALSE;
     }
 
 

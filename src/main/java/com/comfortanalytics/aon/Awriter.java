@@ -17,6 +17,8 @@
 package com.comfortanalytics.aon;
 
 import java.io.Closeable;
+import java.math.BigDecimal;
+import java.math.BigInteger;
 
 /**
  * An Aobj encoder that can be used to encode large graphs with or without Aobj instances.
@@ -35,10 +37,7 @@ import java.io.Closeable;
  *
  * @author Aaron Hansen
  */
-public interface Awriter extends Aconstants, Closeable {
-
-    // Public Methods
-    // --------------
+public interface Awriter extends Closeable {
 
     /**
      * Start a new list and return this.
@@ -105,6 +104,22 @@ public interface Awriter extends Aconstants, Closeable {
      *
      * @throws IllegalStateException when improperly called.
      */
+    public Awriter value(BigDecimal arg);
+
+    /**
+     * Write a value to the map or list.  If in a map, this must have been preceeded
+     * by a call to key(String).
+     *
+     * @throws IllegalStateException when improperly called.
+     */
+    public Awriter value(BigInteger arg);
+
+    /**
+     * Write a value to the map or list.  If in a map, this must have been preceeded
+     * by a call to key(String).
+     *
+     * @throws IllegalStateException when improperly called.
+     */
     public Awriter value(boolean arg);
 
     /**
@@ -114,6 +129,14 @@ public interface Awriter extends Aconstants, Closeable {
      * @throws IllegalStateException when improperly called.
      */
     public Awriter value(double arg);
+
+    /**
+     * Write a value to the map or list.  If in a map, this must have been preceeded
+     * by a call to key(String).
+     *
+     * @throws IllegalStateException when improperly called.
+     */
+    public Awriter value(float arg);
 
     /**
      * Write a value to the map or list.  If in a map, this must have been preceeded

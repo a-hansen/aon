@@ -16,26 +16,25 @@
 
 package com.comfortanalytics.aon;
 
+import java.math.BigDecimal;
+import java.math.BigInteger;
+
 /**
- * Represents a double value.
+ * Represents a float value.
  *
  * @author Aaron Hansen
  */
-class Adbl extends Aobj {
-
-    // Constants
-    // ---------
+class Afloat extends Aobj {
 
     // Fields
     // ------
 
-    private double value;
-
+    private float value;
 
     // Constructors
     // ------------
 
-    Adbl(double val) {
+    Afloat(float val) {
         value = val;
     }
 
@@ -49,11 +48,19 @@ class Adbl extends Aobj {
 
     @Override
     public boolean equals(Object o) {
-        if (!(o instanceof Aobj)) return false;
+        if (!(o instanceof Aobj)) {
+            return false;
+        }
         Aobj obj = (Aobj) o;
         switch (obj.aonType()) {
+            case DECIMAL:
+                return obj.equals(this);
+            case BIGINT:
+                return obj.equals(this);
             case DOUBLE:
                 return obj.toDouble() == value;
+            case FLOAT:
+                return obj.toFloat() == value;
             case INT:
                 return obj.toInt() == value;
             case LONG:
@@ -64,12 +71,11 @@ class Adbl extends Aobj {
 
     @Override
     public int hashCode() {
-        long v = Double.doubleToLongBits(value);
-        return (int)(v^(v>>>32));
+        return Float.floatToIntBits(value);
     }
 
     @Override
-    public boolean isDouble() {
+    public boolean isFloat() {
         return true;
     }
 
@@ -79,19 +85,18 @@ class Adbl extends Aobj {
     }
 
     @Override
-    public boolean toBoolean() {
-        return value != 0;
+    public BigDecimal toBigDecimal() {
+        return BigDecimal.valueOf(value);
     }
 
-    /**
-     * Attempts to reuse some common values before creating a new instance.
-     */
-    public static Adbl make(double arg) {
-        Adbl ret = null;
-        int i = (int) arg;
-        if (arg == i) ret = DblCache.get(i);
-        if (ret == null) ret = new Adbl(arg);
-        return ret;
+    @Override
+    public BigInteger toBigInt() {
+        return BigInteger.valueOf((long) value);
+    }
+
+    @Override
+    public boolean toBoolean() {
+        return value != 0;
     }
 
     @Override
@@ -101,7 +106,7 @@ class Adbl extends Aobj {
 
     @Override
     public float toFloat() {
-        return (float) value;
+        return value;
     }
 
     @Override
@@ -119,26 +124,44 @@ class Adbl extends Aobj {
         return String.valueOf(value);
     }
 
+    /**
+     * Attempts to reuse some common values before creating a new instance.
+     */
+    public static Afloat valueOf(float arg) {
+        Afloat ret = null;
+        int i = (int) arg;
+        if (arg == i) {
+            ret = FltCache.get(i);
+        }
+        if (ret == null) {
+            ret = new Afloat(arg);
+        }
+        return ret;
+    }
 
     // Inner Classes
     // --------------
 
-    private static class DblCache {
-        private static final Adbl[] cache = new Adbl[101];
-        private static final Adbl NEG_ONE = new Adbl(-1);
+    private static class FltCache {
 
-        public static Adbl get(int i) {
+        private static final Afloat NEG_ONE = new Afloat(-1);
+        private static final Afloat[] cache = new Afloat[101];
+
+        public static Afloat get(int i) {
             if ((i < 0) || (i > 100)) {
-                if (i == -1) return NEG_ONE;
+                if (i == -1) {
+                    return NEG_ONE;
+                }
                 return null;
             }
             return cache[i];
         }
 
         static {
-            for (int i = 101; --i >= 0; )
-                cache[i] = new Adbl(i);
+            for (int i = 101; --i >= 0; ) {
+                cache[i] = new Afloat(i);
+            }
         }
     }
 
-}//Adbl
+}

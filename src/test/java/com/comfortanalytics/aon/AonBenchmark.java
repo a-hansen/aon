@@ -25,14 +25,20 @@ import com.jsoniter.JsonIterator;
 import com.jsoniter.any.Any;
 import com.jsoniter.output.JsonStream;
 import com.owlike.genson.Genson;
-import java.io.*;
+import flexjson.JSONDeserializer;
+import flexjson.JSONSerializer;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.OutputStream;
+import java.io.OutputStreamWriter;
 import java.util.Map;
 import org.boon.json.JsonFactory;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.junit.Test;
-import flexjson.JSONDeserializer;
-import flexjson.JSONSerializer;
 
 /**
  * Compares the performance of various JSON libraries.  Also a nice test of
@@ -51,7 +57,6 @@ public class AonBenchmark {
     private static final int LARGE_MAP_FACTOR = 1000;
     private static final int SMALL_ITERATIONS = 10000;
 
-
     ///////////////////////////////////////////////////////////////////////////
     // Fields
     ///////////////////////////////////////////////////////////////////////////
@@ -62,6 +67,81 @@ public class AonBenchmark {
 
     ///////////////////////////////////////////////////////////////////////////
     // Methods
+    ///////////////////////////////////////////////////////////////////////////
+
+    private byte[] makeLargeMap() {
+        Amap primitiveMap = new Amap()
+                .put("boolean", true)
+                .put("double", 100.001d)
+                .put("int", 100001)
+                .put("long", 100001l)
+                .put("string", "abcdefghij\r\njklmnopqrs\u0000\u0001\u0002tuvwxyz\r\n");
+        Alist primitiveList = new Alist()
+                .add(true)
+                .add(100.001d)
+                .add(100001)
+                .add(100001l)
+                .add("abcdefghij\r\njklmnopqrs\u0000\u0001\u0002tuvwxyz\r\n");
+        Amap complexMap = (Amap) primitiveMap.copy();
+        complexMap.put("list", primitiveList.copy())
+                  .put("map", primitiveMap.copy());
+        Alist complexList = (Alist) primitiveList.copy();
+        complexList.add(primitiveList.copy());
+        complexList.add(primitiveMap.copy());
+        Amap testMap = new Amap();
+        for (int i = 0; i < LARGE_MAP_FACTOR; i++) {
+            if ((i % 100) == 0) {
+                Amap tmp = new Amap();
+                tmp.put("map", testMap);
+                testMap = tmp;
+            }
+            testMap.put("map" + i, complexMap.copy());
+            testMap.put("list" + i, complexList.copy());
+        }
+        ByteArrayOutputStream out = new ByteArrayOutputStream();
+        new JsonWriter(out).value(testMap).close();
+        return out.toByteArray();
+    }
+
+    private byte[] makeSmallMap() {
+        Amap map = new Amap()
+                .put("boolean", true)
+                .put("double", 100.001d)
+                .put("int", 100001)
+                .put("long", 100001l)
+                .put("string", "abcdefghij\r\njklmnopqrs\u0000\u0001\u0002tuvwxyz\r\n")
+                .put("list", new Alist()
+                        .add(true)
+                        .add(100.001d)
+                        .add(100001)
+                        .add(100001l)
+                        .add("abcdefghij\r\njklmnopqrs\u0000\u0001\u0002tuvwxyz\r\n"));
+        ByteArrayOutputStream out = new ByteArrayOutputStream();
+        new JsonWriter(out).value(map).close();
+        return out.toByteArray();
+    }
+
+    private void printField(Object obj, int len) {
+        String str = obj.toString();
+        for (int i = len - str.length(); --i >= 0; ) {
+            System.out.print(' ');
+        }
+        System.out.print(str);
+    }
+
+    private void printResults(Target target, long encode, long decode, long total) {
+        printField(target, 15);
+        System.out.print(", Encode:");
+        printField(encode + "ms", 7);
+        System.out.print(", Decode:");
+        printField(decode + "ms", 7);
+        System.out.print(", TOTAL:");
+        printField(total + "ms", 7);
+        System.out.println();
+    }
+
+    ///////////////////////////////////////////////////////////////////////////
+    // Private Methods
     ///////////////////////////////////////////////////////////////////////////
 
     @Test
@@ -161,81 +241,6 @@ public class AonBenchmark {
     }
 
     ///////////////////////////////////////////////////////////////////////////
-    // Private Methods
-    ///////////////////////////////////////////////////////////////////////////
-
-    private byte[] makeLargeMap() {
-        Amap primitiveMap = new Amap()
-                .put("boolean", true)
-                .put("double", 100.001d)
-                .put("int", 100001)
-                .put("long", 100001l)
-                .put("string", "abcdefghij\r\njklmnopqrs\u0000\u0001\u0002tuvwxyz\r\n");
-        Alist primitiveList = new Alist()
-                .add(true)
-                .add(100.001d)
-                .add(100001)
-                .add(100001l)
-                .add("abcdefghij\r\njklmnopqrs\u0000\u0001\u0002tuvwxyz\r\n");
-        Amap complexMap = (Amap) primitiveMap.copy();
-        complexMap.put("list", primitiveList.copy())
-                  .put("map", primitiveMap.copy());
-        Alist complexList = (Alist) primitiveList.copy();
-        complexList.add(primitiveList.copy());
-        complexList.add(primitiveMap.copy());
-        Amap testMap = new Amap();
-        for (int i = 0; i < LARGE_MAP_FACTOR; i++) {
-            if ((i % 100) == 0) {
-                Amap tmp = new Amap();
-                tmp.put("map", testMap);
-                testMap = tmp;
-            }
-            testMap.put("map" + i, complexMap.copy());
-            testMap.put("list" + i, complexList.copy());
-        }
-        ByteArrayOutputStream out = new ByteArrayOutputStream();
-        new JsonWriter(out).value(testMap).close();
-        return out.toByteArray();
-    }
-
-    private byte[] makeSmallMap() {
-        Amap map = new Amap()
-                .put("boolean", true)
-                .put("double", 100.001d)
-                .put("int", 100001)
-                .put("long", 100001l)
-                .put("string", "abcdefghij\r\njklmnopqrs\u0000\u0001\u0002tuvwxyz\r\n")
-                .put("list", new Alist()
-                        .add(true)
-                        .add(100.001d)
-                        .add(100001)
-                        .add(100001l)
-                        .add("abcdefghij\r\njklmnopqrs\u0000\u0001\u0002tuvwxyz\r\n"));
-        ByteArrayOutputStream out = new ByteArrayOutputStream();
-        new JsonWriter(out).value(map).close();
-        return out.toByteArray();
-    }
-
-    private void printField(Object obj, int len) {
-        String str = obj.toString();
-        for (int i = len - str.length(); --i >= 0; ) {
-            System.out.print(' ');
-        }
-        System.out.print(str);
-    }
-
-    private void printResults(Target target, long encode, long decode, long total) {
-        printField(target, 15);
-        System.out.print(", Encode:");
-        printField(encode + "ms", 7);
-        System.out.print(", Decode:");
-        printField(decode + "ms", 7);
-        System.out.print(", TOTAL:");
-        printField(total + "ms", 7);
-        System.out.println();
-    }
-
-    ///////////////////////////////////////////////////////////////////////////
     // Inner Classes
     ///////////////////////////////////////////////////////////////////////////
 
@@ -298,8 +303,8 @@ public class AonBenchmark {
      */
     public static class FlexjsonTarget implements Target {
 
-        private JSONSerializer serializer = new JSONSerializer();
         private JSONDeserializer deserializer = new JSONDeserializer();
+        private JSONSerializer serializer = new JSONSerializer();
 
         public Object decode(InputStream in) {
             return deserializer.deserialize(new InputStreamReader(in));
@@ -384,35 +389,6 @@ public class AonBenchmark {
     }
 
     /**
-     * Json Iterator
-     */
-    public static class JsoniterTarget implements Target {
-
-
-        public Object decode(InputStream in) {
-            try {
-                return JsonIterator.parse(in,8192).readAny();
-            } catch (Exception x) {
-                throw new RuntimeException(x);
-            }
-        }
-
-        public void encode(Object map, OutputStream out) {
-            try {
-                JsonStream stream = new JsonStream(out,8192);
-                stream.writeVal((Any)map);
-                stream.close();
-            } catch (IOException x) {
-                throw new RuntimeException(x);
-            }
-        }
-
-        public String toString() {
-            return "Json Iterator";
-        }
-    }
-
-    /**
      * Json-Simple
      */
     public static class JsonSimpleTarget implements Target {
@@ -439,6 +415,35 @@ public class AonBenchmark {
 
         public String toString() {
             return "Json-Simple";
+        }
+    }
+
+    /**
+     * Json Iterator
+     */
+    public static class JsoniterTarget implements Target {
+
+
+        public Object decode(InputStream in) {
+            try {
+                return JsonIterator.parse(in, 8192).readAny();
+            } catch (Exception x) {
+                throw new RuntimeException(x);
+            }
+        }
+
+        public void encode(Object map, OutputStream out) {
+            try {
+                JsonStream stream = new JsonStream(out, 8192);
+                stream.writeVal((Any) map);
+                stream.close();
+            } catch (IOException x) {
+                throw new RuntimeException(x);
+            }
+        }
+
+        public String toString() {
+            return "Json Iterator";
         }
     }
 

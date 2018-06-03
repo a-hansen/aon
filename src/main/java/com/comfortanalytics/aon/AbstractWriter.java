@@ -16,8 +16,12 @@
 
 package com.comfortanalytics.aon;
 
+import com.comfortanalytics.aon.Alist.ListEntry;
+import com.comfortanalytics.aon.Amap.MapEntry;
 import java.io.Closeable;
 import java.io.IOException;
+import java.math.BigDecimal;
+import java.math.BigInteger;
 
 /**
  * Basic implementation of Awriter.  Subclasses must implement the
@@ -39,7 +43,6 @@ public abstract class AbstractWriter implements Closeable, Awriter {
     private static final int LAST_MAP = 5;  //started a map
     private static final int LAST_VAL = 6;  //list or object value
 
-
     // Fields
     // ------
 
@@ -50,9 +53,6 @@ public abstract class AbstractWriter implements Closeable, Awriter {
      * Subclasses can use this if applicable.
      */
     protected boolean prettyPrint = false;
-
-    // Constructors
-    // ------------
 
     // Public Methods
     // --------------
@@ -107,17 +107,19 @@ public abstract class AbstractWriter implements Closeable, Awriter {
 
     public AbstractWriter endList() {
         try {
-            if (depth == 0)
+            if (depth == 0) {
                 throw new IllegalStateException("Nesting error.");
+            }
             depth--;
             if (prettyPrint) {
                 writeNewLineIndent();
             }
             writeListEnd();
-            if (depth == 0)
+            if (depth == 0) {
                 last = LAST_DONE;
-            else
+            } else {
                 last = LAST_END;
+            }
         } catch (IOException x) {
             throw new RuntimeException(x);
         }
@@ -126,17 +128,19 @@ public abstract class AbstractWriter implements Closeable, Awriter {
 
     public AbstractWriter endMap() {
         try {
-            if (depth == 0)
+            if (depth == 0) {
                 throw new IllegalStateException("Nesting error.");
+            }
             depth--;
             if (prettyPrint) {
                 writeNewLineIndent();
             }
             writeMapEnd();
-            if (depth == 0)
+            if (depth == 0) {
                 last = LAST_DONE;
-            else
+            } else {
                 last = LAST_END;
+            }
         } catch (IOException x) {
             throw new RuntimeException(x);
         }
@@ -161,7 +165,9 @@ public abstract class AbstractWriter implements Closeable, Awriter {
                 case LAST_END:
                     writeSeparator();
                 default:
-                    if (prettyPrint) writeNewLineIndent();
+                    if (prettyPrint) {
+                        writeNewLineIndent();
+                    }
             }
             writeKey(arg);
             last = LAST_KEY;
@@ -179,14 +185,24 @@ public abstract class AbstractWriter implements Closeable, Awriter {
     }
 
     public AbstractWriter value(Aobj arg) {
-        if (arg == null)
+        if (arg == null) {
             return value((String) null);
+        }
         switch (arg.aonType()) {
+            case DECIMAL:
+                value(arg.toBigDecimal());
+                break;
+            case BIGINT:
+                value(arg.toBigInt());
+                break;
             case BOOLEAN:
                 value(arg.toBoolean());
                 break;
             case DOUBLE:
                 value(arg.toDouble());
+                break;
+            case FLOAT:
+                value(arg.toFloat());
                 break;
             case INT:
                 value(arg.toInt());
@@ -194,8 +210,11 @@ public abstract class AbstractWriter implements Closeable, Awriter {
             case LIST:
                 beginList();
                 Alist list = arg.toList();
-                for (int i = 0, len = list.size(); i < len; i++)
-                    value(list.get(i));
+                ListEntry listEntry = list.getFirstEntry();
+                while (listEntry != null) {
+                    value(listEntry.getValue());
+                    listEntry = listEntry.next();
+                }
                 endList();
                 break;
             case LONG:
@@ -204,11 +223,10 @@ public abstract class AbstractWriter implements Closeable, Awriter {
             case MAP:
                 beginMap();
                 Amap map = arg.toMap();
-                Amap.Entry e;
-                String key;
-                for (int i = 0, len = map.size(); i < len; i++) {
-                    e = map.getEntry(i);
+                MapEntry e = map.getFirstEntry();
+                while (e != null) {
                     key(e.getKey()).value(e.getValue());
+                    e = e.next();
                 }
                 endMap();
                 break;
@@ -218,6 +236,60 @@ public abstract class AbstractWriter implements Closeable, Awriter {
             case STRING:
                 value(arg.toString());
                 break;
+        }
+        return this;
+    }
+
+    public AbstractWriter value(BigDecimal arg) {
+        try {
+            switch (last) {
+                case LAST_DONE:
+                    throw new IllegalStateException("Nesting error: " + arg);
+                case LAST_INIT:
+                    throw new IllegalStateException("Not expecting value: " + arg);
+                case LAST_VAL:
+                case LAST_END:
+                    writeSeparator();
+                    if (prettyPrint) {
+                        writeNewLineIndent();
+                    }
+                    break;
+                case LAST_LIST:
+                    if (prettyPrint) {
+                        writeNewLineIndent();
+                    }
+            }
+            write(arg);
+            last = LAST_VAL;
+        } catch (IOException x) {
+            throw new RuntimeException(x);
+        }
+        return this;
+    }
+
+    public AbstractWriter value(BigInteger arg) {
+        try {
+            switch (last) {
+                case LAST_DONE:
+                    throw new IllegalStateException("Nesting error: " + arg);
+                case LAST_INIT:
+                    throw new IllegalStateException("Not expecting value: " + arg);
+                case LAST_VAL:
+                case LAST_END:
+                    writeSeparator();
+                    if (prettyPrint) {
+                        writeNewLineIndent();
+                    }
+                    break;
+                case LAST_LIST:
+                    if (prettyPrint) {
+                        writeNewLineIndent();
+                    }
+            }
+            write(arg);
+            last = LAST_VAL;
+        } catch (IOException x) {
+            throw new RuntimeException(x);
         }
         return this;
     }
@@ -232,10 +304,14 @@ public abstract class AbstractWriter implements Closeable, Awriter {
                 case LAST_VAL:
                 case LAST_END:
                     writeSeparator();
-                    if (prettyPrint) writeNewLineIndent();
+                    if (prettyPrint) {
+                        writeNewLineIndent();
+                    }
                     break;
                 case LAST_LIST:
-                    if (prettyPrint) writeNewLineIndent();
+                    if (prettyPrint) {
+                        writeNewLineIndent();
+                    }
             }
             write(arg);
             last = LAST_VAL;
@@ -255,10 +331,41 @@ public abstract class AbstractWriter implements Closeable, Awriter {
                 case LAST_VAL:
                 case LAST_END:
                     writeSeparator();
-                    if (prettyPrint) writeNewLineIndent();
+                    if (prettyPrint) {
+                        writeNewLineIndent();
+                    }
                     break;
                 case LAST_LIST:
-                    if (prettyPrint) writeNewLineIndent();
+                    if (prettyPrint) {
+                        writeNewLineIndent();
+                    }
+            }
+            write(arg);
+            last = LAST_VAL;
+        } catch (IOException x) {
+            throw new RuntimeException(x);
+        }
+        return this;
+    }
+
+    public AbstractWriter value(float arg) {
+        try {
+            switch (last) {
+                case LAST_DONE:
+                    throw new IllegalStateException("Nesting error: " + arg);
+                case LAST_INIT:
+                    throw new IllegalStateException("Not expecting value: " + arg);
+                case LAST_VAL:
+                case LAST_END:
+                    writeSeparator();
+                    if (prettyPrint) {
+                        writeNewLineIndent();
+                    }
+                    break;
+                case LAST_LIST:
+                    if (prettyPrint) {
+                        writeNewLineIndent();
+                    }
             }
             write(arg);
             last = LAST_VAL;
@@ -278,10 +385,14 @@ public abstract class AbstractWriter implements Closeable, Awriter {
                 case LAST_VAL:
                 case LAST_END:
                     writeSeparator();
-                    if (prettyPrint) writeNewLineIndent();
+                    if (prettyPrint) {
+                        writeNewLineIndent();
+                    }
                     break;
                 case LAST_LIST:
-                    if (prettyPrint) writeNewLineIndent();
+                    if (prettyPrint) {
+                        writeNewLineIndent();
+                    }
             }
             write(arg);
             last = LAST_VAL;
@@ -301,10 +412,14 @@ public abstract class AbstractWriter implements Closeable, Awriter {
                 case LAST_VAL:
                 case LAST_END:
                     writeSeparator();
-                    if (prettyPrint) writeNewLineIndent();
+                    if (prettyPrint) {
+                        writeNewLineIndent();
+                    }
                     break;
                 case LAST_LIST:
-                    if (prettyPrint) writeNewLineIndent();
+                    if (prettyPrint) {
+                        writeNewLineIndent();
+                    }
             }
             write(arg);
             last = LAST_VAL;
@@ -324,10 +439,14 @@ public abstract class AbstractWriter implements Closeable, Awriter {
                 case LAST_VAL:
                 case LAST_END:
                     writeSeparator();
-                    if (prettyPrint) writeNewLineIndent();
+                    if (prettyPrint) {
+                        writeNewLineIndent();
+                    }
                     break;
                 case LAST_LIST:
-                    if (prettyPrint) writeNewLineIndent();
+                    if (prettyPrint) {
+                        writeNewLineIndent();
+                    }
             }
             if (arg == null) {
                 writeNull();
@@ -344,12 +463,27 @@ public abstract class AbstractWriter implements Closeable, Awriter {
     /**
      * Write the value.
      */
+    protected abstract void write(BigDecimal arg) throws IOException;
+
+    /**
+     * Write the value.
+     */
+    protected abstract void write(BigInteger arg) throws IOException;
+
+    /**
+     * Write the value.
+     */
     protected abstract void write(boolean arg) throws IOException;
 
     /**
      * Write the value.
      */
     protected abstract void write(double arg) throws IOException;
+
+    /**
+     * Write the value.
+     */
+    protected abstract void write(float arg) throws IOException;
 
     /**
      * Write the value.
@@ -395,7 +529,6 @@ public abstract class AbstractWriter implements Closeable, Awriter {
      * Override point for subclasses which perform use pretty printing, such as json.
      * Does nothing by default.
      *
-     * @throws IOException
      * @see #getDepth()
      */
     protected void writeNewLineIndent() throws IOException {

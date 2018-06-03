@@ -13,15 +13,18 @@
  * PROFITS, WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION,
  * ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  */
+
 package com.comfortanalytics.aon;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
 
 /**
+ * Represents a double value.
+ *
  * @author Aaron Hansen
  */
-class Aint extends Aobj {
+class Adouble extends Aobj {
 
     // Constants
     // ---------
@@ -29,12 +32,12 @@ class Aint extends Aobj {
     // Fields
     // ------
 
-    private int value;
+    private double value;
 
     // Constructors
     // ------------
 
-    private Aint(int val) {
+    Adouble(double val) {
         value = val;
     }
 
@@ -43,7 +46,7 @@ class Aint extends Aobj {
 
     @Override
     public Atype aonType() {
-        return Atype.INT;
+        return Atype.DOUBLE;
     }
 
     @Override
@@ -71,11 +74,12 @@ class Aint extends Aobj {
 
     @Override
     public int hashCode() {
-        return value;
+        long v = Double.doubleToLongBits(value);
+        return (int) (v ^ (v >>> 32));
     }
 
     @Override
-    public boolean isInt() {
+    public boolean isDouble() {
         return true;
     }
 
@@ -91,7 +95,7 @@ class Aint extends Aobj {
 
     @Override
     public BigInteger toBigInt() {
-        return BigInteger.valueOf(value);
+        return BigInteger.valueOf((long) value);
     }
 
     @Override
@@ -106,17 +110,17 @@ class Aint extends Aobj {
 
     @Override
     public float toFloat() {
-        return value;
+        return (float) value;
     }
 
     @Override
     public int toInt() {
-        return value;
+        return (int) value;
     }
 
     @Override
     public long toLong() {
-        return value;
+        return (long) value;
     }
 
     @Override
@@ -127,10 +131,14 @@ class Aint extends Aobj {
     /**
      * Attempts to reuse some common values before creating a new instance.
      */
-    public static Aint valueOf(int arg) {
-        Aint ret = IntCache.get(arg);
+    public static Adouble valueOf(double arg) {
+        Adouble ret = null;
+        int i = (int) arg;
+        if (arg == i) {
+            ret = DblCache.get(i);
+        }
         if (ret == null) {
-            ret = new Aint(arg);
+            ret = new Adouble(arg);
         }
         return ret;
     }
@@ -138,12 +146,12 @@ class Aint extends Aobj {
     // Inner Classes
     // --------------
 
-    private static class IntCache {
+    private static class DblCache {
 
-        private static final Aint NEG_ONE = new Aint(-1);
-        private static final Aint[] cache = new Aint[101];
+        private static final Adouble NEG_ONE = new Adouble(-1);
+        private static final Adouble[] cache = new Adouble[101];
 
-        public static Aint get(int i) {
+        public static Adouble get(int i) {
             if ((i < 0) || (i > 100)) {
                 if (i == -1) {
                     return NEG_ONE;
@@ -155,9 +163,9 @@ class Aint extends Aobj {
 
         static {
             for (int i = 101; --i >= 0; ) {
-                cache[i] = new Aint(i);
+                cache[i] = new Adouble(i);
             }
         }
     }
 
-}
+}//Adbl

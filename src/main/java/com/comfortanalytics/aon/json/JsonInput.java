@@ -16,7 +16,11 @@
 
 package com.comfortanalytics.aon.json;
 
-import java.io.*;
+import java.io.BufferedInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.Reader;
 import java.util.zip.ZipInputStream;
 
 /**
@@ -27,9 +31,8 @@ import java.util.zip.ZipInputStream;
 class JsonInput implements JsonReader.Input {
 
     private static final int BUF_SIZE = 8192;
-
-    private Reader in;
     private char[] buf = new char[BUF_SIZE];
+    private Reader in;
     private int len;
     private int next;
 
@@ -59,7 +62,9 @@ class JsonInput implements JsonReader.Input {
     }
 
     private void fill() throws IOException {
-        if (in == null) return;
+        if (in == null) {
+            return;
+        }
         len = in.read(buf, 0, buf.length);
         next = 0;
     }
@@ -71,8 +76,9 @@ class JsonInput implements JsonReader.Input {
             } catch (IOException x) {
                 throw new RuntimeException(x);
             }
-            if (next >= len)
+            if (next >= len) {
                 return -1;
+            }
         }
         return buf[next++];
     }
@@ -101,10 +107,11 @@ class JsonInput implements JsonReader.Input {
                 in = unzip;
             }
         }
-        if (charset == null)
+        if (charset == null) {
             this.in = new InputStreamReader(in);
-        else
+        } else {
             this.in = new InputStreamReader(in, charset);
+        }
         this.len = 0;
         this.next = 0;
     }
@@ -116,7 +123,9 @@ class JsonInput implements JsonReader.Input {
     }
 
     public void unread() {
-        if (next > 0) --next;
+        if (next > 0) {
+            --next;
+        }
     }
 
 

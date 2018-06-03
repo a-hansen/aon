@@ -18,7 +18,12 @@ package com.comfortanalytics.aon.json;
 
 import com.comfortanalytics.aon.AbstractReader;
 import com.comfortanalytics.aon.Areader;
-import java.io.*;
+import java.io.Closeable;
+import java.io.File;
+import java.io.FileReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.Reader;
 
 /**
  * Json implementation of Areader.  The same instance can be re-used with the
@@ -27,7 +32,7 @@ import java.io.*;
  * @author Aaron Hansen
  * @see com.comfortanalytics.aon.Areader
  */
-public class JsonReader extends AbstractReader implements Closeable {
+public class JsonReader extends AbstractReader implements Closeable, JsonConstants {
 
     // Constants
     // ---------
@@ -44,7 +49,6 @@ public class JsonReader extends AbstractReader implements Closeable {
     private char[] buf = new char[BUFLEN];
     private int buflen = 0;
     private Input in;
-
 
     // Constructors
     // ------------
@@ -68,9 +72,23 @@ public class JsonReader extends AbstractReader implements Closeable {
         setInput(in);
     }
 
-
     // Public Methods
     // --------------
+
+    private void bufAppend(char ch) {
+        if (buflen == buf.length) {
+            char[] tmp = new char[buflen * 2];
+            System.arraycopy(buf, 0, tmp, 0, buflen);
+            buf = tmp;
+        }
+        buf[buflen++] = ch;
+    }
+
+    private String bufToString() {
+        String ret = new String(buf, 0, buflen);
+        buflen = 0;
+        return ret;
+    }
 
     public void close() {
         try {
@@ -93,23 +111,31 @@ public class JsonReader extends AbstractReader implements Closeable {
                     case '{':
                         return setBeginMap();
                     case ':':
-                        if (last() != Token.STRING)
+                        if (last() != Token.STRING) {
                             throw new IllegalStateException("Invalid key");
+                        }
                         return setNextKey();
                     case ',':
-                        if ((last() == Token.END_LIST) || (last() == Token.END_MAP))
+                        if ((last() == Token.END_LIST) || (last() == Token.END_MAP)) {
                             break;
+                        }
                         return last();
                     case ']':
-                        if (!hasValue) return setEndList();
+                        if (!hasValue) {
+                            return setEndList();
+                        }
                         in.unread();
                         return last();
                     case '}':
-                        if (!hasValue) return setEndMap();
+                        if (!hasValue) {
+                            return setEndMap();
+                        }
                         in.unread();
                         return last();
                     case -1:
-                        if (!hasValue) return setEndInput();
+                        if (!hasValue) {
+                            return setEndInput();
+                        }
                         in.unread();
                         return last();
                     //values
@@ -169,77 +195,6 @@ public class JsonReader extends AbstractReader implements Closeable {
         } catch (IOException x) {
             throw new RuntimeException(x);
         }
-    }
-
-    /**
-     * Sets the input source, resets to ROOT, and returns this.
-     */
-    public Areader setInput(CharSequence in) {
-        this.in = new CharSequenceInput(in);
-        return reset();
-    }
-
-    /**
-     * Sets the input source, resets to ROOT, and returns this.
-     */
-    public Areader setInput(File file) {
-        try {
-            if (in instanceof JsonInput) {
-                ((JsonInput) in).setInput(new FileReader(file));
-            } else {
-                in = new JsonInput(new FileReader(file));
-            }
-        } catch (Exception x) {
-            throw new IllegalStateException(x);
-        }
-        return reset();
-    }
-
-    /**
-     * Sets the input source, resets to ROOT, and returns this.
-     */
-    public Areader setInput(InputStream inputStream, String charset) {
-        try {
-            if (this.in instanceof JsonInput) {
-                ((JsonInput) this.in).setInput(inputStream, charset);
-            } else {
-                this.in = new JsonInput(inputStream, charset);
-            }
-            return reset();
-        } catch (IOException x) {
-            throw new IllegalStateException("IOException: " + x.getMessage(), x);
-        }
-    }
-
-    /**
-     * Sets the input source, resets to ROOT, and returns this.
-     */
-    public Areader setInput(Reader reader) {
-        if (this.in instanceof JsonInput) {
-            ((JsonInput) this.in).setInput(reader);
-        } else {
-            this.in = new JsonInput(reader);
-        }
-        return reset();
-    }
-
-
-    // Private Methods
-    // ---------------
-
-    private void bufAppend(char ch) {
-        if (buflen == buf.length) {
-            char[] tmp = new char[buflen * 2];
-            System.arraycopy(buf, 0, tmp, 0, buflen);
-            buf = tmp;
-        }
-        buf[buflen++] = ch;
-    }
-
-    private String bufToString() {
-        String ret = new String(buf, 0, buflen);
-        buflen = 0;
-        return ret;
     }
 
     /**
@@ -317,6 +272,9 @@ public class JsonReader extends AbstractReader implements Closeable {
         }
         return setNextValue((int) l);
     }
+
+    // Private Methods
+    // ---------------
 
     private String readString() throws IOException {
         char ch = (char) in.read();
@@ -397,6 +355,58 @@ public class JsonReader extends AbstractReader implements Closeable {
         return (char) ret;
     }
 
+    /**
+     * Sets the input source, resets to ROOT, and returns this.
+     */
+    public Areader setInput(CharSequence in) {
+        this.in = new CharSequenceInput(in);
+        return reset();
+    }
+
+    /**
+     * Sets the input source, resets to ROOT, and returns this.
+     */
+    public Areader setInput(File file) {
+        try {
+            if (in instanceof JsonInput) {
+                ((JsonInput) in).setInput(new FileReader(file));
+            } else {
+                in = new JsonInput(new FileReader(file));
+            }
+        } catch (Exception x) {
+            throw new IllegalStateException(x);
+        }
+        return reset();
+    }
+
+    /**
+     * Sets the input source, resets to ROOT, and returns this.
+     */
+    public Areader setInput(InputStream inputStream, String charset) {
+        try {
+            if (this.in instanceof JsonInput) {
+                ((JsonInput) this.in).setInput(inputStream, charset);
+            } else {
+                this.in = new JsonInput(inputStream, charset);
+            }
+            return reset();
+        } catch (IOException x) {
+            throw new IllegalStateException("IOException: " + x.getMessage(), x);
+        }
+    }
+
+    /**
+     * Sets the input source, resets to ROOT, and returns this.
+     */
+    public Areader setInput(Reader reader) {
+        if (this.in instanceof JsonInput) {
+            ((JsonInput) this.in).setInput(reader);
+        } else {
+            this.in = new JsonInput(reader);
+        }
+        return reset();
+    }
+
     private static void validate(int ch1, int ch2) {
         if (ch1 != ch2) {
             throw new IllegalStateException("Expecting " + ch2 + ", but got " + ch1);
@@ -421,6 +431,7 @@ public class JsonReader extends AbstractReader implements Closeable {
      * Needed for the ability to unread (pushback) a char.
      */
     static interface Input extends Closeable {
+
         public int read() throws IOException;
 
         public void unread();

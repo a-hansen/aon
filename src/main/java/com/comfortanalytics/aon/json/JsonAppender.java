@@ -16,11 +16,15 @@
 
 package com.comfortanalytics.aon.json;
 
-import com.comfortanalytics.aon.Alist;
-import com.comfortanalytics.aon.Amap;
-import com.comfortanalytics.aon.Aobj;
-import com.comfortanalytics.aon.Awriter;
-import java.io.*;
+import java.io.BufferedOutputStream;
+import java.io.Closeable;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.FileWriter;
+import java.io.Flushable;
+import java.io.IOException;
+import java.io.OutputStream;
+import java.io.OutputStreamWriter;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
@@ -44,7 +48,6 @@ public class JsonAppender extends AbstractJsonWriter {
     private Appendable out;
     private boolean zip = false;
     private ZipOutputStream zout;
-
 
     // Constructors
     // ------------
@@ -81,7 +84,6 @@ public class JsonAppender extends AbstractJsonWriter {
     public JsonAppender(OutputStream out, String charset) {
         setOutput(out, charset);
     }
-
 
     // Public Methods
     // --------------
@@ -154,8 +156,9 @@ public class JsonAppender extends AbstractJsonWriter {
     public void close() {
         try {
             flush();
-            if (getDepth() > 0)
+            if (getDepth() > 0) {
                 throw new IllegalStateException("Nesting error.");
+            }
             if (zout != null) {
                 try {
                     zout.closeEntry();
@@ -204,7 +207,9 @@ public class JsonAppender extends AbstractJsonWriter {
      * Sets the sink, resets the state and returns this.
      */
     public JsonAppender setOutput(Appendable arg) {
-        if (arg == null) throw new NullPointerException();
+        if (arg == null) {
+            throw new NullPointerException();
+        }
         this.out = arg;
         return reset();
     }
@@ -214,7 +219,9 @@ public class JsonAppender extends AbstractJsonWriter {
      */
     public JsonAppender setOutput(File arg) {
         try {
-            if (arg == null) throw new NullPointerException();
+            if (arg == null) {
+                throw new NullPointerException();
+            }
             this.out = new FileWriter(arg);
         } catch (IOException x) {
             throw new RuntimeException(x);
@@ -228,7 +235,9 @@ public class JsonAppender extends AbstractJsonWriter {
      */
     public JsonAppender setOutput(File file, String charset) {
         try {
-            if (file == null) throw new NullPointerException();
+            if (file == null) {
+                throw new NullPointerException();
+            }
             this.out = new OutputStreamWriter(new FileOutputStream(file), charset);
             this.zip = true;
         } catch (IOException x) {
@@ -243,7 +252,9 @@ public class JsonAppender extends AbstractJsonWriter {
      */
     public JsonAppender setOutput(File file, String charset, String zipFileName) {
         try {
-            if (file == null) throw new NullPointerException();
+            if (file == null) {
+                throw new NullPointerException();
+            }
             zout = new ZipOutputStream(
                     new BufferedOutputStream(new FileOutputStream(file)));
             zout.putNextEntry(new ZipEntry(zipFileName));
@@ -259,7 +270,9 @@ public class JsonAppender extends AbstractJsonWriter {
      * Sets the sink, resets the state and returns this.
      */
     public JsonAppender setOutput(OutputStream arg) {
-        if (arg == null) throw new NullPointerException();
+        if (arg == null) {
+            throw new NullPointerException();
+        }
         this.out = new OutputStreamWriter(arg);
         return reset();
     }
@@ -269,7 +282,9 @@ public class JsonAppender extends AbstractJsonWriter {
      */
     public JsonAppender setOutput(OutputStream out, String charset) {
         try {
-            if (out == null) throw new NullPointerException();
+            if (out == null) {
+                throw new NullPointerException();
+            }
             this.out = new OutputStreamWriter(zout, charset);
             this.zip = true;
         } catch (IOException x) {
@@ -277,7 +292,6 @@ public class JsonAppender extends AbstractJsonWriter {
         }
         return reset();
     }
-
 
     // Protected Methods
     // -----------------

@@ -33,12 +33,13 @@ class Astr extends Aobj {
 
     private String value;
 
-
     // Constructors
     // ------------
 
     Astr(String val) {
-        if (val == null) throw new NullPointerException("Null not allowed");
+        if (val == null) {
+            throw new NullPointerException("Null not allowed");
+        }
         value = val;
     }
 
@@ -52,10 +53,16 @@ class Astr extends Aobj {
 
     @Override
     public boolean equals(Object o) {
-        if (o == this) return true;
-        if (!(o instanceof Aobj)) return false;
+        if (o == this) {
+            return true;
+        }
+        if (!(o instanceof Aobj)) {
+            return false;
+        }
         Aobj obj = (Aobj) o;
-        if (obj.aonType() != Atype.STRING) return false;
+        if (obj.aonType() != Atype.STRING) {
+            return false;
+        }
         return value.equals(obj.toString());
     }
 
@@ -67,11 +74,6 @@ class Astr extends Aobj {
     @Override
     public boolean isString() {
         return true;
-    }
-
-    public static Astr make(String arg) {
-        if (arg.isEmpty()) return EMPTY;
-        return new Astr(arg);
     }
 
     @Override
@@ -95,6 +97,16 @@ class Astr extends Aobj {
     @Override
     public String toString() {
         return value;
+    }
+
+    public static Astr valueOf(String arg) {
+        if (arg == null) {
+            return null;
+        }
+        if (arg.length() == 0) {
+            return EMPTY;
+        }
+        return new Astr(arg);
     }
 
 

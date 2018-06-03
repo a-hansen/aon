@@ -13,28 +13,28 @@
  * PROFITS, WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION,
  * ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  */
+
 package com.comfortanalytics.aon;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
 
 /**
+ * Represents a BigInteger.
+ *
  * @author Aaron Hansen
  */
-class Aint extends Aobj {
-
-    // Constants
-    // ---------
+class Abigint extends Aobj {
 
     // Fields
     // ------
 
-    private int value;
+    private BigInteger value;
 
     // Constructors
     // ------------
 
-    private Aint(int val) {
+    Abigint(BigInteger val) {
         value = val;
     }
 
@@ -43,7 +43,7 @@ class Aint extends Aobj {
 
     @Override
     public Atype aonType() {
-        return Atype.INT;
+        return Atype.BIGINT;
     }
 
     @Override
@@ -52,30 +52,19 @@ class Aint extends Aobj {
             return false;
         }
         Aobj obj = (Aobj) o;
-        switch (obj.aonType()) {
-            case DECIMAL:
-                return obj.equals(this);
-            case BIGINT:
-                return obj.equals(this);
-            case DOUBLE:
-                return obj.toDouble() == value;
-            case FLOAT:
-                return obj.toFloat() == value;
-            case INT:
-                return obj.toInt() == value;
-            case LONG:
-                return obj.toLong() == value;
+        if (obj.isNumber()) {
+            return value.equals(obj.toBigInt());
         }
         return false;
     }
 
     @Override
     public int hashCode() {
-        return value;
+        return value.hashCode();
     }
 
     @Override
-    public boolean isInt() {
+    public boolean isBigInteger() {
         return true;
     }
 
@@ -86,37 +75,37 @@ class Aint extends Aobj {
 
     @Override
     public BigDecimal toBigDecimal() {
-        return BigDecimal.valueOf(value);
+        return new BigDecimal(value);
     }
 
     @Override
     public BigInteger toBigInt() {
-        return BigInteger.valueOf(value);
+        return value;
     }
 
     @Override
     public boolean toBoolean() {
-        return value != 0;
+        return value.intValue() != 0;
     }
 
     @Override
     public double toDouble() {
-        return value;
+        return value.doubleValue();
     }
 
     @Override
     public float toFloat() {
-        return value;
+        return value.floatValue();
     }
 
     @Override
     public int toInt() {
-        return value;
+        return value.intValue();
     }
 
     @Override
     public long toLong() {
-        return value;
+        return value.longValue();
     }
 
     @Override
@@ -124,40 +113,8 @@ class Aint extends Aobj {
         return String.valueOf(value);
     }
 
-    /**
-     * Attempts to reuse some common values before creating a new instance.
-     */
-    public static Aint valueOf(int arg) {
-        Aint ret = IntCache.get(arg);
-        if (ret == null) {
-            ret = new Aint(arg);
-        }
-        return ret;
-    }
-
-    // Inner Classes
-    // --------------
-
-    private static class IntCache {
-
-        private static final Aint NEG_ONE = new Aint(-1);
-        private static final Aint[] cache = new Aint[101];
-
-        public static Aint get(int i) {
-            if ((i < 0) || (i > 100)) {
-                if (i == -1) {
-                    return NEG_ONE;
-                }
-                return null;
-            }
-            return cache[i];
-        }
-
-        static {
-            for (int i = 101; --i >= 0; ) {
-                cache[i] = new Aint(i);
-            }
-        }
+    public static Abigint valueOf(BigInteger arg) {
+        return new Abigint(arg);
     }
 
 }

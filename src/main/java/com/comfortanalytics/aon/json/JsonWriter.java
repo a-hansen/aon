@@ -16,7 +16,14 @@
 
 package com.comfortanalytics.aon.json;
 
-import java.io.*;
+import java.io.BufferedOutputStream;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.OutputStream;
+import java.io.OutputStreamWriter;
+import java.io.Writer;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
@@ -41,7 +48,6 @@ public class JsonWriter extends AbstractJsonWriter {
     private int buflen = 0;
     private Writer out;
     private ZipOutputStream zout;
-
 
     // Constructors
     // ------------
@@ -74,7 +80,6 @@ public class JsonWriter extends AbstractJsonWriter {
     public JsonWriter(OutputStream out, String charset) {
         setOutput(out, charset);
     }
-
 
     // Public Methods
     // --------------
@@ -116,16 +121,18 @@ public class JsonWriter extends AbstractJsonWriter {
      * Append the chars and return this.  Can be used for custom formatting.
      */
     public Appendable append(CharSequence csq, int start, int end) {
-        for (int i = start; i < end; i++)
+        for (int i = start; i < end; i++) {
             append(csq.charAt(i));
+        }
         return this;
     }
 
     public void close() {
         try {
             flush();
-            if (getDepth() > 0)
+            if (getDepth() > 0) {
                 throw new IllegalStateException("Nesting error.");
+            }
             if (zout != null) {
                 try {
                     zout.closeEntry();
@@ -162,7 +169,9 @@ public class JsonWriter extends AbstractJsonWriter {
      */
     public JsonWriter setOutput(File arg) {
         try {
-            if (arg == null) throw new NullPointerException();
+            if (arg == null) {
+                throw new NullPointerException();
+            }
             this.out = new FileWriter(arg);
         } catch (IOException x) {
             throw new RuntimeException(x);
@@ -188,7 +197,9 @@ public class JsonWriter extends AbstractJsonWriter {
      */
     public JsonWriter setOutput(File file, String charset, String zipFileName) {
         try {
-            if (file == null) throw new NullPointerException();
+            if (file == null) {
+                throw new NullPointerException();
+            }
             zout = new ZipOutputStream(
                     new BufferedOutputStream(new FileOutputStream(file)));
             zout.putNextEntry(new ZipEntry(zipFileName));
@@ -203,7 +214,9 @@ public class JsonWriter extends AbstractJsonWriter {
      * Sets the sink, resets the state and returns this.
      */
     public JsonWriter setOutput(OutputStream arg) {
-        if (arg == null) throw new NullPointerException();
+        if (arg == null) {
+            throw new NullPointerException();
+        }
         this.out = new OutputStreamWriter(arg);
         return reset();
     }
@@ -213,7 +226,9 @@ public class JsonWriter extends AbstractJsonWriter {
      */
     public JsonWriter setOutput(OutputStream out, String charset) {
         try {
-            if (out == null) throw new NullPointerException();
+            if (out == null) {
+                throw new NullPointerException();
+            }
             this.out = new OutputStreamWriter(out, charset);
         } catch (IOException x) {
             throw new RuntimeException(x);

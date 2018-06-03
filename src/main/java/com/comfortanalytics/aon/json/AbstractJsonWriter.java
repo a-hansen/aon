@@ -19,13 +19,13 @@ package com.comfortanalytics.aon.json;
 import com.comfortanalytics.aon.AbstractWriter;
 import java.io.Closeable;
 import java.io.IOException;
+import java.math.BigDecimal;
+import java.math.BigInteger;
 
 /**
  * @author Aaron Hansen
  */
-public abstract class AbstractJsonWriter
-        extends AbstractWriter
-        implements Appendable, Closeable {
+public abstract class AbstractJsonWriter extends AbstractWriter implements Appendable, Closeable {
 
     // Constants
     // ---------
@@ -48,13 +48,6 @@ public abstract class AbstractJsonWriter
                     '8', '9', 'a', 'b', 'c', 'd', 'e', 'f'
             };
 
-
-    // Fields
-    // ------
-
-    // Constructors
-    // ------------
-
     // Public Methods
     // --------------
 
@@ -71,9 +64,17 @@ public abstract class AbstractJsonWriter
         return this;
     }
 
-    /**
-     * Write the value.
-     */
+    @Override
+    protected void write(BigDecimal arg) throws IOException {
+        append(arg.toString());
+    }
+
+    @Override
+    protected void write(BigInteger arg) throws IOException {
+        append(arg.toString());
+    }
+
+    @Override
     protected void write(boolean arg) throws IOException {
         if (arg) {
             append(C_TRUE, 0, 4);
@@ -82,9 +83,7 @@ public abstract class AbstractJsonWriter
         }
     }
 
-    /**
-     * Write the value.
-     */
+    @Override
     protected void write(double arg) throws IOException {
         if ((arg % 1) == 0) {
             write((long) arg);
@@ -93,9 +92,16 @@ public abstract class AbstractJsonWriter
         }
     }
 
-    /**
-     * Write the value.
-     */
+    @Override
+    protected void write(float arg) throws IOException {
+        if ((arg % 1) == 0) {
+            write((long) arg);
+        } else {
+            append(String.valueOf(arg));
+        }
+    }
+
+    @Override
     protected void write(int arg) throws IOException {
         if (arg < 10) {
             append((char) (arg + '0'));
@@ -128,9 +134,7 @@ public abstract class AbstractJsonWriter
         }
     }
 
-    /**
-     * Write the value.
-     */
+    @Override
     protected void write(long arg) throws IOException {
         if (arg < 100000) {
             write((int) arg);
@@ -139,54 +143,41 @@ public abstract class AbstractJsonWriter
         }
     }
 
-    /**
-     * Write string key of a map entry.
-     */
+    @Override
     protected void writeKey(CharSequence arg) throws IOException {
         writeValue(arg);
     }
 
-    /**
-     * Separate the key from the value in a map.
-     */
+    @Override
     protected void writeKeyValueSeparator() throws IOException {
-        if (prettyPrint)
+        if (prettyPrint) {
             append(C_S, 0, 2);
-        else
+        } else {
             append(':');
+        }
     }
 
-    /**
-     * End the current list.
-     */
+    @Override
     protected void writeListEnd() throws IOException {
         append(']');
     }
 
-    /**
-     * Start a new list.
-     */
+    @Override
     protected void writeListStart() throws IOException {
         append('[');
     }
 
-    /**
-     * End the current map.
-     */
+    @Override
     protected void writeMapEnd() throws IOException {
         append('}');
     }
 
-    /**
-     * Start a new map.
-     */
+    @Override
     protected void writeMapStart() throws IOException {
         append('{');
     }
 
-    /**
-     * Two spaces per level.
-     */
+    @Override
     protected void writeNewLineIndent() throws IOException {
         append('\n');
         for (int i = getDepth(); --i >= 0; ) {
@@ -194,23 +185,28 @@ public abstract class AbstractJsonWriter
         }
     }
 
-    /**
-     * Write a null value.
-     */
+    @Override
     protected void writeNull() throws IOException {
         append(C_NULL, 0, 4);
     }
 
-    /**
-     * Write a value separator, such as the comma in json.
-     */
+    @Override
     protected void writeSeparator() throws IOException {
         append(',');
     }
 
     /**
-     * Encodes a string.
+     * Encode a unicode char.
      */
+    private void writeUnicode(char ch) throws IOException {
+        append(C_U, 0, 2);
+        append(HEX[(ch >>> 12) & 0xf]);
+        append(HEX[(ch >>> 8) & 0xf]);
+        append(HEX[(ch >>> 4) & 0xf]);
+        append(HEX[(ch) & 0xf]);
+    }
+
+    @Override
     protected void writeValue(CharSequence buf) throws IOException {
         append('"');
         char ch;
@@ -248,19 +244,4 @@ public abstract class AbstractJsonWriter
         append('"');
     }
 
-    /**
-     * Encode a unicode char.
-     */
-    private void writeUnicode(char ch) throws IOException {
-        append(C_U, 0, 2);
-        append(HEX[(ch >>> 12) & 0xf]);
-        append(HEX[(ch >>> 8) & 0xf]);
-        append(HEX[(ch >>> 4) & 0xf]);
-        append(HEX[(ch) & 0xf]);
-    }
-
-    // Inner Classes
-    // -------------
-
-
-}//Main
+}

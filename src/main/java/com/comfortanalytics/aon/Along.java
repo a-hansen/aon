@@ -16,6 +16,9 @@
 
 package com.comfortanalytics.aon;
 
+import java.math.BigDecimal;
+import java.math.BigInteger;
+
 /**
  * @author Aaron Hansen
  */
@@ -28,7 +31,6 @@ class Along extends Aobj {
     // ------
 
     private long value;
-
 
     // Constructors
     // ------------
@@ -47,11 +49,19 @@ class Along extends Aobj {
 
     @Override
     public boolean equals(Object o) {
-        if (!(o instanceof Aobj)) return false;
+        if (!(o instanceof Aobj)) {
+            return false;
+        }
         Aobj obj = (Aobj) o;
         switch (obj.aonType()) {
+            case DECIMAL:
+                return obj.equals(this);
+            case BIGINT:
+                return obj.equals(this);
             case DOUBLE:
                 return obj.toDouble() == value;
+            case FLOAT:
+                return obj.toFloat() == value;
             case INT:
                 return obj.toInt() == value;
             case LONG:
@@ -62,7 +72,7 @@ class Along extends Aobj {
 
     @Override
     public int hashCode() {
-        return (int)(value^(value>>>32));
+        return (int) (value ^ (value >>> 32));
     }
 
     @Override
@@ -75,15 +85,14 @@ class Along extends Aobj {
         return true;
     }
 
-    /**
-     * Attempts to reuse some common values before creating a new instance.
-     */
-    public static Along make(long arg) {
-        Along ret = null;
-        int i = (int) arg;
-        if (arg == i) ret = LongCache.get(i);
-        if (ret == null) ret = new Along(arg);
-        return ret;
+    @Override
+    public BigDecimal toBigDecimal() {
+        return BigDecimal.valueOf(value);
+    }
+
+    @Override
+    public BigInteger toBigInt() {
+        return BigInteger.valueOf(value);
     }
 
     @Override
@@ -116,26 +125,43 @@ class Along extends Aobj {
         return String.valueOf(value);
     }
 
+    /**
+     * Attempts to reuse some common values before creating a new instance.
+     */
+    public static Along valueOf(long arg) {
+        Along ret = null;
+        int i = (int) arg;
+        if (arg == i) {
+            ret = LongCache.get(i);
+        }
+        if (ret == null) {
+            ret = new Along(arg);
+        }
+        return ret;
+    }
 
     // Inner Classes
     // --------------
 
     private static class LongCache {
-        private static final Along[] cache = new Along[101];
+
         private static final Along NEG_ONE = new Along(-1);
+        private static final Along[] cache = new Along[101];
 
         public static Along get(long l) {
             if ((l < 0) || (l > 100)) {
-                if (l == -1)
+                if (l == -1) {
                     return NEG_ONE;
+                }
                 return null;
             }
             return cache[(int) l];
         }
 
         static {
-            for (int i = 101; --i >= 0; )
+            for (int i = 101; --i >= 0; ) {
                 cache[i] = new Along(i);
+            }
         }
     }
 

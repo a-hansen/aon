@@ -28,16 +28,11 @@ class Anull extends Aobj {
 
     public static Anull NULL = new Anull();
 
-
-    // Fields
-    // ------
-
     // Constructors
     // ------------
 
     private Anull() {
     }
-
 
     // Public Methods
     // --------------

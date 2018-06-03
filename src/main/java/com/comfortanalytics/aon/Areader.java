@@ -16,6 +16,9 @@
 
 package com.comfortanalytics.aon;
 
+import java.math.BigDecimal;
+import java.math.BigInteger;
+
 /**
  * An Aobj decoder that can be used to decode an entire graph in pieces, or one large
  * Aobj, or somewhere in between. To decode an entire graph, call getObj(), getMap()
@@ -43,18 +46,22 @@ package com.comfortanalytics.aon;
  *
  * @author Aaron Hansen
  */
-public interface Areader extends Aconstants {
-
-    // Constants
-    // ---------
-
-    // Public Methods
-    // --------------
+public interface Areader {
 
     /**
      * Close the input.
      */
     public void close();
+
+    /**
+     * Returns the value when last() == DECIMAL.
+     */
+    public BigDecimal getBigDecimal();
+
+    /**
+     * Returns the value when last() == BIGINT.
+     */
+    public BigInteger getBigInt();
 
     /**
      * Returns the value when last() == BOOLEAN.
@@ -122,11 +129,14 @@ public interface Areader extends Aconstants {
     public enum Token {
         BEGIN_LIST,
         BEGIN_MAP,
+        BIGINT,
         BOOLEAN,
+        DECIMAL,
         DOUBLE,
         END_INPUT,
         END_LIST,
         END_MAP,
+        FLOAT,
         INT,
         KEY,
         LONG,

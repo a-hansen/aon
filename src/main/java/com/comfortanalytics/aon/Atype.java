@@ -23,8 +23,11 @@ package com.comfortanalytics.aon;
  */
 public enum Atype {
 
+    BIGINT,
     BOOLEAN,
+    DECIMAL,
     DOUBLE,
+    FLOAT,
     INT,
     LIST,
     LONG,

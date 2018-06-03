@@ -16,6 +16,9 @@
 
 package com.comfortanalytics.aon;
 
+import java.math.BigDecimal;
+import java.math.BigInteger;
+
 /**
  * Base representation for all Aon data types.  Use Alist and Amap to create data
  * structures.
@@ -28,15 +31,6 @@ package com.comfortanalytics.aon;
  * @author Aaron Hansen
  */
 public abstract class Aobj {
-
-    // Constants
-    // ---------
-
-    // Fields
-    // ------
-
-    // Constructors
-    // ------------
 
     // Methods
     // -------
@@ -55,6 +49,20 @@ public abstract class Aobj {
     }
 
     /**
+     * Whether or not the object represents a BigDecimal.
+     */
+    public boolean isBigDecimal() {
+        return false;
+    }
+
+    /**
+     * Whether or not the object represents a BigDecimal.
+     */
+    public boolean isBigInteger() {
+        return false;
+    }
+
+    /**
      * Whether or not the object represents a boolean.
      */
     public boolean isBoolean() {
@@ -69,9 +77,9 @@ public abstract class Aobj {
     }
 
     /**
-     * Whether or not the object represents an int.
+     * Whether or not the object represents a double.
      */
-    public boolean isInt() {
+    public boolean isFloat() {
         return false;
     }
 
@@ -79,6 +87,13 @@ public abstract class Aobj {
      * Whether or not the object represents a list or map.
      */
     public boolean isGroup() {
+        return false;
+    }
+
+    /**
+     * Whether or not the object represents an int.
+     */
+    public boolean isInt() {
         return false;
     }
 
@@ -126,48 +141,21 @@ public abstract class Aobj {
     }
 
     /**
-     * Creates an Aobj representation of the primitive.
+     * Attempts to return a BigDecimal.  Will convert other numeric types.
+     *
+     * @throws ClassCastException If not convertible.
      */
-    public static Aobj make(boolean arg) {
-        return Abool.make(arg);
+    public BigDecimal toBigDecimal() {
+        throw new ClassCastException(getClass().getName() + " not big decimal");
     }
 
     /**
-     * Creates an Aobj representation of the primitive.
+     * Attempts to return a BigInteger.  Will convert other numeric types.
+     *
+     * @throws ClassCastException If not convertible.
      */
-    public static Aobj make(double arg) {
-        return Adbl.make(arg);
-    }
-
-    /**
-     * Creates an Aobj representation of the primitive.
-     */
-    public static Aobj make(int arg) {
-        return Aint.make(arg);
-    }
-
-    /**
-     * Creates an Aobj representation of the primitive.
-     */
-    public static Aobj make(long arg) {
-        return Along.make(arg);
-    }
-
-    /**
-     * Creates an Aobj representation of the primitive.
-     */
-    public static Aobj make(String arg) {
-        if (arg == null) {
-            return makeNull();
-        }
-        return Astr.make(arg);
-    }
-
-    /**
-     * Creates an Aobj representation of null.
-     */
-    public static Aobj makeNull() {
-        return Anull.NULL;
+    public BigInteger toBigInt() {
+        throw new ClassCastException(getClass().getName() + " not big int");
     }
 
     /**
@@ -255,10 +243,6 @@ public abstract class Aobj {
     public Amap toMap() {
         throw new ClassCastException(getClass().getName() + " not map");
     }
-
-
-    // Inner Classes
-    // -------------
 
 
 }
