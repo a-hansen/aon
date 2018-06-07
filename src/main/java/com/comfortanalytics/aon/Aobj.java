@@ -1,25 +1,9 @@
-/* ISC License
- *
- * Copyright 2017 by Comfort Analytics, LLC.
- *
- * Permission to use, copy, modify, and/or distribute this software for any purpose with
- * or without fee is hereby granted, provided that the above copyright notice and this
- * permission notice appear in all copies.
- *
- * THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES WITH REGARD
- * TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS. IN
- * NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY SPECIAL, DIRECT, INDIRECT, OR
- * CONSEQUENTIAL DAMAGES OR ANY DAMAGES WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR
- * PROFITS, WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION,
- * ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
- */
-
 package com.comfortanalytics.aon;
 
 import java.io.PrintWriter;
 import java.io.StringWriter;
+import java.util.HashMap;
 import java.util.Map;
-import java.util.TreeMap;
 
 /**
  * String keyed collection of values that preserves the order of addition. This is not thread safe.
@@ -28,18 +12,17 @@ import java.util.TreeMap;
  */
 public class Aobj extends Agroup {
 
-    // Fields
-    // ------
+    ///////////////////////////////////////////////////////////////////////////
+    // Instance Fields
+    ///////////////////////////////////////////////////////////////////////////
 
-    /**
-     * For preserving order.
-     */
-    private Map<String, MapEntry> entryMap = new TreeMap<String, MapEntry>();
-    private MapEntry first;
-    private MapEntry last;
+    private Map<String, ObjEntry> entryMap = new HashMap<String, ObjEntry>();
+    private ObjEntry first;
+    private ObjEntry last;
 
+    ///////////////////////////////////////////////////////////////////////////
     // Methods
-    // -------
+    ///////////////////////////////////////////////////////////////////////////
 
     @Override
     public Atype aonType() {
@@ -57,7 +40,7 @@ public class Aobj extends Agroup {
     @Override
     public Avalue copy() {
         Aobj ret = new Aobj();
-        MapEntry e = getFirstEntry();
+        ObjEntry e = getFirstEntry();
         while (e != null) {
             ret.put(e.getKey(), e.getValue().copy());
             e = e.next();
@@ -69,7 +52,7 @@ public class Aobj extends Agroup {
      * Returns the value for the given key or null.
      */
     public Avalue get(String key) {
-        MapEntry e = entryMap.get(key);
+        ObjEntry e = entryMap.get(key);
         if (e == null) {
             return null;
         }
@@ -167,7 +150,7 @@ public class Aobj extends Agroup {
     }
 
     @Override
-    public MapEntry getFirstEntry() {
+    public ObjEntry getFirstEntry() {
         return first;
     }
 
@@ -179,7 +162,7 @@ public class Aobj extends Agroup {
     }
 
     @Override
-    public MapEntry getLastEntry() {
+    public ObjEntry getLastEntry() {
         return last;
     }
 
@@ -252,7 +235,7 @@ public class Aobj extends Agroup {
         if (val == null) {
             val = Anull.NULL;
         }
-        MapEntry e = entryMap.get(key);
+        ObjEntry e = entryMap.get(key);
         if (e != null) {
             Avalue curr = e.getValue();
             if (curr != val) {
@@ -268,7 +251,7 @@ public class Aobj extends Agroup {
             if (val.isGroup()) {
                 val.toGroup().setParent(this);
             }
-            e = new MapEntry(key, val);
+            e = new ObjEntry(key, val);
             entryMap.put(key, e);
             if (first == null) {
                 first = e;
@@ -376,7 +359,7 @@ public class Aobj extends Agroup {
      * @return Possibly null.
      */
     public Avalue remove(String key) {
-        MapEntry e = entryMap.remove(key);
+        ObjEntry e = entryMap.remove(key);
         if (e == null) {
             return null;
         }
@@ -386,7 +369,7 @@ public class Aobj extends Agroup {
         } else if (e == first) {
             first = first.next();
         } else {
-            MapEntry prev = getPrev(key);
+            ObjEntry prev = getPrev(key);
             prev.setNext(e.next());
             if (e == last) {
                 last = prev;
@@ -423,9 +406,13 @@ public class Aobj extends Agroup {
         return this;
     }
 
-    private MapEntry getPrev(String key) {
-        MapEntry prev = null;
-        MapEntry entry = getFirstEntry();
+    ///////////////////////////////////////////////////////////////////////////
+    // Package / Private Methods
+    ///////////////////////////////////////////////////////////////////////////
+
+    private ObjEntry getPrev(String key) {
+        ObjEntry prev = null;
+        ObjEntry entry = getFirstEntry();
         while (entry != null) {
             if (entry.getKey().equals(key)) {
                 return prev;
@@ -436,16 +423,20 @@ public class Aobj extends Agroup {
         return prev;
     }
 
+    ///////////////////////////////////////////////////////////////////////////
     // Inner Classes
-    // -------------
+    ///////////////////////////////////////////////////////////////////////////
 
-    public static class MapEntry implements Entry {
+    /**
+     * Object element which provides access to the next entry in the object.
+     */
+    public static class ObjEntry implements Entry {
 
         private String key;
-        private MapEntry next;
+        private ObjEntry next;
         private Avalue val;
 
-        MapEntry(String key, Avalue val) {
+        ObjEntry(String key, Avalue val) {
             this.key = key;
             this.val = val;
         }
@@ -455,23 +446,21 @@ public class Aobj extends Agroup {
             if (obj == this) {
                 return true;
             }
-            if (!(obj instanceof MapEntry)) {
+            if (!(obj instanceof ObjEntry)) {
                 return false;
             }
-            MapEntry e = (MapEntry) obj;
+            ObjEntry e = (ObjEntry) obj;
             if (!e.getKey().equals(key)) {
                 return false;
             }
-            if (!e.getValue().equals(val)) {
-                return false;
-            }
-            return true;
+            return e.getValue().equals(val);
         }
 
         public String getKey() {
             return key;
         }
 
+        @Override
         public Avalue getValue() {
             return val;
         }
@@ -481,11 +470,12 @@ public class Aobj extends Agroup {
             return key.hashCode() ^ val.hashCode();
         }
 
-        public MapEntry next() {
+        @Override
+        public ObjEntry next() {
             return next;
         }
 
-        void setNext(MapEntry entry) {
+        void setNext(ObjEntry entry) {
             next = entry;
         }
 
@@ -494,6 +484,5 @@ public class Aobj extends Agroup {
         }
 
     }
-
 
 }

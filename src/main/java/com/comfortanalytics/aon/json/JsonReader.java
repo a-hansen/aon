@@ -1,19 +1,3 @@
-/* ISC License
- *
- * Copyright 2017 by Comfort Analytics, LLC.
- *
- * Permission to use, copy, modify, and/or distribute this software for any purpose with
- * or without fee is hereby granted, provided that the above copyright notice and this
- * permission notice appear in all copies.
- *
- * THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES WITH REGARD
- * TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS. IN
- * NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY SPECIAL, DIRECT, INDIRECT, OR
- * CONSEQUENTIAL DAMAGES OR ANY DAMAGES WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR
- * PROFITS, WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION,
- * ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
- */
-
 package com.comfortanalytics.aon.json;
 
 import com.comfortanalytics.aon.AbstractReader;
@@ -34,8 +18,9 @@ import java.io.Reader;
  */
 public class JsonReader extends AbstractReader implements Closeable, JsonConstants {
 
-    // Constants
-    // ---------
+    ///////////////////////////////////////////////////////////////////////////
+    // Class Fields
+    ///////////////////////////////////////////////////////////////////////////
 
     private static final int BUFLEN = 8192;
 
@@ -43,15 +28,17 @@ public class JsonReader extends AbstractReader implements Closeable, JsonConstan
     private static final char[] rue = new char[]{'r', 'u', 'e'};
     private static final char[] ull = new char[]{'u', 'l', 'l'};
 
-    // Fields
-    // ---------
+    ///////////////////////////////////////////////////////////////////////////
+    // Instance Fields
+    ///////////////////////////////////////////////////////////////////////////
 
     private char[] buf = new char[BUFLEN];
     private int buflen = 0;
     private Input in;
 
+    ///////////////////////////////////////////////////////////////////////////
     // Constructors
-    // ------------
+    ///////////////////////////////////////////////////////////////////////////
 
     public JsonReader() {
     }
@@ -72,9 +59,11 @@ public class JsonReader extends AbstractReader implements Closeable, JsonConstan
         setInput(in);
     }
 
+    ///////////////////////////////////////////////////////////////////////////
     // Public Methods
-    // --------------
+    ///////////////////////////////////////////////////////////////////////////
 
+    @Override
     public void close() {
         try {
             in.close();
@@ -234,8 +223,9 @@ public class JsonReader extends AbstractReader implements Closeable, JsonConstan
         return reset();
     }
 
-    // Private Methods
-    // ---------------
+    ///////////////////////////////////////////////////////////////////////////
+    // Package / Private Methods
+    ///////////////////////////////////////////////////////////////////////////
 
     private void bufAppend(char ch) {
         if (buflen == buf.length) {
@@ -424,8 +414,9 @@ public class JsonReader extends AbstractReader implements Closeable, JsonConstan
         }
     }
 
+    ///////////////////////////////////////////////////////////////////////////
     // Inner Classes
-    // -------------
+    ///////////////////////////////////////////////////////////////////////////
 
     /**
      * Needed for the ability to unread (pushback) a char.
@@ -438,4 +429,4 @@ public class JsonReader extends AbstractReader implements Closeable, JsonConstan
     }
 
 
-}//Aon
+}

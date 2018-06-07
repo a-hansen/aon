@@ -1,19 +1,3 @@
-/* ISC License
- *
- * Copyright 2017 by Comfort Analytics, LLC.
- *
- * Permission to use, copy, modify, and/or distribute this software for any purpose with
- * or without fee is hereby granted, provided that the above copyright notice and this
- * permission notice appear in all copies.
- *
- * THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES WITH REGARD
- * TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS. IN
- * NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY SPECIAL, DIRECT, INDIRECT, OR
- * CONSEQUENTIAL DAMAGES OR ANY DAMAGES WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR
- * PROFITS, WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION,
- * ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
- */
-
 package com.comfortanalytics.aon.json;
 
 import com.comfortanalytics.aon.AbstractWriter;
@@ -27,8 +11,9 @@ import java.math.BigInteger;
  */
 public abstract class AbstractJsonWriter extends AbstractWriter implements Appendable, Closeable {
 
-    // Constants
-    // ---------
+    ///////////////////////////////////////////////////////////////////////////
+    // Class Fields
+    ///////////////////////////////////////////////////////////////////////////
 
     static final int BUF_SIZE = 8192;
     private static final char[] C_B = new char[]{'\\', 'b'};
@@ -48,21 +33,28 @@ public abstract class AbstractJsonWriter extends AbstractWriter implements Appen
                     '8', '9', 'a', 'b', 'c', 'd', 'e', 'f'
             };
 
+    ///////////////////////////////////////////////////////////////////////////
     // Public Methods
-    // --------------
+    ///////////////////////////////////////////////////////////////////////////
 
     /**
      * Append the characters and return this.
      */
     public abstract AbstractJsonWriter append(char[] ch, int off, int len);
 
-    // Protected Methods
-    // -----------------
-
+    /**
+     * Pretty printing is disabled by default, use this to enable it.
+     *
+     * @return This
+     */
     public AbstractJsonWriter setPrettyPrint(boolean arg) {
         prettyPrint = arg;
         return this;
     }
+
+    ///////////////////////////////////////////////////////////////////////////
+    // Protected Methods
+    ///////////////////////////////////////////////////////////////////////////
 
     @Override
     protected void write(BigDecimal arg) throws IOException {
@@ -232,6 +224,10 @@ public abstract class AbstractJsonWriter extends AbstractWriter implements Appen
         }
         append('"');
     }
+
+    ///////////////////////////////////////////////////////////////////////////
+    // Package / Private Methods
+    ///////////////////////////////////////////////////////////////////////////
 
     /**
      * Encode a unicode char.

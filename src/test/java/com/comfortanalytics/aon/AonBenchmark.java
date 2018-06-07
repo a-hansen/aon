@@ -1,19 +1,3 @@
-/* ISC License
- *
- * Copyright 2017 by Comfort Analytics, LLC.
- *
- * Permission to use, copy, modify, and/or distribute this software for any purpose with
- * or without fee is hereby granted, provided that the above copyright notice and this
- * permission notice appear in all copies.
- *
- * THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES WITH REGARD
- * TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS. IN
- * NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY SPECIAL, DIRECT, INDIRECT, OR
- * CONSEQUENTIAL DAMAGES OR ANY DAMAGES WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR
- * PROFITS, WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION,
- * ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
- */
-
 package com.comfortanalytics.aon;
 
 import com.comfortanalytics.aon.io.AonReader;
@@ -51,21 +35,13 @@ import org.junit.Test;
 public class AonBenchmark {
 
     ///////////////////////////////////////////////////////////////////////////
-    // Constants
+    // Class Fields
     ///////////////////////////////////////////////////////////////////////////
 
     private static final boolean AON_ONLY = false;
     private static final int LARGE_ITERATIONS = 25;
     private static final int LARGE_OBJ_FACTOR = 1000;
     private static final int SMALL_ITERATIONS = 10000;
-
-    ///////////////////////////////////////////////////////////////////////////
-    // Fields
-    ///////////////////////////////////////////////////////////////////////////
-
-    ///////////////////////////////////////////////////////////////////////////
-    // Constructors
-    ///////////////////////////////////////////////////////////////////////////
 
     ///////////////////////////////////////////////////////////////////////////
     // Methods
@@ -297,24 +273,28 @@ public class AonBenchmark {
     ///////////////////////////////////////////////////////////////////////////
 
     /**
-     * Interface for the various implementations
+     * Aon json
      */
-    public abstract class Target {
+    public class AonJsonTarget extends Target {
 
-        private byte[] input;
+        private JsonReader reader = new JsonReader();
+        private JsonWriter writer = new JsonWriter();
 
-        public Object decode() {
-            return decode(new ByteArrayInputStream(input));
+        public Object decode(InputStream in) {
+            try {
+                return reader.setInput(new InputStreamReader(in, "UTF-8")).getObj();
+            } catch (Exception io) {
+                throw new RuntimeException(io);
+            }
         }
 
-        public abstract Object decode(InputStream in);
-
-        public abstract void encode(Object map, OutputStream out);
-
-        public void setInput(byte[] input) {
-            this.input = input;
+        public void encode(Object map, OutputStream out) {
+            writer.setOutput(new OutputStreamWriter(out)).value((Aobj) map);
         }
 
+        public String toString() {
+            return "Aon-Json";
+        }
     }
 
     /**
@@ -341,31 +321,6 @@ public class AonBenchmark {
 
         public String toString() {
             return "Aon";
-        }
-    }
-
-    /**
-     * Aon json
-     */
-    public class AonJsonTarget extends Target {
-
-        private JsonReader reader = new JsonReader();
-        private JsonWriter writer = new JsonWriter();
-
-        public Object decode(InputStream in) {
-            try {
-                return reader.setInput(new InputStreamReader(in, "UTF-8")).getObj();
-            } catch (Exception io) {
-                throw new RuntimeException(io);
-            }
-        }
-
-        public void encode(Object map, OutputStream out) {
-            writer.setOutput(new OutputStreamWriter(out)).value((Aobj) map);
-        }
-
-        public String toString() {
-            return "Aon-Json";
         }
     }
 
@@ -534,6 +489,27 @@ public class AonBenchmark {
         public String toString() {
             return "Json Iterator";
         }
+    }
+
+    /**
+     * Interface for the various implementations
+     */
+    public abstract class Target {
+
+        private byte[] input;
+
+        public Object decode() {
+            return decode(new ByteArrayInputStream(input));
+        }
+
+        public abstract Object decode(InputStream in);
+
+        public abstract void encode(Object map, OutputStream out);
+
+        public void setInput(byte[] input) {
+            this.input = input;
+        }
+
     }
 
 }

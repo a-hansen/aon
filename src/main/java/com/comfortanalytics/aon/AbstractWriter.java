@@ -1,23 +1,7 @@
-/* ISC License
- *
- * Copyright 2017 by Comfort Analytics, LLC.
- *
- * Permission to use, copy, modify, and/or distribute this software for any purpose with
- * or without fee is hereby granted, provided that the above copyright notice and this
- * permission notice appear in all copies.
- *
- * THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES WITH REGARD
- * TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS. IN
- * NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY SPECIAL, DIRECT, INDIRECT, OR
- * CONSEQUENTIAL DAMAGES OR ANY DAMAGES WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR
- * PROFITS, WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION,
- * ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
- */
-
 package com.comfortanalytics.aon;
 
 import com.comfortanalytics.aon.Alist.ListEntry;
-import com.comfortanalytics.aon.Aobj.MapEntry;
+import com.comfortanalytics.aon.Aobj.ObjEntry;
 import java.io.Closeable;
 import java.io.IOException;
 import java.math.BigDecimal;
@@ -25,15 +9,15 @@ import java.math.BigInteger;
 
 /**
  * Basic implementation of Awriter.  Subclasses must implement the
- * abstract methods which all start with write.
+ * abstract methods which all start with 'write'.
  *
  * @author Aaron Hansen
- * @see Awriter
  */
 public abstract class AbstractWriter implements Closeable, Awriter {
 
-    // Constants
-    // ---------
+    ///////////////////////////////////////////////////////////////////////////
+    // Class Fields
+    ///////////////////////////////////////////////////////////////////////////
 
     private static final int LAST_DONE = 0; //document complete
     private static final int LAST_END = 1;  //end of map/list
@@ -43,8 +27,9 @@ public abstract class AbstractWriter implements Closeable, Awriter {
     private static final int LAST_OBJ = 5;  //started a map
     private static final int LAST_VAL = 6;  //list or object value
 
-    // Fields
-    // ------
+    ///////////////////////////////////////////////////////////////////////////
+    // Instance Fields
+    ///////////////////////////////////////////////////////////////////////////
 
     private int depth = 0;
     private int last = LAST_INIT;
@@ -54,8 +39,9 @@ public abstract class AbstractWriter implements Closeable, Awriter {
      */
     protected boolean prettyPrint = false;
 
+    ///////////////////////////////////////////////////////////////////////////
     // Public Methods
-    // --------------
+    ///////////////////////////////////////////////////////////////////////////
 
     public AbstractWriter beginList() {
         try {
@@ -216,7 +202,7 @@ public abstract class AbstractWriter implements Closeable, Awriter {
             case OBJECT:
                 beginMap();
                 Aobj map = arg.toObj();
-                MapEntry e = map.getFirstEntry();
+                ObjEntry e = map.getFirstEntry();
                 while (e != null) {
                     key(e.getKey()).value(e.getValue());
                     e = e.next();
@@ -453,6 +439,10 @@ public abstract class AbstractWriter implements Closeable, Awriter {
         return this;
     }
 
+    ///////////////////////////////////////////////////////////////////////////
+    // Protected Methods
+    ///////////////////////////////////////////////////////////////////////////
+
     /**
      * Current depth in the tree, will be needed by writeNewLineIndent.
      */
@@ -540,7 +530,7 @@ public abstract class AbstractWriter implements Closeable, Awriter {
     protected abstract void writeNull() throws IOException;
 
     /**
-     * Write a value separator, such as the comma in json.
+     * Write a list value or object entry separator, such as the comma in json.
      */
     protected abstract void writeSeparator() throws IOException;
 

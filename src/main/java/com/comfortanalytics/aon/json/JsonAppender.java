@@ -1,19 +1,3 @@
-/* ISC License
- *
- * Copyright 2017 by Comfort Analytics, LLC.
- *
- * Permission to use, copy, modify, and/or distribute this software for any purpose with
- * or without fee is hereby granted, provided that the above copyright notice and this
- * permission notice appear in all copies.
- *
- * THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES WITH REGARD
- * TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS. IN
- * NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY SPECIAL, DIRECT, INDIRECT, OR
- * CONSEQUENTIAL DAMAGES OR ANY DAMAGES WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR
- * PROFITS, WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION,
- * ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
- */
-
 package com.comfortanalytics.aon.json;
 
 import java.io.BufferedOutputStream;
@@ -38,19 +22,18 @@ import java.util.zip.ZipOutputStream;
  */
 public class JsonAppender extends AbstractJsonWriter {
 
-    // Constants
-    // ---------
-
-    // Fields
-    // ------
+    ///////////////////////////////////////////////////////////////////////////
+    // Instance Fields
+    ///////////////////////////////////////////////////////////////////////////
 
     private StringBuilder buf = new StringBuilder(BUF_SIZE);
     private Appendable out;
     private boolean zip = false;
     private ZipOutputStream zout;
 
+    ///////////////////////////////////////////////////////////////////////////
     // Constructors
-    // ------------
+    ///////////////////////////////////////////////////////////////////////////
 
     /**
      * Be sure to call one of the setOutput methods.
@@ -85,12 +68,14 @@ public class JsonAppender extends AbstractJsonWriter {
         setOutput(out, charset);
     }
 
+    ///////////////////////////////////////////////////////////////////////////
     // Public Methods
-    // --------------
+    ///////////////////////////////////////////////////////////////////////////
 
     /**
      * Append the char and return this.  Can be used for custom formatting.
      */
+    @Override
     public Appendable append(char ch) {
         try {
             buf.append(ch);
@@ -293,17 +278,4 @@ public class JsonAppender extends AbstractJsonWriter {
         return reset();
     }
 
-    // Protected Methods
-    // -----------------
-
-    // Package Protected Methods
-    // -------------------------
-
-    // Private Methods
-    // ---------------
-
-    // Inner Classes
-    // -------------
-
-
-}//Main
+}

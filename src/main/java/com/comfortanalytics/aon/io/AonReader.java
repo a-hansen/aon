@@ -1,6 +1,5 @@
 package com.comfortanalytics.aon.io;
 
-import com.comfortanalytics.aon.Abinary;
 import com.comfortanalytics.aon.AbstractReader;
 import java.io.BufferedInputStream;
 import java.io.File;
@@ -11,22 +10,22 @@ import java.math.BigDecimal;
 import java.math.BigInteger;
 
 /**
- * Encodes using the Aon format.
+ * Areader implementation that uses the Aon format.
  *
  * @author Aaron Hansen
  */
 public class AonReader extends AbstractReader implements AonConstants {
 
-    //////////////////
-    // Fields
-    //////////////////
+    ///////////////////////////////////////////////////////////////////////////
+    // Instance Fields
+    ///////////////////////////////////////////////////////////////////////////
 
     private byte[] buffer;
     private InputStream in;
 
-    //////////////////
+    ///////////////////////////////////////////////////////////////////////////
     // Constructors
-    //////////////////
+    ///////////////////////////////////////////////////////////////////////////
 
     public AonReader(File file) throws IOException {
         this.in = new BufferedInputStream(new FileInputStream(file));
@@ -36,9 +35,9 @@ public class AonReader extends AbstractReader implements AonConstants {
         this.in = in;
     }
 
-    //////////////////
-    // Methods
-    //////////////////
+    ///////////////////////////////////////////////////////////////////////////
+    // Public Methods
+    ///////////////////////////////////////////////////////////////////////////
 
     @Override
     public void close() {
@@ -52,78 +51,75 @@ public class AonReader extends AbstractReader implements AonConstants {
     @Override
     public Token next() {
         try {
-            int ch;
-            while (true) {
-                ch = in.read();
-                switch (ch) {
-                    case NULL:
-                        return setNextNull();
-                    case DOUBLE:
-                        return setNext(Double.longBitsToDouble(readLong(in)));
-                    case FLOAT:
-                        return setNext(Float.intBitsToFloat(readInt(in)));
-                    case FALSE:
-                        return setNext(false);
-                    case TRUE:
-                        return setNext(true);
-                    case OBJ_START:
-                        return setBeginMap();
-                    case OBJ_END:
-                        return setEndMap();
-                    case LIST_START:
-                        return setBeginList();
-                    case LIST_END:
-                        return setEndList();
-                    case BIGINT8:
-                        return setNext(readBigInteger(readU8(in)));
-                    case BIGINT16:
-                        return setNext(readBigInteger(readU16(in)));
-                    case BIGINT32:
-                        return setNext(readBigInteger(readInt(in)));
-                    case BIN8: {
-                        byte[] b = new byte[readU8(in)];
-                        in.read(b);
-                        return setNext(b);
-                    }
-                    case BIN16: {
-                        byte[] b = new byte[readU16(in)];
-                        in.read(b);
-                        return setNext(b);
-                    }
-                    case BIN32: {
-                        byte[] b = new byte[readInt(in)];
-                        in.read(b);
-                        return setNext(b);
-                    }
-                    case DEC8:
-                        return setNext(readBigDecimal(readU8(in)));
-                    case DEC16:
-                        return setNext(readBigDecimal(readU16(in)));
-                    case DEC32:
-                        return setNext(readBigDecimal(readInt(in)));
-                    case I8:
-                        return setNext(in.read());
-                    case I16:
-                        return setNext(readShort(in));
-                    case I32:
-                        return setNext(readInt(in));
-                    case I64:
-                        return setNext(readLong(in));
-                    case STR8:
-                        return setNext(readString(readU8(in)));
-                    case STR16:
-                        return setNext(readString(readU16(in)));
-                    case STR32:
-                        return setNext(readString(readInt(in)));
-                    case U8:
-                        return setNext(readU8(in));
-                    case U16:
-                        return setNext(readU16(in));
-                    case U32:
-                        return setNext(readU32(in));
-                    default:
-                        throw new IllegalStateException("Unexpected symbol: " + (char) ch);
+            int ch = in.read();
+            switch (ch) {
+                case NULL:
+                    return setNextNull();
+                case DOUBLE:
+                    return setNext(Double.longBitsToDouble(readLong(in)));
+                case FLOAT:
+                    return setNext(Float.intBitsToFloat(readInt(in)));
+                case FALSE:
+                    return setNext(false);
+                case TRUE:
+                    return setNext(true);
+                case OBJ_START:
+                    return setBeginMap();
+                case OBJ_END:
+                    return setEndMap();
+                case LIST_START:
+                    return setBeginList();
+                case LIST_END:
+                    return setEndList();
+                case BIGINT8:
+                    return setNext(readBigInteger(readU8(in)));
+                case BIGINT16:
+                    return setNext(readBigInteger(readU16(in)));
+                case BIGINT32:
+                    return setNext(readBigInteger(readInt(in)));
+                case BIN8: {
+                    byte[] b = new byte[readU8(in)];
+                    in.read(b);
+                    return setNext(b);
                 }
+                case BIN16: {
+                    byte[] b = new byte[readU16(in)];
+                    in.read(b);
+                    return setNext(b);
+                }
+                case BIN32: {
+                    byte[] b = new byte[readInt(in)];
+                    in.read(b);
+                    return setNext(b);
+                }
+                case DEC8:
+                    return setNext(readBigDecimal(readU8(in)));
+                case DEC16:
+                    return setNext(readBigDecimal(readU16(in)));
+                case DEC32:
+                    return setNext(readBigDecimal(readInt(in)));
+                case I8:
+                    return setNext(in.read());
+                case I16:
+                    return setNext(readShort(in));
+                case I32:
+                    return setNext(readInt(in));
+                case I64:
+                    return setNext(readLong(in));
+                case STR8:
+                    return setNext(readString(readU8(in)));
+                case STR16:
+                    return setNext(readString(readU16(in)));
+                case STR32:
+                    return setNext(readString(readInt(in)));
+                case U8:
+                    return setNext(readU8(in));
+                case U16:
+                    return setNext(readU16(in));
+                case U32:
+                    return setNext(readU32(in));
+                default:
+                    throw new IllegalStateException("Unexpected symbol: " + (char) ch);
             }
         } catch (IOException x) {
             throw new RuntimeException(x);
@@ -166,6 +162,10 @@ public class AonReader extends AbstractReader implements AonConstants {
     public static int readU8(InputStream in) throws IOException {
         return in.read() & 0xFF;
     }
+
+    ///////////////////////////////////////////////////////////////////////////
+    // Package / Private Methods
+    ///////////////////////////////////////////////////////////////////////////
 
     private byte[] getBuffer(int len) {
         if ((buffer == null) || (buffer.length < len)) {

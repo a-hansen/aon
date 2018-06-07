@@ -11,21 +11,21 @@ import java.math.BigDecimal;
 import java.math.BigInteger;
 
 /**
- * Encodes using the Aon format.
+ * Awriter implementation that uses the Aon format.
  *
  * @author Aaron Hansen
  */
 public class AonWriter extends AbstractWriter implements AonConstants {
 
-    //////////////////
-    // Fields
-    //////////////////
+    ///////////////////////////////////////////////////////////////////////////
+    // Instance Fields
+    ///////////////////////////////////////////////////////////////////////////
 
     private OutputStream out;
 
-    //////////////////
+    ///////////////////////////////////////////////////////////////////////////
     // Constructors
-    //////////////////
+    ///////////////////////////////////////////////////////////////////////////
 
     public AonWriter(File file) throws IOException {
         this.out = new BufferedOutputStream(new FileOutputStream(file));
@@ -35,9 +35,9 @@ public class AonWriter extends AbstractWriter implements AonConstants {
         this.out = out;
     }
 
-    //////////////////
-    // Methods
-    //////////////////
+    ///////////////////////////////////////////////////////////////////////////
+    // Public Methods
+    ///////////////////////////////////////////////////////////////////////////
 
     @Override
     public void close() {
@@ -57,6 +57,10 @@ public class AonWriter extends AbstractWriter implements AonConstants {
         }
         return this;
     }
+
+    ///////////////////////////////////////////////////////////////////////////
+    // Protected Methods
+    ///////////////////////////////////////////////////////////////////////////
 
     @Override
     protected void write(BigDecimal arg) throws IOException {
@@ -192,6 +196,10 @@ public class AonWriter extends AbstractWriter implements AonConstants {
         }
         out.write(b);
     }
+
+    ///////////////////////////////////////////////////////////////////////////
+    // Package / Private Methods
+    ///////////////////////////////////////////////////////////////////////////
 
     private void write1Byte(int b, int v) throws IOException {
         out.write(b & 0xff);

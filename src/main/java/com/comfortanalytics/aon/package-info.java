@@ -34,22 +34,8 @@
  * }
  * </pre>
  * <p>
- * Create primitives with static make methods on Aobj.
- * <p>
- * <pre>
- * import com.comfortanalytics.aon.*;
- *
- * public static void main(String[] args) {
- *     Aobj aBool = Aobj.make(false);
- *     Aobj aDbl = Aobj.make(1d);
- *     Aobj anInt = Aobj.make(1);
- *     Aobj aLong = Aobj.make(1l);
- *     Aobj aStr = Aobj.make("1");
- * }
- * </pre>
- * <p>
  * Use implementations of Awriter and Areader for encoding / decoding.  See package
- * com.comfortanalytics.aon.json.
+ * com.comfortanalytics.aon.io and com.comfortanalytics.aon.json.
  *
  * @author Aaron Hansen
  */
