@@ -260,7 +260,7 @@ public abstract class AbstractReader implements Areader {
                 case END_INPUT:
                     return ret;
                 default:
-                    throw new IllegalStateException("Expecting a key or map end");
+                    throw new IllegalStateException("Expecting a string key or map end");
             }
             switch (next()) {
                 case END_INPUT:

@@ -16,6 +16,7 @@
 
 package com.comfortanalytics.aon;
 
+import com.comfortanalytics.aon.io.AonReader;
 import com.comfortanalytics.aon.io.AonWriter;
 import com.comfortanalytics.aon.json.JsonReader;
 import com.comfortanalytics.aon.json.JsonWriter;
@@ -76,7 +77,7 @@ public class AonBenchmark {
         Aobj largeObj = makeLargeMap();
         byte[] smallBytes = encodeJson(smallObj);
         byte[] largeBytes = encodeJson(largeObj);
-        System.out.println("Aon vs Json sizes");
+        System.out.println("Aon vs Json byte sizes");
         printAonSizes(smallBytes, largeBytes);
         System.out.println("Configuring benchmark");
         Target aon = new AonTarget();
@@ -88,11 +89,11 @@ public class AonBenchmark {
         Target jackson = new JacksonTarget();
         Target jsoniter = new JsoniterTarget();
         Target simple = new JsonSimpleTarget();
-        System.out.println("Small document size = " + smallBytes.length + " bytes");
-        System.out.println("Large document size = " + largeBytes.length + " bytes");
         //warm up
         System.out.println("Warming up benchmark");
         runAon(aon, largeObj, LARGE_ITERATIONS, false);
+        printField(aon, 15);
+        System.out.println(" complete.");
         run(aonJson, largeBytes, LARGE_ITERATIONS, false);
         printField(aonJson, 15);
         System.out.println(" complete.");
@@ -121,7 +122,7 @@ public class AonBenchmark {
         }
         //actual benchmark
         System.out.println("\nBegin large document benchmark");
-        runAon(aonJson, largeObj, LARGE_ITERATIONS, true);
+        runAon(aon, largeObj, LARGE_ITERATIONS, true);
         run(aonJson, largeBytes, LARGE_ITERATIONS, true);
         if (!AON_ONLY) {
             run(boon, largeBytes, LARGE_ITERATIONS, true);
@@ -174,7 +175,8 @@ public class AonBenchmark {
     }
 
     public long runEncode(Target target, byte[] doc, int iterations) {
-        Object map = target.decode(new ByteArrayInputStream(doc));
+        target.setInput(doc);
+        Object map = target.decode();
         long start = System.currentTimeMillis();
         ByteArrayOutputStream out = new ByteArrayOutputStream();
         for (int i = 0; i < iterations; i++) {
@@ -320,12 +322,12 @@ public class AonBenchmark {
      */
     public class AonTarget extends Target {
 
-        private JsonReader reader = new JsonReader();
-        private JsonWriter writer = new JsonWriter();
-
         public Object decode(InputStream in) {
             try {
-                return reader.setInput(new InputStreamReader(in, "UTF-8")).getObj();
+                AonReader reader = new AonReader(in);
+                Avalue ret = reader.getValue();
+                reader.close();
+                return ret;
             } catch (Exception io) {
                 throw new RuntimeException(io);
             }
