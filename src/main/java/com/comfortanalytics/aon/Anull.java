@@ -21,7 +21,7 @@ package com.comfortanalytics.aon;
  *
  * @author Aaron Hansen
  */
-class Anull extends Aobj {
+public class Anull extends Avalue {
 
     // Constants
     // ---------

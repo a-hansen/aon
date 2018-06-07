@@ -195,17 +195,6 @@ public abstract class AbstractJsonWriter extends AbstractWriter implements Appen
         append(',');
     }
 
-    /**
-     * Encode a unicode char.
-     */
-    private void writeUnicode(char ch) throws IOException {
-        append(C_U, 0, 2);
-        append(HEX[(ch >>> 12) & 0xf]);
-        append(HEX[(ch >>> 8) & 0xf]);
-        append(HEX[(ch >>> 4) & 0xf]);
-        append(HEX[(ch) & 0xf]);
-    }
-
     @Override
     protected void writeValue(CharSequence buf) throws IOException {
         append('"');
@@ -242,6 +231,17 @@ public abstract class AbstractJsonWriter extends AbstractWriter implements Appen
             }
         }
         append('"');
+    }
+
+    /**
+     * Encode a unicode char.
+     */
+    private void writeUnicode(char ch) throws IOException {
+        append(C_U, 0, 2);
+        append(HEX[(ch >>> 12) & 0xf]);
+        append(HEX[(ch >>> 8) & 0xf]);
+        append(HEX[(ch >>> 4) & 0xf]);
+        append(HEX[(ch) & 0xf]);
     }
 
 }

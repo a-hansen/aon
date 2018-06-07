@@ -22,7 +22,7 @@ import com.comfortanalytics.aon.json.JsonAppender;
  *
  * @author Aaron Hansen
  */
-public abstract class Agroup extends Aobj {
+public abstract class Agroup extends Avalue {
 
     // Fields
     // --------------
@@ -108,26 +108,6 @@ public abstract class Agroup extends Aobj {
     }
 
     /**
-     * Sets the parent and returns this for un-parented groups, otherwise throws an
-     * IllegalStateException.
-     *
-     * @param arg The new parent.
-     * @return This
-     * @throws IllegalStateException If already parented.
-     */
-    protected Agroup setParent(Agroup arg) {
-        if (arg == null) {
-            this.parent = null;
-            return this;
-        }
-        if (this.parent != null) {
-            throw new IllegalStateException("Already parented");
-        }
-        this.parent = arg;
-        return this;
-    }
-
-    /**
      * The number of items is the group.
      */
     public abstract int size();
@@ -147,12 +127,32 @@ public abstract class Agroup extends Aobj {
         return buf.toString();
     }
 
+    /**
+     * Sets the parent and returns this for un-parented groups, otherwise throws an
+     * IllegalStateException.
+     *
+     * @param arg The new parent.
+     * @return This
+     * @throws IllegalStateException If already parented.
+     */
+    protected Agroup setParent(Agroup arg) {
+        if (arg == null) {
+            this.parent = null;
+            return this;
+        }
+        if (this.parent != null) {
+            throw new IllegalStateException("Already parented");
+        }
+        this.parent = arg;
+        return this;
+    }
+
     // Inner Classes
     // -------------
 
     public interface Entry {
 
-        public Aobj getValue();
+        public Avalue getValue();
 
         public Entry next();
 

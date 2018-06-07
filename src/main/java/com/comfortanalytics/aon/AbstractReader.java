@@ -31,6 +31,7 @@ public abstract class AbstractReader implements Areader {
 
     private Token last = Token.ROOT;
     protected BigInteger valBigint;
+    protected byte[] valBinary;
     protected boolean valBoolean;
     protected BigDecimal valDecimal;
     protected double valDouble;
@@ -42,6 +43,7 @@ public abstract class AbstractReader implements Areader {
     // Public Methods
     // --------------
 
+    @Override
     public BigDecimal getBigDecimal() {
         switch (last) {
             case DECIMAL:
@@ -64,6 +66,7 @@ public abstract class AbstractReader implements Areader {
         return valDecimal;
     }
 
+    @Override
     public BigInteger getBigInt() {
         switch (last) {
             case DECIMAL:
@@ -86,6 +89,15 @@ public abstract class AbstractReader implements Areader {
         return valBigint;
     }
 
+    @Override
+    public byte[] getBinary() {
+        if (last != Token.BINARY) {
+            throw new IllegalStateException("Not binary");
+        }
+        return valBinary;
+    }
+
+    @Override
     public boolean getBoolean() {
         if (last != Token.BOOLEAN) {
             throw new IllegalStateException("Not a boolean");
@@ -93,6 +105,7 @@ public abstract class AbstractReader implements Areader {
         return valBoolean;
     }
 
+    @Override
     public double getDouble() {
         switch (last) {
             case DOUBLE:
@@ -109,6 +122,7 @@ public abstract class AbstractReader implements Areader {
         return valDouble;
     }
 
+    @Override
     public float getFloat() {
         switch (last) {
             case DECIMAL:
@@ -129,6 +143,7 @@ public abstract class AbstractReader implements Areader {
         return valFloat;
     }
 
+    @Override
     public int getInt() {
         switch (last) {
             case DECIMAL:
@@ -149,6 +164,7 @@ public abstract class AbstractReader implements Areader {
         return valInt;
     }
 
+    @Override
     public Alist getList() {
         if (last == Token.ROOT) {
             next();
@@ -163,10 +179,8 @@ public abstract class AbstractReader implements Areader {
                     throw new IllegalStateException("Unexpected end of input");
                 case END_LIST:
                     return ret;
-                case END_MAP:
+                case END_OBJ:
                     throw new IllegalStateException("Unexpected end of map in list");
-                case KEY:
-                    throw new IllegalStateException("Unexpected key in list");
                 case DECIMAL:
                     ret.add(valDecimal);
                     break;
@@ -191,8 +205,8 @@ public abstract class AbstractReader implements Areader {
                 case BEGIN_LIST:
                     ret.add(getList());
                     break;
-                case BEGIN_MAP:
-                    ret.add(getMap());
+                case BEGIN_OBJ:
+                    ret.add(getObj());
                     break;
                 case NULL:
                     ret.addNull();
@@ -206,6 +220,7 @@ public abstract class AbstractReader implements Areader {
         }
     }
 
+    @Override
     public long getLong() {
         switch (last) {
             case DECIMAL:
@@ -226,21 +241,22 @@ public abstract class AbstractReader implements Areader {
         return valLong;
     }
 
-    public Amap getMap() {
+    @Override
+    public Aobj getObj() {
         if (last == Token.ROOT) {
             next();
         }
-        if (last != Token.BEGIN_MAP) {
+        if (last != Token.BEGIN_OBJ) {
             throw new IllegalStateException("Not a map");
         }
-        Amap ret = new Amap();
+        Aobj ret = new Aobj();
         String key = null;
         while (true) {
             switch (next()) {
-                case KEY:
+                case STRING:
                     key = valString;
                     break;
-                case END_MAP:
+                case END_OBJ:
                 case END_INPUT:
                     return ret;
                 default:
@@ -251,10 +267,8 @@ public abstract class AbstractReader implements Areader {
                     throw new IllegalStateException("Unexpected end of input");
                 case END_LIST:
                     throw new IllegalStateException("Unexpected end of list in map");
-                case END_MAP:
+                case END_OBJ:
                     return ret;
-                case KEY:
-                    throw new IllegalStateException("Unexpected key in map");
                 case DECIMAL:
                     ret.put(key, Adecimal.valueOf(valDecimal));
                     break;
@@ -279,8 +293,8 @@ public abstract class AbstractReader implements Areader {
                 case BEGIN_LIST:
                     ret.put(key, getList());
                     break;
-                case BEGIN_MAP:
-                    ret.put(key, getMap());
+                case BEGIN_OBJ:
+                    ret.put(key, getObj());
                     break;
                 case NULL:
                     ret.putNull(key);
@@ -294,13 +308,20 @@ public abstract class AbstractReader implements Areader {
         }
     }
 
-    public Aobj getObj() {
+    @Override
+    public String getString() {
+        if (last != Token.STRING) {
+            throw new IllegalStateException("Not a string");
+        }
+        return valString;
+    }
+
+    @Override
+    public Avalue getValue() {
         if (last == Token.ROOT) {
             next();
         }
         switch (last) {
-            case KEY:
-                return Astr.valueOf(valString);
             case DECIMAL:
                 return Adecimal.valueOf(valDecimal);
             case BIGINT:
@@ -317,8 +338,8 @@ public abstract class AbstractReader implements Areader {
                 return Along.valueOf(valLong);
             case BEGIN_LIST:
                 return getList();
-            case BEGIN_MAP:
-                return getMap();
+            case BEGIN_OBJ:
+                return getObj();
             case NULL:
                 return Anull.NULL;
             case STRING:
@@ -327,13 +348,7 @@ public abstract class AbstractReader implements Areader {
         throw new IllegalStateException("Not a value");
     }
 
-    public String getString() {
-        if ((last != Token.STRING) && (last != Token.KEY)) {
-            throw new IllegalStateException("Not a string");
-        }
-        return valString;
-    }
-
+    @Override
     public Token last() {
         return last;
     }
@@ -343,8 +358,10 @@ public abstract class AbstractReader implements Areader {
      * <p>
      * {@inheritDoc}
      */
+    @Override
     public abstract Token next();
 
+    @Override
     public AbstractReader reset() {
         last = Token.ROOT;
         return this;
@@ -355,7 +372,7 @@ public abstract class AbstractReader implements Areader {
     }
 
     protected Token setBeginMap() {
-        return last = Token.BEGIN_MAP;
+        return last = Token.BEGIN_OBJ;
     }
 
     protected Token setEndInput() {
@@ -367,73 +384,64 @@ public abstract class AbstractReader implements Areader {
     }
 
     protected Token setEndMap() {
-        return last = Token.END_MAP;
+        return last = Token.END_OBJ;
     }
 
-    /**
-     * Call setNextValue(String) before calling this.
-     *
-     * @see #setNextValue(String)
-     */
-    protected Token setNextKey() {
-        return last = Token.KEY;
-    }
-
-    protected Token setNextValue(BigDecimal arg) {
+    protected Token setNext(BigDecimal arg) {
         if (arg == null) {
-            return setNextValueNull();
+            return setNextNull();
         }
         valDecimal = arg;
         return last = Token.DECIMAL;
     }
 
-    protected Token setNextValue(BigInteger arg) {
+    protected Token setNext(BigInteger arg) {
         if (arg == null) {
-            return setNextValueNull();
+            return setNextNull();
         }
         valBigint = arg;
         return last = Token.BIGINT;
     }
 
-    protected Token setNextValue(boolean arg) {
+    protected Token setNext(boolean arg) {
         valBoolean = arg;
         return last = Token.BOOLEAN;
     }
 
-    protected Token setNextValue(double arg) {
+    protected Token setNext(byte[] arg) {
+        valBinary = arg;
+        return last = Token.BINARY;
+    }
+
+    protected Token setNext(double arg) {
         valDouble = arg;
         return last = Token.DOUBLE;
     }
 
-    protected Token setNextValue(float arg) {
+    protected Token setNext(float arg) {
         valDouble = arg;
         return last = Token.FLOAT;
     }
 
-    protected Token setNextValue(int arg) {
+    protected Token setNext(int arg) {
         valInt = arg;
         return last = Token.INT;
     }
 
-    /**
-     * If this is a key, call this, followed by setNextKey()
-     *
-     * @see #setNextKey()
-     */
-    protected Token setNextValue(long arg) {
+    protected Token setNext(long arg) {
         valLong = arg;
         return last = Token.LONG;
     }
 
-    protected Token setNextValue(String arg) {
+    protected Token setNext(String arg) {
         if (arg == null) {
-            return setNextValueNull();
+            return setNextNull();
         }
         valString = arg;
         return last = Token.STRING;
     }
 
-    protected Token setNextValueNull() {
+    protected Token setNextNull() {
         return last = Token.NULL;
     }
 

@@ -244,17 +244,4 @@ public class JsonWriter extends AbstractJsonWriter {
         return reset();
     }
 
-    // Protected Methods
-    // -----------------
-
-    // Package Protected Methods
-    // -------------------------
-
-    // Private Methods
-    // ---------------
-
-    // Inner Classes
-    // -------------
-
-
-}//Main
+}

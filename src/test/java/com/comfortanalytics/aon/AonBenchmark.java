@@ -16,6 +16,7 @@
 
 package com.comfortanalytics.aon;
 
+import com.comfortanalytics.aon.io.AonWriter;
 import com.comfortanalytics.aon.json.JsonReader;
 import com.comfortanalytics.aon.json.JsonWriter;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -54,7 +55,7 @@ public class AonBenchmark {
 
     private static final boolean AON_ONLY = false;
     private static final int LARGE_ITERATIONS = 25;
-    private static final int LARGE_MAP_FACTOR = 1000;
+    private static final int LARGE_OBJ_FACTOR = 1000;
     private static final int SMALL_ITERATIONS = 10000;
 
     ///////////////////////////////////////////////////////////////////////////
@@ -69,8 +70,139 @@ public class AonBenchmark {
     // Methods
     ///////////////////////////////////////////////////////////////////////////
 
-    private byte[] makeLargeMap() {
-        Amap primitiveMap = new Amap()
+    @Test
+    public void run() throws Exception {
+        Aobj smallObj = makeSmallMap();
+        Aobj largeObj = makeLargeMap();
+        byte[] smallBytes = encodeJson(smallObj);
+        byte[] largeBytes = encodeJson(largeObj);
+        System.out.println("Aon vs Json sizes");
+        printAonSizes(smallBytes, largeBytes);
+        System.out.println("Configuring benchmark");
+        Target aon = new AonTarget();
+        Target aonJson = new AonJsonTarget();
+        Target boon = new BoonTarget();
+        Target flex = new FlexjsonTarget();
+        Target genson = new GensonTarget();
+        Target gson = new GsonTarget();
+        Target jackson = new JacksonTarget();
+        Target jsoniter = new JsoniterTarget();
+        Target simple = new JsonSimpleTarget();
+        System.out.println("Small document size = " + smallBytes.length + " bytes");
+        System.out.println("Large document size = " + largeBytes.length + " bytes");
+        //warm up
+        System.out.println("Warming up benchmark");
+        runAon(aon, largeObj, LARGE_ITERATIONS, false);
+        run(aonJson, largeBytes, LARGE_ITERATIONS, false);
+        printField(aonJson, 15);
+        System.out.println(" complete.");
+        if (!AON_ONLY) {
+            run(boon, largeBytes, LARGE_ITERATIONS, false);
+            printField(boon, 15);
+            System.out.println(" complete.");
+            run(flex, largeBytes, LARGE_ITERATIONS, false);
+            printField(flex, 15);
+            System.out.println(" complete.");
+            run(genson, largeBytes, LARGE_ITERATIONS, false);
+            printField(genson, 15);
+            System.out.println(" complete.");
+            run(gson, largeBytes, LARGE_ITERATIONS, false);
+            printField(gson, 15);
+            System.out.println(" complete.");
+            run(jackson, largeBytes, LARGE_ITERATIONS, false);
+            printField(jackson, 15);
+            System.out.println(" complete.");
+            run(jsoniter, largeBytes, LARGE_ITERATIONS, false);
+            printField(jsoniter, 15);
+            System.out.println(" complete.");
+            run(simple, largeBytes, LARGE_ITERATIONS, false);
+            printField(simple, 15);
+            System.out.println(" complete.");
+        }
+        //actual benchmark
+        System.out.println("\nBegin large document benchmark");
+        runAon(aonJson, largeObj, LARGE_ITERATIONS, true);
+        run(aonJson, largeBytes, LARGE_ITERATIONS, true);
+        if (!AON_ONLY) {
+            run(boon, largeBytes, LARGE_ITERATIONS, true);
+            run(flex, largeBytes, LARGE_ITERATIONS, true);
+            run(genson, largeBytes, LARGE_ITERATIONS, true);
+            run(gson, largeBytes, LARGE_ITERATIONS, true);
+            run(jackson, largeBytes, LARGE_ITERATIONS, true);
+            run(jsoniter, largeBytes, LARGE_ITERATIONS, true);
+            run(simple, largeBytes, LARGE_ITERATIONS, true);
+        }
+        System.out.println("\nBegin small document benchmark");
+        runAon(aon, smallObj, SMALL_ITERATIONS, true);
+        run(aonJson, smallBytes, SMALL_ITERATIONS, true);
+        if (!AON_ONLY) {
+            run(boon, smallBytes, SMALL_ITERATIONS, true);
+            run(flex, smallBytes, SMALL_ITERATIONS, true);
+            run(genson, smallBytes, SMALL_ITERATIONS, true);
+            run(gson, smallBytes, SMALL_ITERATIONS, true);
+            run(jackson, smallBytes, SMALL_ITERATIONS, true);
+            run(jsoniter, smallBytes, SMALL_ITERATIONS, true);
+            run(simple, smallBytes, SMALL_ITERATIONS, true);
+        }
+        System.out.println("End benchmark\n");
+    }
+
+    public void run(Target target, byte[] doc, int iterations, boolean print) {
+        long decode = runDecode(target, doc, iterations);
+        long encode = runEncode(target, doc, iterations);
+        if (print) {
+            printResults(target, encode, decode, encode + decode);
+        }
+    }
+
+    public void runAon(Target target, Aobj doc, int iterations, boolean print) {
+        byte[] bytes = encodeAon(doc);
+        long decode = runDecode(target, bytes, iterations);
+        long encode = runEncode(target, bytes, iterations);
+        if (print) {
+            printResults(target, encode, decode, encode + decode);
+        }
+    }
+
+    public long runDecode(Target target, byte[] doc, int iterations) {
+        target.setInput(doc);
+        long start = System.currentTimeMillis();
+        for (int i = 0; i < iterations; i++) {
+            target.decode();
+        }
+        return System.currentTimeMillis() - start;
+    }
+
+    public long runEncode(Target target, byte[] doc, int iterations) {
+        Object map = target.decode(new ByteArrayInputStream(doc));
+        long start = System.currentTimeMillis();
+        ByteArrayOutputStream out = new ByteArrayOutputStream();
+        for (int i = 0; i < iterations; i++) {
+            out.reset();
+            target.encode(map, out);
+        }
+        return System.currentTimeMillis() - start;
+    }
+
+    ///////////////////////////////////////////////////////////////////////////
+    // Private Methods
+    ///////////////////////////////////////////////////////////////////////////
+
+    private byte[] encodeAon(Aobj obj) {
+        ByteArrayOutputStream out = new ByteArrayOutputStream();
+        new AonWriter(out).value(obj).close();
+        return out.toByteArray();
+    }
+
+    private byte[] encodeJson(Aobj obj) {
+        ByteArrayOutputStream out = new ByteArrayOutputStream();
+        new JsonWriter(out).value(obj).close();
+        return out.toByteArray();
+    }
+
+
+    private Aobj makeLargeMap() {
+        Aobj primitiveMap = new Aobj()
                 .put("boolean", true)
                 .put("double", 100.001d)
                 .put("int", 100001)
@@ -82,29 +214,27 @@ public class AonBenchmark {
                 .add(100001)
                 .add(100001l)
                 .add("abcdefghij\r\njklmnopqrs\u0000\u0001\u0002tuvwxyz\r\n");
-        Amap complexMap = (Amap) primitiveMap.copy();
+        Aobj complexMap = (Aobj) primitiveMap.copy();
         complexMap.put("list", primitiveList.copy())
                   .put("map", primitiveMap.copy());
         Alist complexList = (Alist) primitiveList.copy();
         complexList.add(primitiveList.copy());
         complexList.add(primitiveMap.copy());
-        Amap testMap = new Amap();
-        for (int i = 0; i < LARGE_MAP_FACTOR; i++) {
+        Aobj testMap = new Aobj();
+        for (int i = 0; i < LARGE_OBJ_FACTOR; i++) {
             if ((i % 100) == 0) {
-                Amap tmp = new Amap();
+                Aobj tmp = new Aobj();
                 tmp.put("map", testMap);
                 testMap = tmp;
             }
             testMap.put("map" + i, complexMap.copy());
             testMap.put("list" + i, complexList.copy());
         }
-        ByteArrayOutputStream out = new ByteArrayOutputStream();
-        new JsonWriter(out).value(testMap).close();
-        return out.toByteArray();
+        return testMap;
     }
 
-    private byte[] makeSmallMap() {
-        Amap map = new Amap()
+    private Aobj makeSmallMap() {
+        return new Aobj()
                 .put("boolean", true)
                 .put("double", 100.001d)
                 .put("int", 100001)
@@ -116,9 +246,29 @@ public class AonBenchmark {
                         .add(100001)
                         .add(100001l)
                         .add("abcdefghij\r\njklmnopqrs\u0000\u0001\u0002tuvwxyz\r\n"));
+    }
+
+    private void printAonSizes(byte[] small, byte[] large) throws Exception {
+        printField("Json ", 7);
+        System.out.print(", Small obj:");
+        printField(String.valueOf(small.length), 4);
+        System.out.print(", Large obj:");
+        printField(String.valueOf(large.length), 7);
+        System.out.println();
+        Aobj smallObj = new JsonReader(new ByteArrayInputStream(small), "UTF-8").getObj();
         ByteArrayOutputStream out = new ByteArrayOutputStream();
-        new JsonWriter(out).value(map).close();
-        return out.toByteArray();
+        new AonWriter(out).value(smallObj).close();
+        small = out.toByteArray();
+        Aobj largeObj = new JsonReader(new ByteArrayInputStream(large), "UTF-8").getObj();
+        out = new ByteArrayOutputStream();
+        new AonWriter(out).value(largeObj).close();
+        large = out.toByteArray();
+        printField("Aon ", 7);
+        System.out.print(", Small obj:");
+        printField(String.valueOf(small.length), 4);
+        System.out.print(", Large obj:");
+        printField(String.valueOf(large.length), 7);
+        System.out.println();
     }
 
     private void printField(Object obj, int len) {
@@ -141,138 +291,50 @@ public class AonBenchmark {
     }
 
     ///////////////////////////////////////////////////////////////////////////
-    // Private Methods
-    ///////////////////////////////////////////////////////////////////////////
-
-    @Test
-    public void run() throws Exception {
-        System.out.println("Configuring benchmark");
-        byte[] smallMap = makeSmallMap();
-        byte[] largeMap = makeLargeMap();
-        Target aon = new AonTarget();
-        Target boon = new BoonTarget();
-        Target flex = new FlexjsonTarget();
-        Target genson = new GensonTarget();
-        Target gson = new GsonTarget();
-        Target jackson = new JacksonTarget();
-        Target jsoniter = new JsoniterTarget();
-        Target simple = new JsonSimpleTarget();
-        System.out.println("Small document size = " + smallMap.length + " bytes");
-        System.out.println("Large document size = " + largeMap.length + " bytes");
-        //warm up
-        System.out.println("Warming up benchmark");
-        run(aon, largeMap, LARGE_ITERATIONS, false);
-        printField(aon, 15);
-        System.out.println(" complete.");
-        if (!AON_ONLY) {
-            run(boon, largeMap, LARGE_ITERATIONS, false);
-            printField(boon, 15);
-            System.out.println(" complete.");
-            run(flex, largeMap, LARGE_ITERATIONS, false);
-            printField(flex, 15);
-            System.out.println(" complete.");
-            run(genson, largeMap, LARGE_ITERATIONS, false);
-            printField(genson, 15);
-            System.out.println(" complete.");
-            run(gson, largeMap, LARGE_ITERATIONS, false);
-            printField(gson, 15);
-            System.out.println(" complete.");
-            run(jackson, largeMap, LARGE_ITERATIONS, false);
-            printField(jackson, 15);
-            System.out.println(" complete.");
-            run(jsoniter, largeMap, LARGE_ITERATIONS, false);
-            printField(jsoniter, 15);
-            System.out.println(" complete.");
-            run(simple, largeMap, LARGE_ITERATIONS, false);
-            printField(simple, 15);
-            System.out.println(" complete.");
-        }
-        //actual benchmark
-        System.out.println("\nBegin large document benchmark");
-        run(aon, largeMap, LARGE_ITERATIONS, true);
-        if (!AON_ONLY) {
-            run(boon, largeMap, LARGE_ITERATIONS, true);
-            run(flex, largeMap, LARGE_ITERATIONS, true);
-            run(genson, largeMap, LARGE_ITERATIONS, true);
-            run(gson, largeMap, LARGE_ITERATIONS, true);
-            run(jackson, largeMap, LARGE_ITERATIONS, true);
-            run(jsoniter, largeMap, LARGE_ITERATIONS, true);
-            run(simple, largeMap, LARGE_ITERATIONS, true);
-        }
-        System.out.println("\nBegin small document benchmark");
-        run(aon, smallMap, SMALL_ITERATIONS, true);
-        if (!AON_ONLY) {
-            run(boon, smallMap, SMALL_ITERATIONS, true);
-            run(flex, smallMap, SMALL_ITERATIONS, true);
-            run(genson, smallMap, SMALL_ITERATIONS, true);
-            run(gson, smallMap, SMALL_ITERATIONS, true);
-            run(jackson, smallMap, SMALL_ITERATIONS, true);
-            run(jsoniter, smallMap, SMALL_ITERATIONS, true);
-            run(simple, smallMap, SMALL_ITERATIONS, true);
-        }
-        System.out.println("End benchmark\n");
-    }
-
-    public void run(Target target, byte[] doc, int iterations, boolean print) {
-        long decode = runDecode(target, doc, iterations);
-        long encode = runEncode(target, doc, iterations);
-        if (print) {
-            printResults(target, encode, decode, encode + decode);
-        }
-    }
-
-    public long runDecode(Target target, byte[] doc, int iterations) {
-        long start = System.currentTimeMillis();
-        for (int i = 0; i < iterations; i++) {
-            target.decode(new ByteArrayInputStream(doc));
-        }
-        return System.currentTimeMillis() - start;
-    }
-
-    public long runEncode(Target target, byte[] doc, int iterations) {
-        Object map = target.decode(new ByteArrayInputStream(doc));
-        long start = System.currentTimeMillis();
-        ByteArrayOutputStream out = new ByteArrayOutputStream();
-        for (int i = 0; i < iterations; i++) {
-            out.reset();
-            target.encode(map, out);
-        }
-        return System.currentTimeMillis() - start;
-    }
-
-    ///////////////////////////////////////////////////////////////////////////
     // Inner Classes
     ///////////////////////////////////////////////////////////////////////////
 
     /**
      * Interface for the various implementations
      */
-    public static interface Target {
+    public abstract class Target {
 
-        public Object decode(InputStream in);
+        private byte[] input;
 
-        public void encode(Object map, OutputStream out);
+        public Object decode() {
+            return decode(new ByteArrayInputStream(input));
+        }
+
+        public abstract Object decode(InputStream in);
+
+        public abstract void encode(Object map, OutputStream out);
+
+        public void setInput(byte[] input) {
+            this.input = input;
+        }
+
     }
 
     /**
      * Aon
      */
-    public static class AonTarget implements Target {
+    public class AonTarget extends Target {
 
         private JsonReader reader = new JsonReader();
-        private JsonWriter writer = (JsonWriter) new JsonWriter();
+        private JsonWriter writer = new JsonWriter();
 
         public Object decode(InputStream in) {
             try {
-                return reader.setInput(new InputStreamReader(in, "UTF-8"))
-                             .getMap();
-            } catch (IOException io) {
+                return reader.setInput(new InputStreamReader(in, "UTF-8")).getObj();
+            } catch (Exception io) {
                 throw new RuntimeException(io);
             }
         }
 
         public void encode(Object map, OutputStream out) {
-            writer.setOutput(new OutputStreamWriter(out)).value((Amap) map);
+            Awriter aout = new AonWriter(out);
+            aout.value((Aobj) map);
+            aout.close();
         }
 
         public String toString() {
@@ -281,9 +343,34 @@ public class AonBenchmark {
     }
 
     /**
+     * Aon json
+     */
+    public class AonJsonTarget extends Target {
+
+        private JsonReader reader = new JsonReader();
+        private JsonWriter writer = new JsonWriter();
+
+        public Object decode(InputStream in) {
+            try {
+                return reader.setInput(new InputStreamReader(in, "UTF-8")).getObj();
+            } catch (Exception io) {
+                throw new RuntimeException(io);
+            }
+        }
+
+        public void encode(Object map, OutputStream out) {
+            writer.setOutput(new OutputStreamWriter(out)).value((Aobj) map);
+        }
+
+        public String toString() {
+            return "Aon-Json";
+        }
+    }
+
+    /**
      * Boon
      */
-    public static class BoonTarget implements Target {
+    public class BoonTarget extends Target {
 
         public Object decode(InputStream in) {
             return JsonFactory.fromJson(new InputStreamReader(in));
@@ -301,7 +388,7 @@ public class AonBenchmark {
     /**
      * Flexjson
      */
-    public static class FlexjsonTarget implements Target {
+    public class FlexjsonTarget extends Target {
 
         private JSONDeserializer deserializer = new JSONDeserializer();
         private JSONSerializer serializer = new JSONSerializer();
@@ -322,7 +409,7 @@ public class AonBenchmark {
     /**
      * Genson
      */
-    public static class GensonTarget implements Target {
+    public class GensonTarget extends Target {
 
         private Genson genson = new Genson();
 
@@ -342,7 +429,7 @@ public class AonBenchmark {
     /**
      * Gson
      */
-    public static class GsonTarget implements Target {
+    public class GsonTarget extends Target {
 
         private Gson gson = new Gson();
         private JsonParser parser = new JsonParser();
@@ -363,7 +450,7 @@ public class AonBenchmark {
     /**
      * Jackson
      */
-    public static class JacksonTarget implements Target {
+    public class JacksonTarget extends Target {
 
         ObjectMapper mapper = new ObjectMapper();
 
@@ -391,7 +478,7 @@ public class AonBenchmark {
     /**
      * Json-Simple
      */
-    public static class JsonSimpleTarget implements Target {
+    public class JsonSimpleTarget extends Target {
 
         private JSONParser parser = new JSONParser();
 
@@ -421,7 +508,7 @@ public class AonBenchmark {
     /**
      * Json Iterator
      */
-    public static class JsoniterTarget implements Target {
+    public class JsoniterTarget extends Target {
 
 
         public Object decode(InputStream in) {

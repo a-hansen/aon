@@ -17,7 +17,7 @@
 package com.comfortanalytics.aon;
 
 import com.comfortanalytics.aon.Alist.ListEntry;
-import com.comfortanalytics.aon.Amap.MapEntry;
+import com.comfortanalytics.aon.Aobj.MapEntry;
 import java.io.Closeable;
 import java.io.IOException;
 import java.math.BigDecimal;
@@ -40,7 +40,7 @@ public abstract class AbstractWriter implements Closeable, Awriter {
     private static final int LAST_INIT = 2; //start
     private static final int LAST_KEY = 3;  //object key
     private static final int LAST_LIST = 4; //started a list
-    private static final int LAST_MAP = 5;  //started a map
+    private static final int LAST_OBJ = 5;  //started a map
     private static final int LAST_VAL = 6;  //list or object value
 
     // Fields
@@ -60,7 +60,7 @@ public abstract class AbstractWriter implements Closeable, Awriter {
     public AbstractWriter beginList() {
         try {
             switch (last) {
-                case LAST_MAP:
+                case LAST_OBJ:
                     throw new IllegalStateException("Expecting map key.");
                 case LAST_DONE:
                     throw new IllegalStateException("Nesting error.");
@@ -84,7 +84,7 @@ public abstract class AbstractWriter implements Closeable, Awriter {
     public AbstractWriter beginMap() {
         try {
             switch (last) {
-                case LAST_MAP:
+                case LAST_OBJ:
                     throw new IllegalStateException("Expecting map key.");
                 case LAST_DONE:
                     throw new IllegalStateException("Nesting error.");
@@ -97,7 +97,7 @@ public abstract class AbstractWriter implements Closeable, Awriter {
                     }
             }
             writeMapStart();
-            last = LAST_MAP;
+            last = LAST_OBJ;
             depth++;
         } catch (IOException x) {
             throw new RuntimeException(x);
@@ -147,13 +147,6 @@ public abstract class AbstractWriter implements Closeable, Awriter {
         return this;
     }
 
-    /**
-     * Current depth in the tree, will be needed by writeNewLineIndent.
-     */
-    protected int getDepth() {
-        return depth;
-    }
-
     public AbstractWriter key(CharSequence arg) {
         try {
             switch (last) {
@@ -184,7 +177,7 @@ public abstract class AbstractWriter implements Closeable, Awriter {
         return this;
     }
 
-    public AbstractWriter value(Aobj arg) {
+    public AbstractWriter value(Avalue arg) {
         if (arg == null) {
             return value((String) null);
         }
@@ -220,9 +213,9 @@ public abstract class AbstractWriter implements Closeable, Awriter {
             case LONG:
                 value(arg.toLong());
                 break;
-            case MAP:
+            case OBJECT:
                 beginMap();
-                Amap map = arg.toMap();
+                Aobj map = arg.toObj();
                 MapEntry e = map.getFirstEntry();
                 while (e != null) {
                     key(e.getKey()).value(e.getValue());
@@ -458,6 +451,13 @@ public abstract class AbstractWriter implements Closeable, Awriter {
             throw new RuntimeException(x);
         }
         return this;
+    }
+
+    /**
+     * Current depth in the tree, will be needed by writeNewLineIndent.
+     */
+    protected int getDepth() {
+        return depth;
     }
 
     /**

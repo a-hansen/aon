@@ -21,7 +21,7 @@ import java.math.BigInteger;
 /**
  * @author Aaron Hansen
  */
-class Aint extends Aobj {
+public class Aint extends Avalue {
 
     // Constants
     // ---------
@@ -48,10 +48,10 @@ class Aint extends Aobj {
 
     @Override
     public boolean equals(Object o) {
-        if (!(o instanceof Aobj)) {
+        if (!(o instanceof Avalue)) {
             return false;
         }
-        Aobj obj = (Aobj) o;
+        Avalue obj = (Avalue) o;
         switch (obj.aonType()) {
             case DECIMAL:
                 return obj.equals(this);

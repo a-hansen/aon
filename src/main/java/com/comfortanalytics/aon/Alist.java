@@ -42,7 +42,7 @@ public class Alist extends Agroup {
      * @param val Can be null, and can not be an already parented group.
      * @return this
      */
-    public Alist add(Aobj val) {
+    public Alist add(Avalue val) {
         if (val == null) {
             return addNull();
         }
@@ -133,8 +133,8 @@ public class Alist extends Agroup {
     /**
      * Appends a new map and returns it.
      */
-    public Amap addMap() {
-        Amap ret = new Amap();
+    public Aobj addMap() {
+        Aobj ret = new Aobj();
         add(ret);
         return ret;
     }
@@ -161,7 +161,7 @@ public class Alist extends Agroup {
     }
 
     @Override
-    public Aobj copy() {
+    public Avalue copy() {
         Alist ret = new Alist();
         ListEntry e = first;
         while (e != null) {
@@ -174,7 +174,7 @@ public class Alist extends Agroup {
     /**
      * Value at the given index or throws an IndexOutOfBounds exception.
      */
-    public Aobj get(int idx) {
+    public Avalue get(int idx) {
         return getEntry(idx).getValue();
     }
 
@@ -185,7 +185,7 @@ public class Alist extends Agroup {
         if (idx >= size()) {
             return def;
         }
-        Aobj ret = get(idx);
+        Avalue ret = get(idx);
         if ((ret == null) || ret.isNull()) {
             return def;
         }
@@ -203,7 +203,7 @@ public class Alist extends Agroup {
         if (idx >= size()) {
             return def;
         }
-        Aobj ret = get(idx);
+        Avalue ret = get(idx);
         if ((ret == null) || ret.isNull()) {
             return def;
         }
@@ -221,7 +221,7 @@ public class Alist extends Agroup {
         if (idx >= size()) {
             return def;
         }
-        Aobj ret = get(idx);
+        Avalue ret = get(idx);
         if ((ret == null) || ret.isNull()) {
             return def;
         }
@@ -239,7 +239,7 @@ public class Alist extends Agroup {
         if (idx >= size()) {
             return def;
         }
-        Aobj ret = get(idx);
+        Avalue ret = get(idx);
         if ((ret == null) || ret.isNull()) {
             return def;
         }
@@ -257,7 +257,7 @@ public class Alist extends Agroup {
         if (idx >= size()) {
             return def;
         }
-        Aobj ret = get(idx);
+        Avalue ret = get(idx);
         if ((ret == null) || ret.isNull()) {
             return def;
         }
@@ -298,7 +298,7 @@ public class Alist extends Agroup {
     /**
      * Returns the item at index 0 or null.
      */
-    public Aobj getFirst() {
+    public Avalue getFirst() {
         if (isEmpty()) {
             return null;
         }
@@ -331,7 +331,7 @@ public class Alist extends Agroup {
      *
      * @return Null if empty.
      */
-    public Aobj getLast() {
+    public Avalue getLast() {
         if (last == null) {
             return null;
         }
@@ -357,11 +357,8 @@ public class Alist extends Agroup {
         return get(idx).toLong();
     }
 
-    /**
-     * Primitive getter.
-     */
-    public Amap getMap(int idx) {
-        return get(idx).toMap();
+    public Aobj getObj(int idx) {
+        return get(idx).toObj();
     }
 
     /**
@@ -376,9 +373,9 @@ public class Alist extends Agroup {
      *
      * @return -1 if not found.
      */
-    public int indexOf(Aobj obj) {
+    public int indexOf(Avalue obj) {
         boolean isNull = ((obj == null) || obj.isNull());
-        Aobj tmp;
+        Avalue tmp;
         int len = size();
         for (int i = 0; i < len; i++) {
             tmp = get(i);
@@ -419,9 +416,9 @@ public class Alist extends Agroup {
      *
      * @return -1 if not found.
      */
-    public int lastIndexOf(Aobj obj) {
+    public int lastIndexOf(Avalue obj) {
         boolean isNull = ((obj == null) || obj.isNull());
-        Aobj tmp;
+        Avalue tmp;
         int len = size();
         for (int i = len; --i >= 0; ) {
             tmp = get(i);
@@ -443,13 +440,13 @@ public class Alist extends Agroup {
      *
      * @param val Can be null.
      */
-    public Alist put(int idx, Aobj val) {
+    public Alist put(int idx, Avalue val) {
         if (idx == size()) {
             add(val);
             return this;
         }
         ListEntry e = getEntry(idx);
-        Aobj old = e.getValue();
+        Avalue old = e.getValue();
         if (old.isGroup()) {
             old.toGroup().setParent(null);
         }
@@ -523,7 +520,7 @@ public class Alist extends Agroup {
      *
      * @return The value removed.
      */
-    public Aobj remove(int idx) {
+    public Avalue remove(int idx) {
         if (idx >= size()) {
             throw new IndexOutOfBoundsException("Index: " + idx + ", Size: " + size());
         }
@@ -544,7 +541,7 @@ public class Alist extends Agroup {
             }
         }
         size--;
-        Aobj ret = e.getValue();
+        Avalue ret = e.getValue();
         if (ret.isGroup()) {
             ret.toGroup().setParent(null);
         }
@@ -556,7 +553,7 @@ public class Alist extends Agroup {
      *
      * @return The value removed.
      */
-    public Aobj removeFirst() {
+    public Avalue removeFirst() {
         return remove(0);
     }
 
@@ -565,7 +562,7 @@ public class Alist extends Agroup {
      *
      * @return The value removed.
      */
-    public Aobj removeLast() {
+    public Avalue removeLast() {
         return remove(size() - 1);
     }
 
@@ -585,9 +582,9 @@ public class Alist extends Agroup {
     public class ListEntry implements Entry {
 
         private ListEntry next;
-        private Aobj value;
+        private Avalue value;
 
-        ListEntry(Aobj value) {
+        ListEntry(Avalue value) {
             this.value = value;
         }
 
@@ -603,7 +600,7 @@ public class Alist extends Agroup {
             return e.getValue().equals(value);
         }
 
-        public Aobj getValue() {
+        public Avalue getValue() {
             return value;
         }
 
@@ -626,7 +623,7 @@ public class Alist extends Agroup {
         /**
          * Returns this.
          */
-        void setValue(Aobj arg) {
+        void setValue(Avalue arg) {
             value = arg;
         }
 

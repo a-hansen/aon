@@ -24,6 +24,7 @@ package com.comfortanalytics.aon;
 public enum Atype {
 
     BIGINT,
+    BINARY,
     BOOLEAN,
     DECIMAL,
     DOUBLE,
@@ -31,7 +32,7 @@ public enum Atype {
     INT,
     LIST,
     LONG,
-    MAP,
+    OBJECT,
     NULL,
     STRING,
 

@@ -25,7 +25,7 @@ import java.math.BigInteger;
  *
  * @author Aaron Hansen
  */
-class Abool extends Aobj {
+public class Abool extends Avalue {
 
     // Constants
     // ---------

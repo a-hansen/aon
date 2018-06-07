@@ -1,12 +1,12 @@
 /**
  * <p>
- * Create data structures with Alist and Amap:
+ * Create data structures with Alist and Aobj:
  * <p>
  * <pre>
  * import com.comfortanalytics.aon.*;
  *
  * public static void main(String[] args) {
- *     Amap map = new Amap()
+ *     Aobj map = new Aobj()
  *             .put("boolean", true)
  *             .put("double", 100.1d)
  *             .put("int", 100)

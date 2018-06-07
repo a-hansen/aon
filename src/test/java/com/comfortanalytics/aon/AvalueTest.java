@@ -16,17 +16,19 @@
 
 package com.comfortanalytics.aon;
 
-import com.comfortanalytics.aon.json.JsonReader;
-import com.comfortanalytics.aon.json.JsonWriter;
+import com.comfortanalytics.aon.io.AonReader;
+import com.comfortanalytics.aon.io.AonWriter;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
+import java.io.InputStream;
+import java.io.OutputStream;
 import org.junit.Assert;
 import org.junit.Test;
 
 /**
  * @author Aaron Hansen
  */
-public class AobjTest {
+public class AvalueTest {
 
     // Constants
     // ---------
@@ -39,26 +41,6 @@ public class AobjTest {
 
     // Methods
     // -------
-
-    private Alist primitiveList() {
-        return new Alist()
-                .add(true)
-                .add(100.001d)
-                .add(100001)
-                .add(100001l)
-                .add("abcdefghij\r\njklmnopqrs\u0000\u0001\u0002tuvwxyz\r\n")
-                .addNull();
-    }
-
-    private Amap primitiveMap() {
-        return new Amap()
-                .put("boolean", true)
-                .put("double", 105.001d)
-                .put("int", 100001)
-                .put("long", (long) 123l)
-                .put("string", "abcdefghij\r\njklmnopqrs\u0000\u0001\u0002tuvwxyz\r\n")
-                .putNull("null");
-    }
 
     @Test
     public void test() throws Exception {
@@ -78,7 +60,37 @@ public class AobjTest {
         testMap();
     }
 
-    private void test(Aobj obj, boolean value) {
+    private Areader newReader(InputStream in) {
+        //return new JsonReader(in, "UTF-8");
+        return new AonReader(in);
+    }
+
+    private Awriter newWriter(OutputStream out) {
+        //return new JsonWriter(out, "UTF-8");
+        return new AonWriter(out);
+    }
+
+    private Alist primitiveList() {
+        return new Alist()
+                .add(true)
+                .add(100.001d)
+                .add(100001)
+                .add(100001l)
+                .add("abcdefghij\r\njklmnopqrs\u0000\u0001\u0002tuvwxyz\r\n")
+                .addNull();
+    }
+
+    private Aobj primitiveMap() {
+        return new Aobj()
+                .put("boolean", true)
+                .put("double", 105.001d)
+                .put("int", 100001)
+                .put("long", (long) 123l)
+                .put("string", "abcdefghij\r\njklmnopqrs\u0000\u0001\u0002tuvwxyz\r\n")
+                .putNull("null");
+    }
+
+    private void test(Avalue obj, boolean value) {
         Assert.assertTrue(obj.aonType() == Atype.BOOLEAN);
         Assert.assertTrue(Abool.valueOf(value) == obj);
         Assert.assertTrue(obj.isBoolean());
@@ -87,7 +99,7 @@ public class AobjTest {
         Assert.assertFalse(obj.isInt());
         Assert.assertFalse(obj.isList());
         Assert.assertFalse(obj.isLong());
-        Assert.assertFalse(obj.isMap());
+        Assert.assertFalse(obj.isObj());
         Assert.assertFalse(obj.isNull());
         Assert.assertFalse(obj.isNumber());
         Assert.assertFalse(obj.isString());
@@ -100,7 +112,7 @@ public class AobjTest {
         Assert.assertTrue(obj.toString().equals(value + ""));
     }
 
-    private void test(Aobj obj, double value) {
+    private void test(Avalue obj, double value) {
         Assert.assertTrue(obj.aonType() == Atype.DOUBLE);
         if (value < 100) {
             Assert.assertTrue(Adouble.valueOf(value) == obj);
@@ -111,7 +123,7 @@ public class AobjTest {
         Assert.assertFalse(obj.isInt());
         Assert.assertFalse(obj.isList());
         Assert.assertFalse(obj.isLong());
-        Assert.assertFalse(obj.isMap());
+        Assert.assertFalse(obj.isObj());
         Assert.assertFalse(obj.isNull());
         Assert.assertTrue(obj.isNumber());
         Assert.assertFalse(obj.isString());
@@ -124,7 +136,7 @@ public class AobjTest {
         Assert.assertTrue(obj.toFloat() == value);
     }
 
-    private void test(Aobj obj, int value) {
+    private void test(Avalue obj, int value) {
         Assert.assertTrue(obj.aonType() == Atype.INT);
         if (value <= 100) {
             Assert.assertTrue(Aint.valueOf(value) == obj);
@@ -135,7 +147,7 @@ public class AobjTest {
         Assert.assertTrue(obj.isInt());
         Assert.assertFalse(obj.isList());
         Assert.assertFalse(obj.isLong());
-        Assert.assertFalse(obj.isMap());
+        Assert.assertFalse(obj.isObj());
         Assert.assertFalse(obj.isNull());
         Assert.assertTrue(obj.isNumber());
         Assert.assertFalse(obj.isString());
@@ -150,7 +162,7 @@ public class AobjTest {
         Assert.assertTrue(obj.toLong() == value);
     }
 
-    private void test(Aobj obj, long value) {
+    private void test(Avalue obj, long value) {
         Assert.assertTrue(obj.aonType() == Atype.LONG);
         if (value <= 100) {
             Assert.assertTrue(Along.valueOf(value) == obj);
@@ -161,7 +173,7 @@ public class AobjTest {
         Assert.assertFalse(obj.isInt());
         Assert.assertFalse(obj.isList());
         Assert.assertTrue(obj.isLong());
-        Assert.assertFalse(obj.isMap());
+        Assert.assertFalse(obj.isObj());
         Assert.assertFalse(obj.isNull());
         Assert.assertTrue(obj.isNumber());
         Assert.assertFalse(obj.isString());
@@ -176,7 +188,7 @@ public class AobjTest {
         Assert.assertTrue(obj.toLong() == value);
     }
 
-    private void test(Aobj obj, String value) {
+    private void test(Avalue obj, String value) {
         Assert.assertTrue(obj.aonType() == Atype.STRING);
         if (value.length() == 0) {
             Assert.assertTrue(Astr.valueOf("") == obj);
@@ -187,7 +199,7 @@ public class AobjTest {
         Assert.assertFalse(obj.isInt());
         Assert.assertFalse(obj.isList());
         Assert.assertFalse(obj.isLong());
-        Assert.assertFalse(obj.isMap());
+        Assert.assertFalse(obj.isObj());
         Assert.assertFalse(obj.isNull());
         Assert.assertFalse(obj.isNumber());
         Assert.assertTrue(obj.isString());
@@ -209,7 +221,7 @@ public class AobjTest {
         if (list.isEmpty()) {
             Assert.assertTrue(size == 0);
         }
-        Aobj tmp = Astr.valueOf("mustNotContain");
+        Avalue tmp = Astr.valueOf("mustNotContain");
         list.add(tmp);
         Assert.assertFalse(list.isEmpty());
         Assert.assertTrue(list.size() == (size + 1));
@@ -217,7 +229,7 @@ public class AobjTest {
         Assert.assertTrue(list.size() == size);
         boolean fail = true;
         try {
-            tmp = new Amap();
+            tmp = new Aobj();
             list.add(tmp);
             list.add(tmp);
         } catch (Exception ignore) {
@@ -230,41 +242,45 @@ public class AobjTest {
     }
 
     private void testMap() {
-        testMap(new Amap());
-        Amap map = primitiveMap();
+        testMap(new Aobj());
+        Aobj map = primitiveMap();
         testPrimitiveMap(map);
         Alist list = primitiveList();
         testPrimitiveList(list);
         map.put("map", primitiveMap());
         map.put("list", primitiveList());
-        Assert.assertTrue(map.get("map").isMap());
+        Assert.assertTrue(map.get("map").isObj());
         Assert.assertTrue(map.get("list").isList());
         testMap(map);
         //encode and reconstitute
         ByteArrayOutputStream out = new ByteArrayOutputStream();
-        new JsonWriter(out, "UTF-8").value(map).close();
+        newWriter(out).value(map).close();
+        //new JsonWriter(out, "UTF-8").value(map).close();
         ByteArrayInputStream in = new ByteArrayInputStream(out.toByteArray());
-        map = new JsonReader(in, "UTF-8").getObj().toMap();
-        Assert.assertTrue(map.get("map").isMap());
+        //map = new JsonReader(in, "UTF-8").getObj().toMap();
+        map = newReader(in).getObj();
+        Assert.assertTrue(map.get("map").isObj());
         Assert.assertTrue(map.get("list").isList());
-        testPrimitiveMap(map.getMap("map"));
+        testPrimitiveMap(map.getObj("map"));
         list.add(primitiveMap());
         list.add(primitiveList());
         testList(list);
-        Assert.assertTrue(list.get(6).isMap());
+        Assert.assertTrue(list.get(6).isObj());
         Assert.assertTrue(list.get(7).isList());
         out = new ByteArrayOutputStream();
-        new JsonWriter(out, "UTF-8").value(map).close();
+        //new JsonWriter(out, "UTF-8").value(map).close();
+        newWriter(out).value(map).close();
         in = new ByteArrayInputStream(out.toByteArray());
-        map = new JsonReader(in, "UTF-8").getObj().toMap();
-        Assert.assertTrue(map.get("map").isMap());
+        //map = new JsonReader(in, "UTF-8").getObj().toMap();
+        map = newReader(in).getValue().toObj();
+        Assert.assertTrue(map.get("map").isObj());
         Assert.assertTrue(map.get("list").isList());
         testPrimitiveList(list.get(7).toList());
     }
 
-    private void testMap(Amap map) {
-        Assert.assertTrue(map.aonType() == Atype.MAP);
-        Assert.assertTrue(map.isMap());
+    private void testMap(Aobj map) {
+        Assert.assertTrue(map.aonType() == Atype.OBJECT);
+        Assert.assertTrue(map.isObj());
         int size = map.size();
         if (size == 0) {
             Assert.assertTrue(map.isEmpty());
@@ -291,7 +307,7 @@ public class AobjTest {
         Assert.assertTrue(map.remove("mustNotContain").toInt() == 10);
         Assert.assertTrue(map.size() == size);
         boolean fail = true;
-        Amap tmp = new Amap();
+        Aobj tmp = new Aobj();
         try {
             map.put("mustNotContain", tmp);
             Alist list = new Alist();
@@ -305,7 +321,7 @@ public class AobjTest {
         Assert.assertTrue(map.removeLast() == tmp);
     }
 
-    private void testNull(Aobj obj) {
+    private void testNull(Avalue obj) {
         Assert.assertTrue(Anull.NULL == obj);
         Assert.assertTrue(obj.isNull());
         Assert.assertTrue(obj.aonType() == Atype.NULL);
@@ -321,7 +337,7 @@ public class AobjTest {
         Assert.assertTrue(list.get(5).isNull());
     }
 
-    private void testPrimitiveMap(Amap map) {
+    private void testPrimitiveMap(Aobj map) {
         testMap(map);
         Assert.assertTrue(map.get("boolean").isBoolean());
         Assert.assertTrue(map.get("double").isDouble());

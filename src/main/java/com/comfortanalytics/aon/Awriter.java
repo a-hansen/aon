@@ -23,7 +23,7 @@ import java.math.BigInteger;
 /**
  * An Aobj encoder that can be used to encode large graphs with or without Aobj instances.
  * <p>
- * To simply encode an Amap or Alist, use the value(Aobj) method.  For example:
+ * To simply encode an Aobj or Alist, use the value(Aobj) method.  For example:
  * <ul><li>new JsonWriter(out).value(myMap).close(); </li> </ul>
  * <p>
  * Otherwise, you can stream data struct without using any Aobj instances:
@@ -96,7 +96,7 @@ public interface Awriter extends Closeable {
      *
      * @throws IllegalStateException when improperly called.
      */
-    public Awriter value(Aobj arg);
+    public Awriter value(Avalue arg);
 
     /**
      * Write a value to the map or list.  If in a map, this must have been preceeded

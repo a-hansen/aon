@@ -75,21 +75,6 @@ public class JsonReader extends AbstractReader implements Closeable, JsonConstan
     // Public Methods
     // --------------
 
-    private void bufAppend(char ch) {
-        if (buflen == buf.length) {
-            char[] tmp = new char[buflen * 2];
-            System.arraycopy(buf, 0, tmp, 0, buflen);
-            buf = tmp;
-        }
-        buf[buflen++] = ch;
-    }
-
-    private String bufToString() {
-        String ret = new String(buf, 0, buflen);
-        buflen = 0;
-        return ret;
-    }
-
     public void close() {
         try {
             in.close();
@@ -112,11 +97,11 @@ public class JsonReader extends AbstractReader implements Closeable, JsonConstan
                         return setBeginMap();
                     case ':':
                         if (last() != Token.STRING) {
-                            throw new IllegalStateException("Invalid key");
+                            throw new IllegalStateException("Invalid key in map");
                         }
-                        return setNextKey();
+                        return last();
                     case ',':
-                        if ((last() == Token.END_LIST) || (last() == Token.END_MAP)) {
+                        if ((last() == Token.END_LIST) || (last() == Token.END_OBJ)) {
                             break;
                         }
                         return last();
@@ -143,37 +128,37 @@ public class JsonReader extends AbstractReader implements Closeable, JsonConstan
                         String str = readString();
                         if ((str.length() > 0) && (str.charAt(0) == '\u001B')) {
                             if (str.equals(DBL_NEG_INF)) {
-                                setNextValue(Double.NEGATIVE_INFINITY);
+                                setNext(Double.NEGATIVE_INFINITY);
                                 hasValue = true;
                                 break;
                             }
                             if (str.equals(DBL_POS_INF)) {
-                                setNextValue(Double.POSITIVE_INFINITY);
+                                setNext(Double.POSITIVE_INFINITY);
                                 hasValue = true;
                                 break;
                             }
                             if (str.equals(DBL_NAN)) {
-                                setNextValue(Double.NaN);
+                                setNext(Double.NaN);
                                 hasValue = true;
                                 break;
                             }
                         }
-                        setNextValue(str);
+                        setNext(str);
                         hasValue = true;
                         break;
                     case 't':
                         validateNextChars(rue);
-                        setNextValue(true);
+                        setNext(true);
                         hasValue = true;
                         break;
                     case 'f':
                         validateNextChars(alse);
-                        setNextValue(false);
+                        setNext(false);
                         hasValue = true;
                         break;
                     case 'n':
                         validateNextChars(ull);
-                        setNextValueNull();
+                        setNextNull();
                         hasValue = true;
                         break;
                     case '-':
@@ -195,6 +180,76 @@ public class JsonReader extends AbstractReader implements Closeable, JsonConstan
         } catch (IOException x) {
             throw new RuntimeException(x);
         }
+    }
+
+    /**
+     * Sets the input source, resets to ROOT, and returns this.
+     */
+    public Areader setInput(CharSequence in) {
+        this.in = new CharSequenceInput(in);
+        return reset();
+    }
+
+    /**
+     * Sets the input source, resets to ROOT, and returns this.
+     */
+    public Areader setInput(File file) {
+        try {
+            if (in instanceof JsonInput) {
+                ((JsonInput) in).setInput(new FileReader(file));
+            } else {
+                in = new JsonInput(new FileReader(file));
+            }
+        } catch (Exception x) {
+            throw new IllegalStateException(x);
+        }
+        return reset();
+    }
+
+    /**
+     * Sets the input source, resets to ROOT, and returns this.
+     */
+    public Areader setInput(InputStream inputStream, String charset) {
+        try {
+            if (this.in instanceof JsonInput) {
+                ((JsonInput) this.in).setInput(inputStream, charset);
+            } else {
+                this.in = new JsonInput(inputStream, charset);
+            }
+            return reset();
+        } catch (IOException x) {
+            throw new IllegalStateException("IOException: " + x.getMessage(), x);
+        }
+    }
+
+    /**
+     * Sets the input source, resets to ROOT, and returns this.
+     */
+    public Areader setInput(Reader reader) {
+        if (this.in instanceof JsonInput) {
+            ((JsonInput) this.in).setInput(reader);
+        } else {
+            this.in = new JsonInput(reader);
+        }
+        return reset();
+    }
+
+    // Private Methods
+    // ---------------
+
+    private void bufAppend(char ch) {
+        if (buflen == buf.length) {
+            char[] tmp = new char[buflen * 2];
+            System.arraycopy(buf, 0, tmp, 0, buflen);
+            buf = tmp;
+        }
+        buf[buflen++] = ch;
+    }
+
+    private String bufToString() {
+        String ret = new String(buf, 0, buflen);
+        buflen = 0;
+        return ret;
     }
 
     /**
@@ -264,17 +319,14 @@ public class JsonReader extends AbstractReader implements Closeable, JsonConstan
             }
         }
         if (hasDecimal) {
-            return setNextValue(Double.parseDouble(bufToString()));
+            return setNext(Double.parseDouble(bufToString()));
         }
         long l = Long.parseLong(bufToString());
         if ((l < Integer.MIN_VALUE) || (l > Integer.MAX_VALUE)) {
-            return setNextValue(l);
+            return setNext(l);
         }
-        return setNextValue((int) l);
+        return setNext((int) l);
     }
-
-    // Private Methods
-    // ---------------
 
     private String readString() throws IOException {
         char ch = (char) in.read();
@@ -353,58 +405,6 @@ public class JsonReader extends AbstractReader implements Closeable, JsonConstan
             }
         }
         return (char) ret;
-    }
-
-    /**
-     * Sets the input source, resets to ROOT, and returns this.
-     */
-    public Areader setInput(CharSequence in) {
-        this.in = new CharSequenceInput(in);
-        return reset();
-    }
-
-    /**
-     * Sets the input source, resets to ROOT, and returns this.
-     */
-    public Areader setInput(File file) {
-        try {
-            if (in instanceof JsonInput) {
-                ((JsonInput) in).setInput(new FileReader(file));
-            } else {
-                in = new JsonInput(new FileReader(file));
-            }
-        } catch (Exception x) {
-            throw new IllegalStateException(x);
-        }
-        return reset();
-    }
-
-    /**
-     * Sets the input source, resets to ROOT, and returns this.
-     */
-    public Areader setInput(InputStream inputStream, String charset) {
-        try {
-            if (this.in instanceof JsonInput) {
-                ((JsonInput) this.in).setInput(inputStream, charset);
-            } else {
-                this.in = new JsonInput(inputStream, charset);
-            }
-            return reset();
-        } catch (IOException x) {
-            throw new IllegalStateException("IOException: " + x.getMessage(), x);
-        }
-    }
-
-    /**
-     * Sets the input source, resets to ROOT, and returns this.
-     */
-    public Areader setInput(Reader reader) {
-        if (this.in instanceof JsonInput) {
-            ((JsonInput) this.in).setInput(reader);
-        } else {
-            this.in = new JsonInput(reader);
-        }
-        return reset();
     }
 
     private static void validate(int ch1, int ch2) {

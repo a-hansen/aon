@@ -24,7 +24,7 @@ import java.math.BigInteger;
  *
  * @author Aaron Hansen
  */
-class Adouble extends Aobj {
+public class Adouble extends Avalue {
 
     // Constants
     // ---------
@@ -51,10 +51,10 @@ class Adouble extends Aobj {
 
     @Override
     public boolean equals(Object o) {
-        if (!(o instanceof Aobj)) {
+        if (!(o instanceof Avalue)) {
             return false;
         }
-        Aobj obj = (Aobj) o;
+        Avalue obj = (Avalue) o;
         switch (obj.aonType()) {
             case DECIMAL:
                 return obj.equals(this);

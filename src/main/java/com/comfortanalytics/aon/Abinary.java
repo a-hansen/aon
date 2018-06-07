@@ -16,39 +16,43 @@
 
 package com.comfortanalytics.aon;
 
+import java.io.IOException;
+import java.io.OutputStream;
+import java.util.Arrays;
+
 /**
- * String wrapper.
+ * Byte array wrapper.
  *
  * @author Aaron Hansen
  */
-public class Astr extends Avalue {
+public class Abinary extends Avalue {
 
-    // Constants
-    // ---------
-
-    public static final Astr EMPTY = new Astr("");
-
+    ///////////////////////////////////////////////////////////
     // Fields
-    // ------
+    ///////////////////////////////////////////////////////////
 
-    private String value;
+    public static final Abinary EMPTY = new Abinary(new byte[0]);
 
+    private byte[] value;
+
+    ///////////////////////////////////////////////////////////
     // Constructors
-    // ------------
+    ///////////////////////////////////////////////////////////
 
-    Astr(String val) {
+    Abinary(byte[] val) {
         if (val == null) {
             throw new NullPointerException("Null not allowed");
         }
         value = val;
     }
 
+    ///////////////////////////////////////////////////////////
     // Public Methods
-    // --------------
+    ///////////////////////////////////////////////////////////
 
     @Override
     public Atype aonType() {
-        return Atype.STRING;
+        return Atype.BINARY;
     }
 
     @Override
@@ -56,14 +60,11 @@ public class Astr extends Avalue {
         if (o == this) {
             return true;
         }
-        if (!(o instanceof Avalue)) {
+        if (!(o instanceof Abinary)) {
             return false;
         }
-        Avalue obj = (Avalue) o;
-        if (obj.aonType() != Atype.STRING) {
-            return false;
-        }
-        return value.equals(obj.toString());
+        Abinary arg = (Abinary) o;
+        return Arrays.equals(value, arg.value);
     }
 
     @Override
@@ -72,41 +73,49 @@ public class Astr extends Avalue {
     }
 
     @Override
-    public boolean isString() {
+    public boolean isBinary() {
         return true;
     }
 
+    /**
+     * The number of byte in the internal array.
+     */
+    public int length() {
+        return value.length;
+    }
+
     @Override
-    public boolean toBoolean() {
-        if (value.equals("0")) {
-            return false;
-        } else if (value.equals("1")) {
-            return true;
-        } else if (value.equalsIgnoreCase("true")) {
-            return true;
-        } else if (value.equalsIgnoreCase("false")) {
-            return true;
-        } else if (value.equalsIgnoreCase("on")) {
-            return true;
-        } else if (value.equalsIgnoreCase("off")) {
-            return false;
-        }
-        return false;
+    public Abinary toBinary() {
+        return this;
+    }
+
+    /**
+     * Returns a copy of the internal array.
+     */
+    public byte[] toByteArray() {
+        return Arrays.copyOf(value, value.length);
     }
 
     @Override
     public String toString() {
-        return value;
+        return AonBase64.encode(value);
     }
 
-    public static Astr valueOf(String arg) {
+    public static Abinary valueOf(byte[] arg) {
         if (arg == null) {
             return null;
         }
-        if (arg.length() == 0) {
+        if (arg.length == 0) {
             return EMPTY;
         }
-        return new Astr(arg);
+        return new Abinary(arg);
+    }
+
+    /**
+     * Write the internal byte array to the given stream.
+     */
+    public void writeTo(OutputStream out) throws IOException {
+        out.write(value);
     }
 
 

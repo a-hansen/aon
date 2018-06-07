@@ -24,7 +24,7 @@ import java.math.BigInteger;
  *
  * @author Aaron Hansen
  */
-class Adecimal extends Aobj {
+public class Adecimal extends Avalue {
 
     // Fields
     // ------
@@ -48,10 +48,10 @@ class Adecimal extends Aobj {
 
     @Override
     public boolean equals(Object o) {
-        if (!(o instanceof Aobj)) {
+        if (!(o instanceof Avalue)) {
             return false;
         }
-        Aobj obj = (Aobj) o;
+        Avalue obj = (Avalue) o;
         if (obj.isNumber()) {
             return value.equals(obj.toBigDecimal());
         }

@@ -61,14 +61,6 @@ class JsonInput implements JsonReader.Input {
         }
     }
 
-    private void fill() throws IOException {
-        if (in == null) {
-            return;
-        }
-        len = in.read(buf, 0, buf.length);
-        next = 0;
-    }
-
     public int read() {
         if (next >= len) {
             try {
@@ -126,6 +118,14 @@ class JsonInput implements JsonReader.Input {
         if (next > 0) {
             --next;
         }
+    }
+
+    private void fill() throws IOException {
+        if (in == null) {
+            return;
+        }
+        len = in.read(buf, 0, buf.length);
+        next = 0;
     }
 
 

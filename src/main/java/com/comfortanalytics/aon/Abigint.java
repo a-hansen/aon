@@ -24,22 +24,25 @@ import java.math.BigInteger;
  *
  * @author Aaron Hansen
  */
-class Abigint extends Aobj {
+public class Abigint extends Avalue {
 
-    // Fields
-    // ------
+    ///////////////////////////////////////////////////////////
+    // Instance Fields
+    ///////////////////////////////////////////////////////////
 
     private BigInteger value;
 
+    ///////////////////////////////////////////////////////////
     // Constructors
-    // ------------
+    ///////////////////////////////////////////////////////////
 
     Abigint(BigInteger val) {
         value = val;
     }
 
+    ///////////////////////////////////////////////////////////
     // Public Methods
-    // --------------
+    ///////////////////////////////////////////////////////////
 
     @Override
     public Atype aonType() {
@@ -48,10 +51,10 @@ class Abigint extends Aobj {
 
     @Override
     public boolean equals(Object o) {
-        if (!(o instanceof Aobj)) {
+        if (!(o instanceof Avalue)) {
             return false;
         }
-        Aobj obj = (Aobj) o;
+        Avalue obj = (Avalue) o;
         if (obj.isNumber()) {
             return value.equals(obj.toBigInt());
         }
