@@ -7,18 +7,23 @@ Aon
 * [Javadoc](https://a-hansen.github.io/aon/)
 
 
-Objectives
-----------
+Rationale
+---------
 
 Aon is another object notation like JSON, except:
-* It is binary.
+* It is more compact.
 * Supports more data types.
 * Object member order is preserved.
 
-Aon also borrows heavily from [MsgPack](http://msgpack.org) and
-[UBJSON](http://ubjson.org).  MsgPack is great except it is not
-stream friendly, it requires array and object sizes up front.  UBJSON
-is just plain clever so Aon borrows it's readability aspects.
+Aon was influenced by [MsgPack](http://msgpack.org) compaction, except:
+* It is stream friendly, it does not have array and object sizes up front.
+* Does not have data types unsupportable by Java (U64).
+* It is much more readable when viewed in a text editor or network tooling.
+
+Aon uses many [UBJSON](http://ubjson.org) concepts, except:
+* JSON compatibility is not a goal.
+* It is more compact.
+* Binary data is a native data type.
 
 Comparisons
 -----------
@@ -31,6 +36,11 @@ Comparisons
 **MsgPack** (18 bytes)
 ```
 0x82 0xA7 compact 0xC3 0xA6 schema 0x00
+```
+
+**UBJSON** (22 bytes)
+```
+{ i 0x07 compact T i 0x06 schema i 0x00 }
 ```
 
 **Aon** (22 bytes)
@@ -139,20 +149,20 @@ output.  Just run all tests, or AonBenchmark specifically.
 Usage
 -----
 
-Create data structures with Alist and Amap.
+Create data structures with Alist and Aobj.
 
 ```java
 import com.comfortanalytics.aon.*;
 
 public static void main(String[] args) {
-    Amap map = new Amap()
+    Aobj obj = new Aobj()
             .put("boolean", true)
             .put("double", 100.1d)
             .put("int", 100)
             .put("long", 100l)
             .put("string", "abcdefghij\r\njklmnopqrs\u0000\u0001\u0002tuvwxyz\r\n")
             .putNull("null");
-    System.out.println("The int value in the map is " + map.getInt("int"));
+    System.out.println("The int value in the obj is " + map.getInt("int"));
     System.out.println("The value by index is faster: " + map.getInt(2));
     Alist list = new Alist()
             .add(true)
@@ -167,7 +177,7 @@ public static void main(String[] args) {
            .add(1)
            .add(2)
            .add(3);
-    complex.addMap()
+    complex.addObj()
            .put("a", 1)
            .put("b", 2)
            .put("c", 3);
@@ -189,22 +199,37 @@ public static void main(String[] args) {
 }
 ```
 
+Aon encoding and decoding is straightforward.
+
+```java
+import com.comfortanalytics.aon.*;
+import com.comfortanalytics.aon.io.*;
+
+public Aobj decode() throws IOException {
+    try (AonReader reader = new AonReader(new File("data.aon"))) {
+        return reader.getObj();
+    }
+}
+
+public void encode(Aobj map) throws IOException {
+    new AonWriter(new File("data.aon")).value(map).close();
+}
+```
+
 JSON encoding and decoding is straightforward.
 
 ```java
 import com.comfortanalytics.aon.*;
 import com.comfortanalytics.aon.json.*;
 
-public Amap decode() throws IOException {
-    try (JsonReader reader = new JsonReader(new File("aon.zip"))) {
-        return reader.getMap();
+public Aobj decode() throws IOException {
+    try (JsonReader reader = new JsonReader(new File("data.json"))) {
+        return reader.getObj();
     }
 }
 
-public void encode(Amap map) throws IOException {
-    new JsonWriter(new File("aon.zip"), "aon.json")
-            .value(map)
-            .close();
+public void encode(Aobj map) throws IOException {
+    new JsonWriter(new File("aon.zip"), "aon.json").value(map).close();
 }
 ```
 
@@ -213,12 +238,12 @@ Streaming io is supported as well.  The following two methods produce the same r
 ```java
 import com.comfortanalytics.aon.*;
 
-public void first(Awriter out) {
-    out.value(new Amap().put("a",1).put("b",2).put("c",3));
+public void notStreaming(Awriter out) {
+    out.value(new Aobj().put("a",1).put("b",2).put("c",3));
 }
 
-public void second(Awriter out) {
-    out.newMap().key("a").value(1).key("b").value(2).key("c").value(3).endMap();
+public void streaming(Awriter out) {
+    out.beginObj().key("a").value(1).key("b").value(2).key("c").value(3).endObj();
 }
 ```
 

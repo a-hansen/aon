@@ -6,6 +6,7 @@ import com.comfortanalytics.aon.json.JsonReader;
 import com.comfortanalytics.aon.json.JsonWriter;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
+import java.io.File;
 import java.io.InputStream;
 import java.io.OutputStream;
 import org.junit.Assert;
@@ -28,6 +29,10 @@ public class AvalueTest {
 
     @Test
     public void test() throws Exception {
+        Aobj obj = new Aobj();
+        obj.put("compact", true);
+        obj.put("schema", 0);
+        new AonWriter(new File("test.aon")).value(obj).close();
         allTests();
         aonFormat = false;
         allTests();
