@@ -26,7 +26,7 @@ public interface AonConstants {
     char DEC16 = 'G';
     char DEC32 = 'h';
 
-    int I5 = 0xA;
+    int I5 = 0xC0;
     char I8 = 'i';
     char I16 = 'I';
     char I32 = 'j';
@@ -50,33 +50,29 @@ public interface AonConstants {
     char OBJ_END = '}';
     char OBJ_START = '{';
 
-    int S5 = 0xD;
+    int S5 = 0xE0;
     char S8 = 's';
     char S16 = 'S';
     char S32 = 'r';
 
-    int U5 = 0xE;
+    int U5 = 0x80;
     char U8 = 'u';
     char U16 = 'U';
     char U32 = 'v';
 
     Charset UTF8 = Charset.forName("UTF-8");
 
-    //1 - 0001
-    //2 - 0010
-    //4 - 0100
-
-    // 8, 0x8, 1000  BIN
-    //10, 0xA, 1010  I
-    //13, 0xD, 1101  U
-    //14, 0xE, 1110  S
-
-    // 9, 0x9, 1001
-    //11, 0xB, 1011
+    // 8, 0x8, 1000
     //12, 0xC, 1100
+    //14, 0xE, 1110
+
+    //10, 0xA, 1010
+    //11, 0xB, 1011
+
+    //13, 0xD, 1101
     //13, 0xD, 1101
     //15, 0xF, 1111
 
-    //BIN8 I8 U8 S8
+    //I5 U5 S5
 
 }

@@ -9,20 +9,24 @@ Aon
 Rationale
 ---------
 
-A JSON-like encoding that is more compact, supports more data bytes,
-preserves the order of object members and supports streaming IO.
+A JSON-like encoding that is more compact, supports more data types,
+preserves the order of object members and is stream friendly.
 
 #### Compact
-Uses techniques of MsgPack and UBJSON to create a hybrid binary
+Borrows techniques from MsgPack and UBJSON to create a hybrid binary
 encoding.
+
+#### More Data Types
+Byte arrays, floats, doubles, big integers and big decimals are all
+native data types.
 
 #### Ordered Objects
 When displaying objects on user interfaces such as property sheets,
 order matters.
 
 #### Streaming IO
-Prepending lengths into arrays and objects prevents streaming IO.  Use
-a database query as an example.  If you want to encode the number of
+Prepending lengths into lists and objects prevents streaming IO.  Take
+database queries for example.  If you want to encode the number of
 result rows, you either need to execute a count query first (2 queries)
 or you have to load all result rows in memory.
 
@@ -38,10 +42,10 @@ Aon is (another object notation) like JSON, except:
 Aon was influenced by [MsgPack](http://msgpack.org) compaction, except:
 
 * It is stream friendly.
-* Does not have data types unsupportable by Java (U64, S32).
+* Only has data types that can be supported by Java (no U64 or S32).
 * Object member order is preserved.
 
-Aon uses many [UBJSON](http://ubjson.org) concepts, except:
+Aon uses many [UBJSON](http://ubjson.org) concepts as well, except:
 
 * It is more compact.
 * Object member order is preserved.
@@ -56,88 +60,145 @@ Aon uses many [UBJSON](http://ubjson.org) concepts, except:
 0x83 0xA7 name 0xC3 aon 0xA6 bestDayEver 0x0000 0x000000 0x00 cool 0x00
 ```
 
-**UBJSON** (37 bytes)
+**UBJSON** (39 bytes)
 ```
-{ i 0x04 name s i 0x03 aon i 0x0b bestDayEver I 0x012C 0x7409 i 0x04 cool T }
-```
-
-**Aon** (32 bytes)
-```
-{ 0xD004 name 0xD003 aon 0xD00B bestDayEver I 0x012C 0x7409 0xDO04 cool T }
+{ i 0x04 name s i 0x03 aon i 0x0B bestDayEver I 0x01 0x2C 0x74 0x09 i 0x04 cool T }
 ```
 
-Encoding Rules
---------------
+**Aon** (35 bytes)
+```
+{ 0xE4 name 0xE3 aon 0xEB bestDayEver j 0x01 0x2C 0x74 0x09 0xDO 0xE4 cool T }
+```
 
-#### Object / Map
+Format
+------
 
-#### Array / List
-* [ &lt;value>... ]
+Aon uses Big Endian byte order.
 
-#### Values
-A character possibily followed by length and/or data.
-* &lt;Character> [len] [data]
+The Aon format is represented here using a pseudo-BNF syntax.
 
-Data Types
-----------
+```
+aon ::= <Object> | <List>
+<Value> :== <Object> | <List> | <Boolean> | <Double> | <Float> | <Null> |
+         <Signed-Integer> | <String> | <Unsigned-Integer> | <Binary> |
+         <Big-Integer> | <Big-Decimal>
+```
 
-**Object**
+#### Object
 An ordered collection of key value pairs surrounded by curly braces.
-* { = Begin
-* } = End
+```
+<Object> ::= "{" <Key-Value-Pair>* "}"
+<Key-Value-Pair> ::= <String> <Value>
+```
+* There can be 0 or more key value pairs.
 
-**List** (Array)
+#### List
 An ordered collection of values surrounded by brackets.
-* [ = Begin
-* ] = End
+```
+<List> ::= "[" <Value>* "]"
+```
+* There can be 0 or more values in a list.
 
-**Boolean**
+#### Boolean
+```
+<Boolean> ::= "T" | "F"
+```
 * T = true
 * F = false
 
-**Double**
-IEEE 754 floating-point "double format" bit layout (Java Double).
-* D <8 byte value> = IEEE 754 floating-point "double format" bit layout (Java Double).
+#### Double
+```
+<Double> ::= "D" byte[8]
+```
+* IEEE 754 floating-point "double format" bit layout (Java Double).
 
-**Float**
-IEEE 754 floating-point "single format" bit layout (Java Float).
-* F <4 byte value> = IEEE 754 floating-point "single format" bit layout (Java Float).
+#### Float
+```
+<Float> ::= "D" byte[4]
+```
+* IEEE 754 floating-point "single format" bit layout (Java Float).
 
-Signed Integers
-* i <1 byte value>
-* I <2 byte value>
-* j <4 byte value>
-* J <8 byte value>
+#### Null
+```
+<Null> ::= "Z"
+```
 
-String
-* s <1 byte len> <UTF-8 text> = Length is an unsigned byte (max 255)
-* S <2 byte len> <UTF-8 text> = Length is an unsigned 2 byte int (max 65535)
-* r <4 byte len> <UTF-8 text> = Length is *signed* 4 byte int (max 268435455)
+#### Signed Integer
+```
+<Signed-Integer> ::= <tiny-int> | <1-byte-int> | <2-byte-int> | <4-byte-int> | <8-byte-int>
+<tiny-int>   ::= 0xC0
+<1-byte-int> ::= "i" int8
+<2-byte-int> ::= "I" int16
+<4-byte-int> ::= "j" int32
+<8-byte-int> ::= "J" int64
+```
+* The tiny int can be identified with the bitmask 0xC0.  The length
+of the string is the low order signed 5 bits (byte & ~0xC0).  The
+value range for a tiny int is -16 to 15.
 
-Unsigned Integers
-* u <1 byte>
-* U <2 byte>
-* v <4 byte>
+#### String
+```
+<String> ::= <tiny-string> | <small-string> | <med-string> | <large-string>
+<tiny-string>  ::= 0xE0 UTF8
+<small-string> ::= "s" uint8 UTF8
+<med-string>   ::= "S" uint16 UTF8
+<large-string> ::= "t" int32 UTF8
+```
+* The tiny string can be identified with the bitmask 0xE0.  The length
+of the string is the lowest order unsigned 5 bits (byte & ~0xE0).  The
+max length of a tiny string is 31 bytes.
+* The large string length must be a positive signed int
+* All strings must be UT8 encoded
 
-Binary (byte arrays)
-* b <1 byte len> <bytes> = Length is an unsigned byte (max 255)
-* B <2 byte len> <bytes> = Length is an unsigned 2 byte int (max 65535)
-* c <4 byte len> <bytes> = Length is signed 4 byte int (max 268435455)
+#### Unsigned Integers
+```
+<Unsigned-Integer> ::= <tiny-uint> | <1-byte-uint> | <2-byte-uint> | <4-byte-uint>
+<tiny-uint>   ::= 0x80
+<1-byte-uint> ::= "i" uint8
+<2-byte-uint> ::= "I" uint16
+<4-byte-uint> ::= "j" uint32
+```
+* The tiny uint can be identified with the bitmask 0x80.  The length
+of the string is the lowest order unsigned 5 bits (byte & ~0x80).  The
+max value of a tiny uint is 31.
 
-Big Integer
-* n <1 byte len> <text> = Length is an unsigned byte (max 255)
-* N <2 byte len> <text> = Length is an unsigned 2 byte int (max 65535)
-* o <4 byte len> <text> = Length is signed 4 byte int (max 268435455)
+#### Binary (byte array)
+```
+<Binary> ::= <1-byte-bin> | <2-byte-bin> | <4-byte-bin>
+<1-byte-bin> ::= "b" uint8-length bytes
+<2-byte-bin> ::= "I" uint16-length bytes
+<4-byte-bin> ::= "j" int32-length bytes
+```
 
-Big Decimal
-* g <1 byte len> <text> = Length is an unsigned byte (max 255)
-* G <2 byte len> <text> = Length is an unsigned 2 byte int (max 65535)
-* h <4 byte len> <text> = Length is signed 4 byte int (max 268435455)
+#### Big Integer
+```
+<Big-Integer> ::= <small-bigint> | <med-bigint> | <large-bigint>
+<small-bigint> ::= "n" uint8-length UTF8
+<med-string>   ::= "N" uint16-length UTF8
+<large-string> ::= "o" int16-length UTF8
+```
+* The string format is the same as java.math.BigInteger.toString().
+* "The String representation consists of an optional minus sign
+followed by a sequence of one or more decimal digits. The String may
+not contain any extraneous characters (whitespace, for example)."
 
-Endianness
-----------
-
-Numeric values must be encoded using [Big-Endian](https://en.wikipedia.org/wiki/Endianness) byte order.
+#### Big Decimal
+```
+<Big-Decimal> ::= <small-decimal> | <med-decimal> | <large-decimal>
+<small-decimal> ::= "g" uint8-length UTF8
+<med-decimal>   ::= "G" uint16-length UTF8
+<large-decimal> ::= "h" int16-length UTF8
+```
+* The string format is the same as java.math.BigDecimal.toString().
+* "The string representation consists of an optional sign, '+'
+( '\u002B') or '-' ('\u002D'), followed by a sequence of zero or more
+decimal digits ("the integer"), optionally followed by a fraction,
+optionally followed by an exponent. The fraction consists of a decimal
+point followed by zero or more decimal digits. The string must contain
+at least one digit in either the integer or the fraction. The number
+formed by the sign, the integer and the fraction is referred to as the
+significand. The exponent consists of the character 'e' ('\u0065') or
+'E' ('\u0045') followed by one or more decimal digits."
 
 MIME Type
 ---------
@@ -150,20 +211,6 @@ Java Library
 
 This includes a Java library representing Aon values in memory as well
 as encoding and decoding.  It can also encode and decode JSON.
-
-This has a pretty fast JSON encoder/decoder.  With large documents it's slower than Boon,
- Jackson, and Jasoniter, but with small documents it's faster than Boon.  In either case 
- it's faster than Flexjson, Genson, Gson and JSON-Simple.  Testing includes a benchmark 
- for comparing all of those.
-
-Run the benchmark with the gradle wrapper:
-
-```
-gradlew benchmark
-```
-
-Don't run the benchmark task from within your IDE, it'll probably double print the 
-output.  Just run all tests, or AonBenchmark specifically.
 
 Usage
 -----
@@ -182,7 +229,6 @@ public static void main(String[] args) {
             .put("string", "abcdefghij\r\njklmnopqrs\u0000\u0001\u0002tuvwxyz\r\n")
             .putNull("null");
     System.out.println("The int value in the obj is " + map.getInt("int"));
-    System.out.println("The value by index is faster: " + map.getInt(2));
     Alist list = new Alist()
             .add(true)
             .add(100.1d)
@@ -203,21 +249,6 @@ public static void main(String[] args) {
 }
 ```
 
-Create primitives with static valueOf methods in the corresponding data types.
-
-```java
-import com.comfortanalytics.aon.*;
-
-public static void main(String[] args) {
-    Abool aBool = Abool.valueOf(true);
-    Adouble aDbl = Adouble.valueOf(1d);
-    Afloat aFlt = Afloat.valueOf(1f);
-    Aint anInt = Aint.valueOf(1);
-    Along aLong = Along.valueOf(1l);
-    Astr aStr = Astr.valueOf("hello world");
-}
-```
-
 Aon encoding and decoding is straightforward.
 
 ```java
@@ -235,7 +266,7 @@ public void encode(Aobj map) throws IOException {
 }
 ```
 
-JSON encoding and decoding is straightforward.
+The library also supports JSON encoding and decoding.
 
 ```java
 import com.comfortanalytics.aon.*;
@@ -248,7 +279,7 @@ public Aobj decode() throws IOException {
 }
 
 public void encode(Aobj map) throws IOException {
-    new JsonWriter(new File("aon.zip"), "aon.json").value(map).close();
+    new JsonWriter(new File("data.json")).value(map).close();
 }
 ```
 
