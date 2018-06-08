@@ -132,23 +132,21 @@ public class Afloat extends Avalue {
 
     private static class FltCache {
 
+        private static final int MAX = 100;
         private static final Afloat NEG_ONE = new Afloat(-1);
-        private static final Afloat[] cache = new Afloat[101];
+        private static final Afloat[] cache = new Afloat[MAX + 1];
 
         public static Afloat get(int i) {
-            if ((i < 0) || (i > 100)) {
-                if (i == -1) {
-                    return NEG_ONE;
-                }
+            if (i == -1) {
+                return NEG_ONE;
+            }
+            if (i > MAX) {
                 return null;
             }
-            return cache[i];
-        }
-
-        static {
-            for (int i = 101; --i >= 0; ) {
+            if (cache[i] == null) {
                 cache[i] = new Afloat(i);
             }
+            return cache[i];
         }
     }
 

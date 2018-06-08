@@ -133,24 +133,23 @@ public class Adouble extends Avalue {
 
     private static class DblCache {
 
+        private static final int MAX = 100;
         private static final Adouble NEG_ONE = new Adouble(-1);
-        private static final Adouble[] cache = new Adouble[101];
+        private static final Adouble[] cache = new Adouble[MAX + 1];
 
         public static Adouble get(int i) {
-            if ((i < 0) || (i > 100)) {
-                if (i == -1) {
-                    return NEG_ONE;
-                }
+            if (i == -1) {
+                return NEG_ONE;
+            }
+            if (i > MAX) {
                 return null;
+            }
+            if (cache[i] == null) {
+                cache[i] = new Adouble(i);
             }
             return cache[i];
         }
 
-        static {
-            for (int i = 101; --i >= 0; ) {
-                cache[i] = new Adouble(i);
-            }
-        }
     }
 
 }

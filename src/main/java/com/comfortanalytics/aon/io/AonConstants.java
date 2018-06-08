@@ -8,10 +8,10 @@ import java.nio.charset.Charset;
 public interface AonConstants {
 
     char DOUBLE = 'D';
-    char FALSE = 'F';
     char FLOAT = 'd';
-    char NULL = 'Z';
+    char FALSE = 'F';
     char TRUE = 'T';
+    char NULL = 'Z';
 
     char BIGINT8 = 'n';
     char BIGINT16 = 'N';

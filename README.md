@@ -1,32 +1,126 @@
 Aon
 ===
 
-* Version: 4.0.0
-* JDK 1.5+
+* Version: 5.0.0
+* JDK 1.6+
 * [ISC License](https://en.wikipedia.org/wiki/ISC_license)
 * [Javadoc](https://a-hansen.github.io/aon/)
 
 
-Overview
---------
+Objectives
+----------
 
-A JSON compatible data model and parser/generator. This is an alternative to JSONObject 
-with the following goals:
+Aon is another object notation like JSON, except:
+* It is binary.
+* Supports more data types.
+* Object member order is preserved.
 
-* Preserve key insertion order.
-* Support additional encodings besides JSON (future).
-* Support very large documents.
-* Everything is index accessible so the structure can be traversed without object 
-creation.
+Aon also borrows heavily from [MsgPack](http://msgpack.org) and
+[UBJSON](http://ubjson.org).  MsgPack is great except it is not
+stream friendly, it requires array and object sizes up front.  UBJSON
+is just plain clever so Aon borrows it's readability aspects.
 
-Other features:
-
-* Small, simple and no dependencies.
-* Streaming parser/generator.
-* [Extremely permissive license](https://en.wikipedia.org/wiki/ISC_license).
-
-Performance
+Comparisons
 -----------
+
+**JSON** (27 bytes)
+```
+{ "compact" : true, "schema" : 0 }
+```
+
+**MsgPack** (18 bytes)
+```
+0x82 0xA7 compact 0xC3 0xA6 schema 0x00
+```
+
+**Aon** (22 bytes)
+```
+{ s 0x07 compact T s 0x06 schema i 0x00 }
+```
+
+Encoding Rules
+--------------
+
+#### Object / Map
+An ordered collection of key value pairs surrounded by curly braces.
+* { &lt;&lt;string> &lt;value>>... }
+
+#### Array / List
+An ordered collection of values surrounded by brackets.
+* [ &lt;value>... ]
+
+#### Values
+A character possibily followed by length and/or data.
+* &lt;Character> [len] [data]
+
+Data Types
+----------
+
+Array / List
+* [ = Begin
+* ] = End
+
+Object / Map
+* { = Begin
+* } = End
+
+Boolean
+* T = true
+* F = false
+
+Double
+* D <8 byte value> = IEEE 754 floating-point "double format" bit layout (Java Double).
+
+Float
+* F <4 byte value> = IEEE 754 floating-point "single format" bit layout (Java Float).
+
+Signed Integers
+* i <1 byte value>
+* I <2 byte value>
+* j <4 byte value>
+* J <8 byte value>
+
+String
+* s <1 byte len> <UTF-8 text> = The length is an unsigned byte (max 255)
+* S <2 byte len> <UTF-8 text> = The length is an unsigned 2 byte int (max 65535)
+* r <4 byte len> <UTF-8 text> = The length is *signed* 4 byte int (max 268435455)
+
+Unsigned Integers
+* u <1 byte>
+* U <2 byte>
+* v <4 byte>
+
+Binary (byte arrays)
+* b <1 byte len> <bytes> = The length is an unsigned byte (max 255)
+* B <2 byte len> <bytes> = The length is an unsigned 2 byte int (max 65535)
+* c <4 byte len> <bytes> = The length is signed 4 byte int (max 268435455)
+
+Big Integer
+* n <1 byte len> <text> = The length is an unsigned byte (max 255)
+* N <2 byte len> <text> = The length is an unsigned 2 byte int (max 65535)
+* o <4 byte len> <text> = The length is signed 4 byte int (max 268435455)
+
+Big Decimal
+* g <1 byte len> <text> = The length is an unsigned byte (max 255)
+* G <2 byte len> <text> = The length is an unsigned 2 byte int (max 65535)
+* h <4 byte len> <text> = The length is signed 4 byte int (max 268435455)
+
+Endianness
+----------
+
+Numeric values must be encoded using [Big-Endian](https://en.wikipedia.org/wiki/Endianness) byte order.
+
+MIME Type
+---------
+
+application/aon
+
+
+Java Library
+------------
+
+This includes a Java library representing Aon values in memory as well
+as encoding and decoding.  It can also encode and decode JSON.
 
 This has a pretty fast JSON encoder/decoder.  With large documents it's slower than Boon,
  Jackson, and Jasoniter, but with small documents it's faster than Boon.  In either case 
@@ -80,17 +174,18 @@ public static void main(String[] args) {
 }
 ```
 
-Create primitives with static make methods on Aobj.
+Create primitives with static valueOf methods in the corresponding data types.
 
 ```java
 import com.comfortanalytics.aon.*;
 
 public static void main(String[] args) {
-    Aobj aBool = Aobj.make(true);
-    Aobj aDbl = Aobj.make(1d);
-    Aobj anInt = Aobj.make(1);
-    Aobj aLong = Aobj.make(1l);
-    Aobj aStr = Aobj.make("1");
+    Abool aBool = Abool.valueOf(true);
+    Adouble aDbl = Adouble.valueOf(1d);
+    Afloat aFlt = Afloat.valueOf(1f);
+    Aint anInt = Aint.valueOf(1);
+    Along aLong = Along.valueOf(1l);
+    Astr aStr = Astr.valueOf("hello world");
 }
 ```
 
@@ -101,14 +196,12 @@ import com.comfortanalytics.aon.*;
 import com.comfortanalytics.aon.json.*;
 
 public Amap decode() throws IOException {
-    //It can auto-detect zipped documents.
     try (JsonReader reader = new JsonReader(new File("aon.zip"))) {
         return reader.getMap();
     }
 }
 
 public void encode(Amap map) throws IOException {
-    //If your document is large, zip it.
     new JsonWriter(new File("aon.zip"), "aon.json")
             .value(map)
             .close();
@@ -131,6 +224,9 @@ public void second(Awriter out) {
 
 History
 -------
+_5.0.0_
+  - New native Aon encoding format, major rewrite.
+
 _4.0.1_
   - Fixed NPE in Amap.put(String,String).
   - Fix zip encoding.
