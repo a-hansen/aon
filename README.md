@@ -6,57 +6,72 @@ Aon
 * [ISC License](https://en.wikipedia.org/wiki/ISC_license)
 * [Javadoc](https://a-hansen.github.io/aon/)
 
-
 Rationale
 ---------
 
-Aon is another object notation like JSON, except:
+A JSON-like encoding that is more compact, supports more data bytes,
+preserves the order of object members and supports streaming IO.
+
+#### Compact
+Uses techniques of MsgPack and UBJSON to create a hybrid binary
+encoding.
+
+#### Ordered Objects
+When displaying objects on user interfaces such as property sheets,
+order matters.
+
+#### Streaming IO
+Prepending lengths into arrays and objects prevents streaming IO.  Use
+a database query as an example.  If you want to encode the number of
+result rows, you either need to execute a count query first (2 queries)
+or you have to load all result rows in memory.
+
+Comparisons
+-----------
+
+Aon is (another object notation) like JSON, except:
+
 * It is more compact.
 * Supports more data types.
 * Object member order is preserved.
 
 Aon was influenced by [MsgPack](http://msgpack.org) compaction, except:
-* It is stream friendly, it does not have array and object sizes up front.
-* Does not have data types unsupportable by Java (U64).
-* It is much more readable when viewed in a text editor or network tooling.
+
+* It is stream friendly.
+* Does not have data types unsupportable by Java (U64, S32).
+* Object member order is preserved.
 
 Aon uses many [UBJSON](http://ubjson.org) concepts, except:
-* JSON compatibility is not a goal.
+
 * It is more compact.
-* Binary data is a native data type.
+* Object member order is preserved.
 
-Comparisons
------------
-
-**JSON** (27 bytes)
+**JSON** (49 bytes)
 ```
-{ "compact" : true, "schema" : 0 }
+{"name":"aon","bestDayEver":19690505,"cool":true}
 ```
 
-**MsgPack** (18 bytes)
+**MsgPack** ( bytes)
 ```
-0x82 0xA7 compact 0xC3 0xA6 schema 0x00
-```
-
-**UBJSON** (22 bytes)
-```
-{ i 0x07 compact T i 0x06 schema i 0x00 }
+0x83 0xA7 name 0xC3 aon 0xA6 bestDayEver 0x0000 0x000000 0x00 cool 0x00
 ```
 
-**Aon** (22 bytes)
+**UBJSON** (37 bytes)
 ```
-{ s 0x07 compact T s 0x06 schema i 0x00 }
+{ i 0x04 name s i 0x03 aon i 0x0b bestDayEver I 0x012C 0x7409 i 0x04 cool T }
+```
+
+**Aon** (32 bytes)
+```
+{ 0xD004 name 0xD003 aon 0xD00B bestDayEver I 0x012C 0x7409 0xDO04 cool T }
 ```
 
 Encoding Rules
 --------------
 
 #### Object / Map
-An ordered collection of key value pairs surrounded by curly braces.
-* { &lt;&lt;string> &lt;value>>... }
 
 #### Array / List
-An ordered collection of values surrounded by brackets.
 * [ &lt;value>... ]
 
 #### Values
@@ -66,22 +81,26 @@ A character possibily followed by length and/or data.
 Data Types
 ----------
 
-Array / List
-* [ = Begin
-* ] = End
-
-Object / Map
+**Object**
+An ordered collection of key value pairs surrounded by curly braces.
 * { = Begin
 * } = End
 
-Boolean
+**List** (Array)
+An ordered collection of values surrounded by brackets.
+* [ = Begin
+* ] = End
+
+**Boolean**
 * T = true
 * F = false
 
-Double
+**Double**
+IEEE 754 floating-point "double format" bit layout (Java Double).
 * D <8 byte value> = IEEE 754 floating-point "double format" bit layout (Java Double).
 
-Float
+**Float**
+IEEE 754 floating-point "single format" bit layout (Java Float).
 * F <4 byte value> = IEEE 754 floating-point "single format" bit layout (Java Float).
 
 Signed Integers
@@ -91,9 +110,9 @@ Signed Integers
 * J <8 byte value>
 
 String
-* s <1 byte len> <UTF-8 text> = The length is an unsigned byte (max 255)
-* S <2 byte len> <UTF-8 text> = The length is an unsigned 2 byte int (max 65535)
-* r <4 byte len> <UTF-8 text> = The length is *signed* 4 byte int (max 268435455)
+* s <1 byte len> <UTF-8 text> = Length is an unsigned byte (max 255)
+* S <2 byte len> <UTF-8 text> = Length is an unsigned 2 byte int (max 65535)
+* r <4 byte len> <UTF-8 text> = Length is *signed* 4 byte int (max 268435455)
 
 Unsigned Integers
 * u <1 byte>
@@ -101,19 +120,19 @@ Unsigned Integers
 * v <4 byte>
 
 Binary (byte arrays)
-* b <1 byte len> <bytes> = The length is an unsigned byte (max 255)
-* B <2 byte len> <bytes> = The length is an unsigned 2 byte int (max 65535)
-* c <4 byte len> <bytes> = The length is signed 4 byte int (max 268435455)
+* b <1 byte len> <bytes> = Length is an unsigned byte (max 255)
+* B <2 byte len> <bytes> = Length is an unsigned 2 byte int (max 65535)
+* c <4 byte len> <bytes> = Length is signed 4 byte int (max 268435455)
 
 Big Integer
-* n <1 byte len> <text> = The length is an unsigned byte (max 255)
-* N <2 byte len> <text> = The length is an unsigned 2 byte int (max 65535)
-* o <4 byte len> <text> = The length is signed 4 byte int (max 268435455)
+* n <1 byte len> <text> = Length is an unsigned byte (max 255)
+* N <2 byte len> <text> = Length is an unsigned 2 byte int (max 65535)
+* o <4 byte len> <text> = Length is signed 4 byte int (max 268435455)
 
 Big Decimal
-* g <1 byte len> <text> = The length is an unsigned byte (max 255)
-* G <2 byte len> <text> = The length is an unsigned 2 byte int (max 65535)
-* h <4 byte len> <text> = The length is signed 4 byte int (max 268435455)
+* g <1 byte len> <text> = Length is an unsigned byte (max 255)
+* G <2 byte len> <text> = Length is an unsigned 2 byte int (max 65535)
+* h <4 byte len> <text> = Length is signed 4 byte int (max 268435455)
 
 Endianness
 ----------

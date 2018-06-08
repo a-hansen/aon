@@ -188,11 +188,11 @@ public class AonWriter extends AbstractWriter implements AonConstants {
         byte[] b = arg.toString().getBytes(UTF8);
         int len = b.length;
         if (len <= U8) {
-            write1Byte(STR8, len);
+            write1Byte(S8, len);
         } else if (len <= U16) {
-            write2Bytes(STR16, len);
+            write2Bytes(S16, len);
         } else {
-            write4Bytes(STR32, len);
+            write4Bytes(S32, len);
         }
         out.write(b);
     }

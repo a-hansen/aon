@@ -106,11 +106,11 @@ public class AonReader extends AbstractReader implements AonConstants {
                     return setNext(readInt(in));
                 case I64:
                     return setNext(readLong(in));
-                case STR8:
+                case S8:
                     return setNext(readString(readU8(in)));
-                case STR16:
+                case S16:
                     return setNext(readString(readU16(in)));
-                case STR32:
+                case S32:
                     return setNext(readString(readInt(in)));
                 case U8:
                     return setNext(readU8(in));

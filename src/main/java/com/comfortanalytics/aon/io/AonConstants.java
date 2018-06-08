@@ -17,6 +17,7 @@ public interface AonConstants {
     char BIGINT16 = 'N';
     char BIGINT32 = 'o';
 
+    int BIN5 = 0x8;
     char BIN8 = 'b';
     char BIN16 = 'B';
     char BIN32 = 'c';
@@ -25,13 +26,14 @@ public interface AonConstants {
     char DEC16 = 'G';
     char DEC32 = 'h';
 
+    int I5 = 0xA;
     char I8 = 'i';
     char I16 = 'I';
     char I32 = 'j';
     char I64 = 'J';
 
-    char LIST_END = ']';
     char LIST_START = '[';
+    char LIST_END = ']';
 
     int MAX_I8 = Byte.MAX_VALUE;
     int MAX_I16 = Short.MAX_VALUE;
@@ -48,14 +50,33 @@ public interface AonConstants {
     char OBJ_END = '}';
     char OBJ_START = '{';
 
-    char STR8 = 's';
-    char STR16 = 'S';
-    char STR32 = 'r';
+    int S5 = 0xD;
+    char S8 = 's';
+    char S16 = 'S';
+    char S32 = 'r';
 
+    int U5 = 0xE;
     char U8 = 'u';
     char U16 = 'U';
     char U32 = 'v';
 
     Charset UTF8 = Charset.forName("UTF-8");
+
+    //1 - 0001
+    //2 - 0010
+    //4 - 0100
+
+    // 8, 0x8, 1000  BIN
+    //10, 0xA, 1010  I
+    //13, 0xD, 1101  U
+    //14, 0xE, 1110  S
+
+    // 9, 0x9, 1001
+    //11, 0xB, 1011
+    //12, 0xC, 1100
+    //13, 0xD, 1101
+    //15, 0xF, 1111
+
+    //BIN8 I8 U8 S8
 
 }
