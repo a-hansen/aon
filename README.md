@@ -9,20 +9,23 @@ Aon
 Overview
 --------
 
-Aon is a JSON-like encoding that is more compact, supports more data
-types, and preserves the order of object members.
+Aon is another object notation like JSON but is more compact, supports
+more data types, and preserves the order of object members.  Unlike
+most other binary JSON schemes, this doesn't encode the lengths of
+objects or lists making it stream friendly.
 
 #### Compact
 Borrows techniques from MsgPack and UBJSON to create a hybrid binary
 encoding.
 
 #### More Data Types
-Big decimal, Big integer, binary, boolean, double, float, int, list,
-long, null, object and string.
+Big decimal, Big integer, binary, boolean, double, float, list, long,
+null, object, string and many flavors of signed and unsigned integers.
 
 #### Ordered Objects
 Order matters when displaying objects on user interfaces such as
-property sheets.
+property sheets.  It's called object notation after all, not map or
+dictionary.
 
 Comparisons to Other Formats
 ----------------------------
@@ -68,7 +71,7 @@ Aon uses many [UBJSON](http://ubjson.org) concepts as well, except:
 Format
 ------
 
-Aon uses Big Endian byte order and is represented here using a
+Aon uses big endian byte order and is represented here using a
 pseudo-BNF syntax.
 
 ```
@@ -195,17 +198,20 @@ formed by the sign, the integer and the fraction is referred to as the
 significand. The exponent consists of the character 'e' ('\u0065') or
 'E' ('\u0045') followed by one or more decimal digits."
 
+Endianness
+----------
+Big endian
+
+Java Library
 MIME Type
 ---------
-
 application/aon
-
 
 Java Library
 ------------
 
-This includes a Java library representing Aon values in memory as well
-as encoding and decoding.  It can also encode and decode JSON.
+This includes a Java library for representing Aon values in memory as
+well as encoding and decoding.  It can also encode and decode JSON.
 
 Usage
 -----
