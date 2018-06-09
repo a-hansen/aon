@@ -21,8 +21,14 @@ dependencies {
     testCompile 'com.owlike:genson:+'
     testCompile 'io.fastjson:boon:+'
     testCompile 'net.sf.flexjson:flexjson:+'
-    testCompile 'junit:junit:+'
     testCompile 'org.javassist:javassist:+'
+    testCompile 'org.openjdk.jmh:jmh-core:+'
+    testCompile 'org.openjdk.jmh:jmh-generator-annprocess:+'
+    testCompile 'junit:junit:+'
+}
+
+test {
+    exclude '**/AonBenchmark.class'
 }
 
 task benchmark(type: Test) {
