@@ -1,8 +1,10 @@
 package com.comfortanalytics.aon;
 
+import com.comfortanalytics.aon.Aobj.Member;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Map;
 
 /**
@@ -10,15 +12,15 @@ import java.util.Map;
  *
  * @author Aaron Hansen
  */
-public class Aobj extends Agroup {
+public class Aobj extends Agroup implements Iterable<Member> {
 
     ///////////////////////////////////////////////////////////////////////////
     // Instance Fields
     ///////////////////////////////////////////////////////////////////////////
 
-    private Map<String, ObjEntry> entryMap = new HashMap<String, ObjEntry>();
-    private ObjEntry first;
-    private ObjEntry last;
+    private Map<String, Member> entryMap = new HashMap<String, Member>();
+    private Member first;
+    private Member last;
 
     ///////////////////////////////////////////////////////////////////////////
     // Methods
@@ -40,7 +42,7 @@ public class Aobj extends Agroup {
     @Override
     public Avalue copy() {
         Aobj ret = new Aobj();
-        ObjEntry e = getFirstEntry();
+        Member e = getFirst();
         while (e != null) {
             ret.put(e.getKey(), e.getValue().copy());
             e = e.next();
@@ -48,11 +50,29 @@ public class Aobj extends Agroup {
         return ret;
     }
 
+    @Override
+    public boolean equals(Object o) {
+        if (o == null) {
+            return false;
+        }
+        if (o == this) {
+            return true;
+        }
+        if (o instanceof Aobj) {
+            Aobj arg = (Aobj) o;
+            if (size() != arg.size()) {
+                return false;
+            }
+            return hashCode() == arg.hashCode();
+        }
+        return false;
+    }
+
     /**
      * Returns the value for the given key or null.
      */
     public Avalue get(String key) {
-        ObjEntry e = entryMap.get(key);
+        Member e = entryMap.get(key);
         if (e == null) {
             return null;
         }
@@ -149,8 +169,10 @@ public class Aobj extends Agroup {
         return get(key).toDouble();
     }
 
-    @Override
-    public ObjEntry getFirstEntry() {
+    /**
+     * Use this to traverse the children in order.
+     */
+    public Member getFirst() {
         return first;
     }
 
@@ -161,8 +183,7 @@ public class Aobj extends Agroup {
         return get(key).toInt();
     }
 
-    @Override
-    public ObjEntry getLastEntry() {
+    public Member getLast() {
         return last;
     }
 
@@ -217,11 +238,45 @@ public class Aobj extends Agroup {
         return o.aonType() == Atype.NULL;
     }
 
+    @Override
+    public int hashCode() {
+        int hashCode = 1;
+        Member e = getFirst();
+        while (e != null) {
+            hashCode = 31 * hashCode + e.hashCode();
+            e = e.next();
+        }
+        return hashCode;
+    }
+
     /**
-     * Returns true.
+     * True.
      */
+    @Override
     public boolean isObj() {
         return true;
+    }
+
+    @Override
+    public Iterator<Member> iterator() {
+        return new Iterator<Member>() {
+            private Member prev;
+            private Member next = getFirst();
+            @Override
+            public boolean hasNext() {
+                return next != null;
+            }
+            @Override
+            public Member next() {
+                prev = next;
+                next = next.next();
+                return prev;
+            }
+            @Override
+            public void remove() {
+                Aobj.this.remove(prev.key);
+            }
+        };
     }
 
     /**
@@ -235,7 +290,7 @@ public class Aobj extends Agroup {
         if (val == null) {
             val = Anull.NULL;
         }
-        ObjEntry e = entryMap.get(key);
+        Member e = entryMap.get(key);
         if (e != null) {
             Avalue curr = e.getValue();
             if (curr != val) {
@@ -251,7 +306,7 @@ public class Aobj extends Agroup {
             if (val.isGroup()) {
                 val.toGroup().setParent(this);
             }
-            e = new ObjEntry(key, val);
+            e = new Member(key, val);
             entryMap.put(key, e);
             if (first == null) {
                 first = e;
@@ -359,7 +414,7 @@ public class Aobj extends Agroup {
      * @return Possibly null.
      */
     public Avalue remove(String key) {
-        ObjEntry e = entryMap.remove(key);
+        Member e = entryMap.remove(key);
         if (e == null) {
             return null;
         }
@@ -369,7 +424,7 @@ public class Aobj extends Agroup {
         } else if (e == first) {
             first = first.next();
         } else {
-            ObjEntry prev = getPrev(key);
+            Member prev = getPrev(key);
             prev.setNext(e.next());
             if (e == last) {
                 last = prev;
@@ -410,9 +465,9 @@ public class Aobj extends Agroup {
     // Package / Private Methods
     ///////////////////////////////////////////////////////////////////////////
 
-    private ObjEntry getPrev(String key) {
-        ObjEntry prev = null;
-        ObjEntry entry = getFirstEntry();
+    private Member getPrev(String key) {
+        Member prev = null;
+        Member entry = getFirst();
         while (entry != null) {
             if (entry.getKey().equals(key)) {
                 return prev;
@@ -428,15 +483,15 @@ public class Aobj extends Agroup {
     ///////////////////////////////////////////////////////////////////////////
 
     /**
-     * Object element which provides access to the next entry in the object.
+     * Object member which provides access to the next member in the object.
      */
-    public static class ObjEntry implements Entry {
+    public static class Member {
 
         private String key;
-        private ObjEntry next;
+        private Member next;
         private Avalue val;
 
-        ObjEntry(String key, Avalue val) {
+        Member(String key, Avalue val) {
             this.key = key;
             this.val = val;
         }
@@ -446,10 +501,10 @@ public class Aobj extends Agroup {
             if (obj == this) {
                 return true;
             }
-            if (!(obj instanceof ObjEntry)) {
+            if (!(obj instanceof Member)) {
                 return false;
             }
-            ObjEntry e = (ObjEntry) obj;
+            Member e = (Member) obj;
             if (!e.getKey().equals(key)) {
                 return false;
             }
@@ -460,7 +515,6 @@ public class Aobj extends Agroup {
             return key;
         }
 
-        @Override
         public Avalue getValue() {
             return val;
         }
@@ -470,12 +524,11 @@ public class Aobj extends Agroup {
             return key.hashCode() ^ val.hashCode();
         }
 
-        @Override
-        public ObjEntry next() {
+        public Member next() {
             return next;
         }
 
-        void setNext(ObjEntry entry) {
+        void setNext(Member entry) {
             next = entry;
         }
 

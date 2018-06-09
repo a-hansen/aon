@@ -2,21 +2,21 @@ package com.comfortanalytics.aon;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
+import java.util.ArrayList;
+import java.util.Iterator;
 
 /**
  * Indexed collection of values implemented as a linked list.  This is not thread safe.
  *
  * @author Aaron Hansen
  */
-public class Alist extends Agroup {
+public class Alist extends Agroup implements Iterable<Avalue> {
 
     ///////////////////////////////////////////////////////////////////////////
     // Fields
     ///////////////////////////////////////////////////////////////////////////
 
-    private ListEntry first;
-    private ListEntry last;
-    private int size;
+    private ArrayList<Avalue> values = new ArrayList<Avalue>();
 
     ///////////////////////////////////////////////////////////////////////////
     // Public Methods
@@ -35,15 +35,7 @@ public class Alist extends Agroup {
         if (val.isGroup()) {
             val.toGroup().setParent(this);
         }
-        ListEntry entry = new ListEntry(val);
-        if (first == null) {
-            first = entry;
-            last = entry;
-        } else {
-            last.setNext(entry);
-            last = entry;
-        }
-        size++;
+        values.add(val);
         return this;
     }
 
@@ -121,28 +113,48 @@ public class Alist extends Agroup {
 
     @Override
     public Agroup clear() {
-        size = 0;
-        first = null;
-        last = null;
+        for (Avalue val : values) {
+            if (val.isGroup()) {
+                val.toGroup().setParent(null);
+            }
+        }
+        values.clear();
         return this;
     }
 
     @Override
     public Avalue copy() {
         Alist ret = new Alist();
-        ListEntry e = first;
-        while (e != null) {
-            ret.add(e.getValue().copy());
-            e = e.next();
+        for (Avalue val : values) {
+            ret.add(val.copy());
         }
         return ret;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (o == null) {
+            return false;
+        }
+        if (o == this) {
+            return true;
+        }
+        if (o instanceof Alist) {
+            Alist arg = (Alist) o;
+            int size = arg.size();
+            if (size() != arg.size()) {
+                return false;
+            }
+            return hashCode() == arg.hashCode();
+        }
+        return false;
     }
 
     /**
      * Value at the given index or throws an IndexOutOfBounds exception.
      */
     public Avalue get(int idx) {
-        return getEntry(idx).getValue();
+        return values.get(idx);
     }
 
     /**
@@ -246,23 +258,6 @@ public class Alist extends Agroup {
     }
 
     /**
-     * Entry at the given index or throws an IndexOutOfBounds exception.
-     */
-    public ListEntry getEntry(int idx) {
-        ListEntry entry = getFirstEntry();
-        for (int i = 0; i < idx; i++) {
-            if (entry == null) {
-                break;
-            }
-            entry = entry.next();
-        }
-        if (entry == null) {
-            throw new IndexOutOfBoundsException("Index: " + idx + ", Size: " + size());
-        }
-        return entry;
-    }
-
-    /**
      * Returns the item at index 0 or null.
      */
     public Avalue getFirst() {
@@ -270,13 +265,6 @@ public class Alist extends Agroup {
             return null;
         }
         return get(0);
-    }
-
-    /**
-     * The entry at index 0.
-     */
-    public ListEntry getFirstEntry() {
-        return first;
     }
 
     /**
@@ -299,15 +287,10 @@ public class Alist extends Agroup {
      * @return Null if empty.
      */
     public Avalue getLast() {
-        if (last == null) {
+        if (values.isEmpty()) {
             return null;
         }
-        return last.getValue();
-    }
-
-    @Override
-    public ListEntry getLastEntry() {
-        return last;
+        return values.get(values.size() - 1);
     }
 
     /**
@@ -333,6 +316,15 @@ public class Alist extends Agroup {
      */
     public String getString(int idx) {
         return get(idx).toString();
+    }
+
+    @Override
+    public int hashCode() {
+        int hashCode = 1;
+        for (Avalue val : values) {
+            hashCode = 31 * hashCode + val.hashCode();
+        }
+        return hashCode;
     }
 
     /**
@@ -378,6 +370,11 @@ public class Alist extends Agroup {
         return get(idx).isNull();
     }
 
+    @Override
+    public Iterator<Avalue> iterator() {
+        return values.iterator();
+    }
+
     /**
      * Scans the collection and returns the first index that equals the arg.
      *
@@ -408,21 +405,14 @@ public class Alist extends Agroup {
      * @param val Can be null.
      */
     public Alist put(int idx, Avalue val) {
-        if (idx == size()) {
-            add(val);
-            return this;
-        }
-        ListEntry e = getEntry(idx);
-        Avalue old = e.getValue();
+        Avalue old = get(idx);
         if (old.isGroup()) {
             old.toGroup().setParent(null);
         }
-        if (val == null) {
-            val = Anull.NULL;
-        } else if (val.isGroup()) {
+        if (val.isGroup()) {
             val.toGroup().setParent(this);
         }
-        e.setValue(val);
+        values.set(idx, val);
         return this;
     }
 
@@ -488,27 +478,7 @@ public class Alist extends Agroup {
      * @return The value removed.
      */
     public Avalue remove(int idx) {
-        if (idx >= size()) {
-            throw new IndexOutOfBoundsException("Index: " + idx + ", Size: " + size());
-        }
-        ListEntry e = null;
-        if (size() == 1) {
-            e = first;
-            first = null;
-            last = null;
-        } else if (idx == 0) {
-            e = first;
-            first = first.next();
-        } else {
-            ListEntry pred = getEntry(--idx);
-            e = pred.next();
-            pred.setNext(e.next());
-            if (e == last) {
-                last = pred;
-            }
-        }
-        size--;
-        Avalue ret = e.getValue();
+        Avalue ret = values.remove(idx);
         if (ret.isGroup()) {
             ret.toGroup().setParent(null);
         }
@@ -535,72 +505,12 @@ public class Alist extends Agroup {
 
     @Override
     public int size() {
-        return size;
+        return values.size();
     }
 
     @Override
     public Alist toList() {
         return this;
     }
-
-    ///////////////////////////////////////////////////////////////////////////
-    // Inner Classes
-    ///////////////////////////////////////////////////////////////////////////
-
-    /**
-     * List element which provides access to the next entry in the list.
-     */
-    public class ListEntry implements Entry {
-
-        private ListEntry next;
-        private Avalue value;
-
-        ListEntry(Avalue value) {
-            this.value = value;
-        }
-
-        @Override
-        public boolean equals(Object obj) {
-            if (obj == this) {
-                return true;
-            }
-            if (!(obj instanceof ListEntry)) {
-                return false;
-            }
-            ListEntry e = (ListEntry) obj;
-            return e.getValue().equals(value);
-        }
-
-        @Override
-        public Avalue getValue() {
-            return value;
-        }
-
-        @Override
-        public int hashCode() {
-            return value.hashCode();
-        }
-
-        @Override
-        public ListEntry next() {
-            return next;
-        }
-
-        /**
-         * Returns this.
-         */
-        void setNext(ListEntry arg) {
-            next = arg;
-        }
-
-        /**
-         * Returns this.
-         */
-        void setValue(Avalue arg) {
-            value = arg;
-        }
-
-    }
-
 
 }

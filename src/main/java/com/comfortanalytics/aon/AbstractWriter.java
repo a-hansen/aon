@@ -1,7 +1,6 @@
 package com.comfortanalytics.aon;
 
-import com.comfortanalytics.aon.Alist.ListEntry;
-import com.comfortanalytics.aon.Aobj.ObjEntry;
+import com.comfortanalytics.aon.Aobj.Member;
 import java.io.Closeable;
 import java.io.IOException;
 import java.math.BigDecimal;
@@ -188,11 +187,8 @@ public abstract class AbstractWriter implements Closeable, Awriter {
                 break;
             case LIST:
                 beginList();
-                Alist list = arg.toList();
-                ListEntry listEntry = list.getFirstEntry();
-                while (listEntry != null) {
-                    value(listEntry.getValue());
-                    listEntry = listEntry.next();
+                for (Avalue val : arg.toList()) {
+                    value(val);
                 }
                 endList();
                 break;
@@ -202,7 +198,7 @@ public abstract class AbstractWriter implements Closeable, Awriter {
             case OBJECT:
                 beginMap();
                 Aobj map = arg.toObj();
-                ObjEntry e = map.getFirstEntry();
+                Member e = map.getFirst();
                 while (e != null) {
                     key(e.getKey()).value(e.getValue());
                     e = e.next();

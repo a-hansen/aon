@@ -17,7 +17,6 @@ public interface AonConstants {
     char BIGINT16 = 'N';
     char BIGINT32 = 'o';
 
-    int BIN5 = 0x8;
     char BIN8 = 'b';
     char BIN16 = 'B';
     char BIN32 = 'c';
@@ -27,6 +26,7 @@ public interface AonConstants {
     char DEC32 = 'h';
 
     int I5 = 0xC0;
+    int NEG_I5_WRITE_MASK = 0xDF;
     char I8 = 'i';
     char I16 = 'I';
     char I32 = 'j';
@@ -35,14 +35,17 @@ public interface AonConstants {
     char LIST_START = '[';
     char LIST_END = ']';
 
+    int MAX_I5 = 0x0F;
     int MAX_I8 = Byte.MAX_VALUE;
     int MAX_I16 = Short.MAX_VALUE;
     int MAX_I32 = Integer.MAX_VALUE;
 
+    int MAX_U5 = 0x1F;
     int MAX_U8 = 0xFF;
     int MAX_U16 = 0xFFFF;
     long MAX_U32 = 0xFFFFFFFF;
 
+    int MIN_I5 = 0xFFFFFFF0;
     int MIN_I8 = Byte.MIN_VALUE;
     int MIN_I16 = Short.MIN_VALUE;
     int MIN_I32 = Integer.MIN_VALUE;

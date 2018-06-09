@@ -27,17 +27,6 @@ public class AvalueTest {
     // Public Methods
     ///////////////////////////////////////////////////////////////////////////
 
-    @Test
-    public void test() throws Exception {
-        Aobj obj = new Aobj();
-        obj.put("compact", true);
-        obj.put("schema", 0);
-        new AonWriter(new File("test.aon")).value(obj).close();
-        allTests();
-        aonFormat = false;
-        allTests();
-    }
-
     ///////////////////////////////////////////////////////////////////////////
     // Package / Private Methods
     ///////////////////////////////////////////////////////////////////////////

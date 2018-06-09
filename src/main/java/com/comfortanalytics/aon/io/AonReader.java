@@ -119,7 +119,21 @@ public class AonReader extends AbstractReader implements AonConstants {
                 case U32:
                     return setNext(readU32(in));
                 default:
-                    throw new IllegalStateException("Unexpected symbol: " + (char) ch);
+                    if (ch < 0) {
+                        if ((ch & S5) == S5) {
+                            return setNext(ch & 0x1F);
+                        } else if ((ch & U5) == U5) {
+                            return setNext(ch & 0x1F);
+                        } else if ((ch & I5) == I5) {
+                            if ((ch & 0x10) == 0x10) { //neg
+                                return setNext(ch | 0xFFFFFFF0);
+                            } else { //pos
+                                return setNext(ch & 0x0F);
+                            }
+                        }
+                    }
+                    throw new IllegalStateException("Unexpected symbol: 0x"
+                                                            + Integer.toHexString(ch));
             }
         } catch (IOException x) {
             throw new RuntimeException(x);
