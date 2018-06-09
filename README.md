@@ -11,8 +11,8 @@ Overview
 
 Aon is another object notation like JSON but is more compact, supports
 more data types, and preserves the order of object members.  Unlike
-most other binary JSON schemes, this doesn't encode the lengths of
-objects or lists making it stream friendly.
+many binary JSON schemes, this doesn't encode the lengths of objects
+or lists making it stream friendly.
 
 #### Compact
 Borrows techniques from MsgPack and UBJSON to create a hybrid binary
@@ -38,7 +38,7 @@ Aon is like JSON, except:
 
 Aon was influenced by [MsgPack](http://msgpack.org) compaction, except:
 
-* It is streaming IO friendly, lists and objects do not enocde a size.
+* It is streaming IO friendly, lists and objects do not encode a size.
 * Only has data types that can be supported by Java (no U64 or S32).
 * Object member order is preserved.
 
@@ -71,8 +71,7 @@ Aon uses many [UBJSON](http://ubjson.org) concepts as well, except:
 Format
 ------
 
-Aon uses big endian byte order and is represented here using a
-pseudo-BNF syntax.
+The Aon format is represented here using a pseudo-BNF syntax.
 
 ```
 <Document> ::= <Object> | <List>
@@ -130,8 +129,8 @@ An ordered collection of values surrounded by brackets.
 <8-byte-int> ::= "J" int64
 ```
 * The tiny int can be identified with the bitmask 0xC0.  The length
-of the string is the signed lowest order 5 bits (byte & ~0xC0).  The
-value range for a tiny int is -16 to 15.
+of the string is the signed lowest order 5 bits.  The value range for
+a tiny int is -16 to 15.
 
 #### String
 ```
@@ -142,8 +141,8 @@ value range for a tiny int is -16 to 15.
 <large-string> ::= "t" int32 UTF8
 ```
 * The tiny string can be identified with the bitmask 0xE0.  The length
-of the string is the unsigned lowest order 5 bits (byte & ~0xE0).  The
-max length of a tiny string is 31 bytes.
+of the string is the unsigned lowest order 5 bits.  The max length of
+a tiny string is 31 bytes.
 * The large string length must be a positive signed int
 
 #### Unsigned Integers
@@ -155,8 +154,8 @@ max length of a tiny string is 31 bytes.
 <uint32> ::= "j" uint32
 ```
 * The uint5 can be identified with the bitmask 0x80.  The length
-of the string is the unsigned lowest order 5 bits (byte & ~0x80).  The
-max value of a tiny uint is 31.
+of the string is the unsigned lowest order 5 bits.  The max value of a
+tiny uint is 31.
 
 #### Binary (byte array)
 ```
