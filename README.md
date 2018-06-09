@@ -6,34 +6,28 @@ Aon
 * [ISC License](https://en.wikipedia.org/wiki/ISC_license)
 * [Javadoc](https://a-hansen.github.io/aon/)
 
-Rationale
----------
+Overview
+--------
 
-A JSON-like encoding that is more compact, supports more data types,
-preserves the order of object members and is stream friendly.
+Aon is a JSON-like encoding that is more compact, supports more data
+types, and preserves the order of object members.
 
 #### Compact
 Borrows techniques from MsgPack and UBJSON to create a hybrid binary
 encoding.
 
 #### More Data Types
-Byte arrays, floats, doubles, big integers and big decimals are all
-native data types.
+Big decimal, Big integer, binary, boolean, double, float, int, list,
+long, null, object and string.
 
 #### Ordered Objects
-When displaying objects on user interfaces such as property sheets,
-order matters.
+Order matters when displaying objects on user interfaces such as
+property sheets.
 
-#### Streaming IO
-Prepending lengths into lists and objects prevents streaming IO.  Take
-database queries for example.  If you want to encode the number of
-result rows, you either need to execute a count query first (2 queries)
-or you have to load all result rows in memory.
+Comparisons to Other Formats
+----------------------------
 
-Comparisons
------------
-
-Aon is (another object notation) like JSON, except:
+Aon is like JSON, except:
 
 * It is more compact.
 * Supports more data types.
@@ -41,54 +35,54 @@ Aon is (another object notation) like JSON, except:
 
 Aon was influenced by [MsgPack](http://msgpack.org) compaction, except:
 
-* It is stream friendly.
+* It is streaming IO friendly, lists and objects do not enocde a size.
 * Only has data types that can be supported by Java (no U64 or S32).
 * Object member order is preserved.
 
 Aon uses many [UBJSON](http://ubjson.org) concepts as well, except:
 
 * It is more compact.
+* Binary is a native data byte rather than a list of ints.
 * Object member order is preserved.
 
-**JSON** (49 bytes)
+**JSON** (42 bytes)
 ```
-{"name":"aon","bestDayEver":19690505,"cool":true}
-```
-
-**MsgPack** ( bytes)
-```
-0x83 0xA7 name 0xC3 aon 0xA6 bestDayEver 0x0000 0x000000 0x00 cool 0x00
+{"name":"aon","born":20180602,"cool":true}
 ```
 
-**UBJSON** (39 bytes)
+**MsgPack** (26 bytes)
 ```
-{ i 0x04 name s i 0x03 aon i 0x0B bestDayEver I 0x01 0x2C 0x74 0x09 i 0x04 cool T }
+0x83 0xA4 name 0xA3 aon 0xA4 born 0xCE 0x01 0x33 0xEE 0x7A 0xA4 cool 0xC3
 ```
 
-**Aon** (35 bytes)
+**UBJSON** (32 bytes)
 ```
-{ 0xE4 name 0xE3 aon 0xEB bestDayEver j 0x01 0x2C 0x74 0x09 0xDO 0xE4 cool T }
+{ i 0x04 name s i 0x03 aon i 0x0B born I 0x01 0x33 0xEE 0x7A i 0x04 cool T }
+```
+
+**Aon** (27 bytes)
+```
+{ 0xE4 name 0xE3 aon 0xEB born j 0x01 0x33 0xEE 0x82 0x7A cool T }
 ```
 
 Format
 ------
 
-Aon uses Big Endian byte order.
-
-The Aon format is represented here using a pseudo-BNF syntax.
+Aon uses Big Endian byte order and is represented here using a
+pseudo-BNF syntax.
 
 ```
-aon ::= <Object> | <List>
-<Value> :== <Object> | <List> | <Boolean> | <Double> | <Float> | <Null> |
-         <Signed-Integer> | <String> | <Unsigned-Integer> | <Binary> |
-         <Big-Integer> | <Big-Decimal>
+<Document> ::= <Object> | <List>
+<Value> :== <Object> | <List> | <Boolean> | <Double> | <Float> |
+         <Null> | <Signed-Int> | <String> | <Unsigned-Int> |
+         <Binary> | <Big-Integer> | <Big-Decimal>
 ```
 
 #### Object
 An ordered collection of key value pairs surrounded by curly braces.
 ```
-<Object> ::= "{" <Key-Value-Pair>* "}"
-<Key-Value-Pair> ::= <String> <Value>
+<Object> ::= "{" <Member-Pair>* "}"
+<Member-Pair> ::= <String> <Value>
 ```
 * There can be 0 or more key value pairs.
 
@@ -110,13 +104,13 @@ An ordered collection of values surrounded by brackets.
 ```
 <Double> ::= "D" byte[8]
 ```
-* IEEE 754 floating-point "double format" bit layout (Java Double).
+* IEEE 754 floating-point "double format" bit layout (64 bits).
 
 #### Float
 ```
 <Float> ::= "D" byte[4]
 ```
-* IEEE 754 floating-point "single format" bit layout (Java Float).
+* IEEE 754 floating-point "single format" bit layout (32 bits).
 
 #### Null
 ```
@@ -125,7 +119,7 @@ An ordered collection of values surrounded by brackets.
 
 #### Signed Integer
 ```
-<Signed-Integer> ::= <tiny-int> | <1-byte-int> | <2-byte-int> | <4-byte-int> | <8-byte-int>
+<Signed-Int> ::= <tiny-int> | <1-byte-int> | <2-byte-int> | <4-byte-int> | <8-byte-int>
 <tiny-int>   ::= 0xC0
 <1-byte-int> ::= "i" int8
 <2-byte-int> ::= "I" int16
@@ -133,7 +127,7 @@ An ordered collection of values surrounded by brackets.
 <8-byte-int> ::= "J" int64
 ```
 * The tiny int can be identified with the bitmask 0xC0.  The length
-of the string is the low order signed 5 bits (byte & ~0xC0).  The
+of the string is the signed lowest order 5 bits (byte & ~0xC0).  The
 value range for a tiny int is -16 to 15.
 
 #### String
@@ -145,51 +139,52 @@ value range for a tiny int is -16 to 15.
 <large-string> ::= "t" int32 UTF8
 ```
 * The tiny string can be identified with the bitmask 0xE0.  The length
-of the string is the lowest order unsigned 5 bits (byte & ~0xE0).  The
+of the string is the unsigned lowest order 5 bits (byte & ~0xE0).  The
 max length of a tiny string is 31 bytes.
 * The large string length must be a positive signed int
-* All strings must be UT8 encoded
 
 #### Unsigned Integers
 ```
-<Unsigned-Integer> ::= <tiny-uint> | <1-byte-uint> | <2-byte-uint> | <4-byte-uint>
-<tiny-uint>   ::= 0x80
-<1-byte-uint> ::= "i" uint8
-<2-byte-uint> ::= "I" uint16
-<4-byte-uint> ::= "j" uint32
+<Unsigned-Int> ::= <uint5> | <uint8> | <uint16> | <uint32>
+<uint5>  ::= 0x80
+<uint8>  ::= "i" uint8
+<uint16> ::= "I" uint16
+<uint32> ::= "j" uint32
 ```
-* The tiny uint can be identified with the bitmask 0x80.  The length
-of the string is the lowest order unsigned 5 bits (byte & ~0x80).  The
+* The uint5 can be identified with the bitmask 0x80.  The length
+of the string is the unsigned lowest order 5 bits (byte & ~0x80).  The
 max value of a tiny uint is 31.
 
 #### Binary (byte array)
 ```
-<Binary> ::= <1-byte-bin> | <2-byte-bin> | <4-byte-bin>
-<1-byte-bin> ::= "b" uint8-length bytes
-<2-byte-bin> ::= "I" uint16-length bytes
-<4-byte-bin> ::= "j" int32-length bytes
+<Binary> ::= <bin8> | <bin16> | <bin32>
+<bin8>   ::= "b" uint8-length bytes
+<bin16>  ::= "I" uint16-length bytes
+<bin32>  ::= "j" int32-length bytes
 ```
 
 #### Big Integer
 ```
-<Big-Integer> ::= <small-bigint> | <med-bigint> | <large-bigint>
-<small-bigint> ::= "n" uint8-length UTF8
-<med-string>   ::= "N" uint16-length UTF8
-<large-string> ::= "o" int16-length UTF8
+<Big-Integer> ::= <bigint8> | <bigint16> | <bigint32>
+<bigint>   ::= "n" uint8-length UTF8
+<bigint16> ::= "N" uint16-length UTF8
+<bigint32> ::= "o" int16-length UTF8
 ```
-* The string format is the same as java.math.BigInteger.toString().
+* The string format is the same as java.math.BigInteger string
+constructor and toString method.
 * "The String representation consists of an optional minus sign
 followed by a sequence of one or more decimal digits. The String may
 not contain any extraneous characters (whitespace, for example)."
 
 #### Big Decimal
 ```
-<Big-Decimal> ::= <small-decimal> | <med-decimal> | <large-decimal>
-<small-decimal> ::= "g" uint8-length UTF8
-<med-decimal>   ::= "G" uint16-length UTF8
-<large-decimal> ::= "h" int16-length UTF8
+<Big-Decimal> ::= <decimal8> | <decimal16> | <decimal32>
+<decimal8>  ::= "g" uint8-length UTF8
+<decimal16> ::= "G" uint16-length UTF8
+<decimal32> ::= "h" int16-length UTF8
 ```
-* The string format is the same as java.math.BigDecimal.toString().
+* The string format is the same as java.math.BigDecimal string
+constructor and toString method.
 * "The string representation consists of an optional sign, '+'
 ( '\u002B') or '-' ('\u002D'), followed by a sequence of zero or more
 decimal digits ("the integer"), optionally followed by a fraction,
@@ -222,16 +217,20 @@ import com.comfortanalytics.aon.*;
 
 public static void main(String[] args) {
     Aobj obj = new Aobj()
+            .put("binary", new byte[5])
             .put("boolean", true)
             .put("double", 100.1d)
+            .put("float", 100.1f)
             .put("int", 100)
             .put("long", 100l)
             .put("string", "abcdefghij\r\njklmnopqrs\u0000\u0001\u0002tuvwxyz\r\n")
             .putNull("null");
     System.out.println("The int value in the obj is " + map.getInt("int"));
     Alist list = new Alist()
+            .add("binary", new byte[5])
             .add(true)
             .add(100.1d)
+            .add(100.1f)
             .add(100)
             .add(100l)
             .add("abcdefghij\r\njklmnopqrs\u0000\u0001\u0002tuvwxyz\r\n")
@@ -293,7 +292,11 @@ public void notStreaming(Awriter out) {
 }
 
 public void streaming(Awriter out) {
-    out.beginObj().key("a").value(1).key("b").value(2).key("c").value(3).endObj();
+    out.beginObj()
+            .key("a").value(1)
+            .key("b").value(3)
+            .key("c").value(3)
+            .endObj();
 }
 ```
 
