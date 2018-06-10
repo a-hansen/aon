@@ -128,9 +128,9 @@ An ordered collection of values surrounded by brackets.
 <4-byte-int> ::= "j" int32
 <8-byte-int> ::= "J" int64
 ```
-* The tiny int can be identified with the bitmask 0xC0.  The length
-of the string is the signed lowest order 5 bits.  The value range for
-a tiny int is -16 to 15.
+* The tiny int can be identified with the bitmask 0xC0.  The value
+is the signed lowest order 5 bits.  The value range for a tiny int
+is -16 to 15.
 
 #### String
 ```
@@ -153,9 +153,8 @@ a tiny string is 31 bytes.
 <uint16> ::= "I" uint16
 <uint32> ::= "j" uint32
 ```
-* The uint5 can be identified with the bitmask 0x80.  The length
-of the string is the unsigned lowest order 5 bits.  The max value of a
-tiny uint is 31.
+* The uint5 can be identified with the bitmask 0x80.  The value is the
+unsigned lowest order 5 bits.  The max value of a tiny uint is 31.
 
 #### Binary (byte array)
 ```

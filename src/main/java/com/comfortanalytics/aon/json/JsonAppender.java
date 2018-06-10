@@ -23,49 +23,24 @@ import java.util.zip.ZipOutputStream;
 public class JsonAppender extends AbstractJsonWriter {
 
     ///////////////////////////////////////////////////////////////////////////
+    // Class Fields
+    ///////////////////////////////////////////////////////////////////////////
+
+    private static final int BUF_SIZE = 512;
+
+    ///////////////////////////////////////////////////////////////////////////
     // Instance Fields
     ///////////////////////////////////////////////////////////////////////////
 
     private StringBuilder buf = new StringBuilder(BUF_SIZE);
     private Appendable out;
-    private boolean zip = false;
-    private ZipOutputStream zout;
 
     ///////////////////////////////////////////////////////////////////////////
     // Constructors
     ///////////////////////////////////////////////////////////////////////////
 
-    /**
-     * Be sure to call one of the setOutput methods.
-     */
-    public JsonAppender() {
-    }
-
-    public JsonAppender(Appendable arg) {
-        setOutput(arg);
-    }
-
-    public JsonAppender(File arg) {
-        setOutput(arg);
-    }
-
-    public JsonAppender(File file, String charset) {
-        setOutput(file, charset);
-    }
-
-    /**
-     * Will create a zip file using the zipFileName as file name inside the zip.
-     */
-    public JsonAppender(File file, String charset, String zipFileName) {
-        setOutput(file, charset, zipFileName);
-    }
-
-    public JsonAppender(OutputStream arg) {
-        setOutput(arg);
-    }
-
-    public JsonAppender(OutputStream out, String charset) {
-        setOutput(out, charset);
+    public JsonAppender(Appendable out) {
+        this.out = out;
     }
 
     ///////////////////////////////////////////////////////////////////////////
@@ -144,13 +119,6 @@ public class JsonAppender extends AbstractJsonWriter {
             if (getDepth() > 0) {
                 throw new IllegalStateException("Nesting error.");
             }
-            if (zout != null) {
-                try {
-                    zout.closeEntry();
-                } catch (Exception x) {
-                }
-                zout = null;
-            }
             if (out instanceof Closeable) {
                 ((Closeable) out).close();
                 out = null;
@@ -160,6 +128,7 @@ public class JsonAppender extends AbstractJsonWriter {
         }
     }
 
+    @Override
     public JsonAppender flush() {
         try {
             if (buf.length() > 0) {
@@ -175,107 +144,10 @@ public class JsonAppender extends AbstractJsonWriter {
         return this;
     }
 
-    /**
-     * Whether or not this is zipping the output.
-     */
-    public boolean isZip() {
-        return zip;
-    }
-
     @Override
     public JsonAppender reset() {
         buf.setLength(0);
         return (JsonAppender) super.reset();
-    }
-
-    /**
-     * Sets the sink, resets the state and returns this.
-     */
-    public JsonAppender setOutput(Appendable arg) {
-        if (arg == null) {
-            throw new NullPointerException();
-        }
-        this.out = arg;
-        return reset();
-    }
-
-    /**
-     * Sets the sink, resets the state and returns this.
-     */
-    public JsonAppender setOutput(File arg) {
-        try {
-            if (arg == null) {
-                throw new NullPointerException();
-            }
-            this.out = new FileWriter(arg);
-        } catch (IOException x) {
-            throw new RuntimeException(x);
-        }
-        return reset();
-    }
-
-    /**
-     * Will create a zip file using the zipFileName as file name inside the zip.  Resets
-     * the state and returns this.
-     */
-    public JsonAppender setOutput(File file, String charset) {
-        try {
-            if (file == null) {
-                throw new NullPointerException();
-            }
-            this.out = new OutputStreamWriter(new FileOutputStream(file), charset);
-            this.zip = true;
-        } catch (IOException x) {
-            throw new RuntimeException(x);
-        }
-        return reset();
-    }
-
-    /**
-     * Will create a zip file using the zipFileName as file name inside the zip.  Resets
-     * the state and returns this.
-     */
-    public JsonAppender setOutput(File file, String charset, String zipFileName) {
-        try {
-            if (file == null) {
-                throw new NullPointerException();
-            }
-            zout = new ZipOutputStream(
-                    new BufferedOutputStream(new FileOutputStream(file)));
-            zout.putNextEntry(new ZipEntry(zipFileName));
-            this.out = new OutputStreamWriter(zout, charset);
-            this.zip = true;
-        } catch (IOException x) {
-            throw new RuntimeException(x);
-        }
-        return reset();
-    }
-
-    /**
-     * Sets the sink, resets the state and returns this.
-     */
-    public JsonAppender setOutput(OutputStream arg) {
-        if (arg == null) {
-            throw new NullPointerException();
-        }
-        this.out = new OutputStreamWriter(arg);
-        return reset();
-    }
-
-    /**
-     * Sets the sink, resets the state and returns this.
-     */
-    public JsonAppender setOutput(OutputStream out, String charset) {
-        try {
-            if (out == null) {
-                throw new NullPointerException();
-            }
-            this.out = new OutputStreamWriter(zout, charset);
-            this.zip = true;
-        } catch (IOException x) {
-            throw new RuntimeException(x);
-        }
-        return reset();
     }
 
 }

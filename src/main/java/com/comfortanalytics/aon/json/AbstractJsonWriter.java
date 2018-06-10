@@ -15,7 +15,6 @@ public abstract class AbstractJsonWriter extends AbstractWriter implements Appen
     // Class Fields
     ///////////////////////////////////////////////////////////////////////////
 
-    static final int BUF_SIZE = 8192;
     private static final char[] C_B = new char[]{'\\', 'b'};
     private static final char[] C_F = new char[]{'\\', 'f'};
     private static final char[] C_FALSE = new char[]{'f', 'a', 'l', 's', 'e'};

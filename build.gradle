@@ -17,9 +17,7 @@ dependencies {
     testCompile 'com.fasterxml.jackson.core:jackson-databind:+'
     testCompile 'com.google.code.gson:gson:+'
     testCompile 'com.googlecode.json-simple:json-simple:+'
-    testCompile 'com.jsoniter:jsoniter:+'
     testCompile 'com.owlike:genson:+'
-    testCompile 'io.fastjson:boon:+'
     testCompile 'net.sf.flexjson:flexjson:+'
     testCompile 'org.javassist:javassist:+'
     testCompile 'org.openjdk.jmh:jmh-core:+'
@@ -28,7 +26,7 @@ dependencies {
 }
 
 test {
-    exclude '**/AonBenchmark.class'
+    exclude '**/*Benchmark*'
 }
 
 task benchmark(type: Test) {

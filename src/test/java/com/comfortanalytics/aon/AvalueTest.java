@@ -27,6 +27,13 @@ public class AvalueTest {
     // Public Methods
     ///////////////////////////////////////////////////////////////////////////
 
+    @Test
+    public void test() throws Exception {
+        allTests();
+        aonFormat = false;
+        allTests();
+    }
+
     ///////////////////////////////////////////////////////////////////////////
     // Package / Private Methods
     ///////////////////////////////////////////////////////////////////////////
@@ -52,14 +59,14 @@ public class AvalueTest {
         if (aonFormat) {
             return new AonReader(in);
         }
-        return new JsonReader(in, "UTF-8");
+        return new JsonReader(in);
     }
 
     private Awriter newWriter(OutputStream out) {
         if (aonFormat) {
             return new AonWriter(out);
         }
-        return new JsonWriter(out, "UTF-8");
+        return new JsonWriter(out);
     }
 
     private Alist primitiveList() {
@@ -333,8 +340,8 @@ public class AvalueTest {
         testMap(map);
         Assert.assertTrue(map.get("boolean").isBoolean());
         Assert.assertTrue(map.get("double").isDouble());
-        Assert.assertTrue(map.get("int").isInt());
-        Assert.assertTrue(map.get("long").isNumber()); //Deserializes as an int
+        Assert.assertTrue(map.get("int").isNumber());
+        Assert.assertTrue(map.get("long").isNumber());
         Assert.assertTrue(map.get("string").isString());
         Assert.assertTrue(map.get("null").isNull());
         Assert.assertTrue(map.getBoolean("boolean"));

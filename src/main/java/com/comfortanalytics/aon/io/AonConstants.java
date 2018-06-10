@@ -65,17 +65,4 @@ public interface AonConstants {
 
     Charset UTF8 = Charset.forName("UTF-8");
 
-    // 8, 0x8, 1000
-    //12, 0xC, 1100
-    //14, 0xE, 1110
-
-    //10, 0xA, 1010
-    //11, 0xB, 1011
-
-    //13, 0xD, 1101
-    //13, 0xD, 1101
-    //15, 0xF, 1111
-
-    //I5 U5 S5
-
 }

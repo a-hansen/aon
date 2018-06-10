@@ -1,5 +1,6 @@
 package com.comfortanalytics.aon;
 
+import java.io.Closeable;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 
@@ -29,12 +30,7 @@ import java.math.BigInteger;
  *
  * @author Aaron Hansen
  */
-public interface Areader {
-
-    /**
-     * Close the input.
-     */
-    public void close();
+public interface Areader extends Closeable {
 
     /**
      * Returns the value when last() == DECIMAL.

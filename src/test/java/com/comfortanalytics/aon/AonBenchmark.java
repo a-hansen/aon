@@ -6,10 +6,8 @@ import com.comfortanalytics.aon.json.JsonReader;
 import com.comfortanalytics.aon.json.JsonWriter;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.gson.Gson;
+import com.google.gson.JsonElement;
 import com.google.gson.JsonParser;
-import com.jsoniter.JsonIterator;
-import com.jsoniter.any.Any;
-import com.jsoniter.output.JsonStream;
 import com.owlike.genson.Genson;
 import flexjson.JSONDeserializer;
 import flexjson.JSONSerializer;
@@ -21,9 +19,7 @@ import java.io.OutputStream;
 import java.io.Writer;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
-import org.boon.json.JsonFactory;
-import org.json.simple.JSONObject;
-import org.json.simple.parser.JSONParser;
+import org.json.simple.JSONValue;
 import org.junit.Test;
 import org.openjdk.jmh.annotations.Benchmark;
 import org.openjdk.jmh.annotations.Mode;
@@ -108,7 +104,7 @@ public class AonBenchmark {
 
     private static void decodeAonJson(byte[] arg) {
         try {
-            JsonReader reader = new JsonReader(new ByteArrayInputStream(arg), "UTF-8");
+            JsonReader reader = new JsonReader(new ByteArrayInputStream(arg));
             reader.getValue();
             reader.close();
         } catch (Exception io) {
@@ -188,9 +184,7 @@ public class AonBenchmark {
 
         private JSONDeserializer flexjson = new JSONDeserializer();
         private Genson genson = new Genson();
-        private Gson gson = new Gson();
         private ObjectMapper jackson = new ObjectMapper();
-        private JSONParser jsonSimple = new JSONParser();
 
         @Benchmark
         public void Aon() {
@@ -203,33 +197,24 @@ public class AonBenchmark {
         }
 
         @Benchmark
-        public void Boon() {
-            try {
-                JsonFactory.fromJson(new InputStreamReader(new ByteArrayInputStream(jsonLarge)));
-            } catch (Exception io) {
-                throw new RuntimeException(io);
-            }
-        }
-
-        @Benchmark
         public void Flexjson() {
             flexjson.deserialize(new InputStreamReader(new ByteArrayInputStream(jsonLarge)));
         }
 
         @Benchmark
         public void Genson() {
-            genson.deserialize(new ByteArrayInputStream(jsonLarge), Map.class);
+            genson.deserialize(new InputStreamReader(new ByteArrayInputStream(jsonLarge)), Map.class);
         }
 
         @Benchmark
         public void Gson() {
-            gson.toJson(new ByteArrayInputStream(jsonLarge), nullWriter);
+            new JsonParser().parse(new InputStreamReader(new ByteArrayInputStream(jsonLarge)));
         }
 
         @Benchmark
         public void Jackson() {
             try {
-                jackson.readTree(new ByteArrayInputStream(jsonLarge));
+                jackson.readTree(new InputStreamReader(new ByteArrayInputStream(jsonLarge)));
             } catch (IOException x) {
                 throw new RuntimeException(x);
             }
@@ -238,16 +223,7 @@ public class AonBenchmark {
         @Benchmark
         public void JsonSimple() {
             try {
-                jsonSimple.parse(new InputStreamReader(new ByteArrayInputStream(jsonLarge)));
-            } catch (Exception x) {
-                throw new RuntimeException(x);
-            }
-        }
-
-        @Benchmark
-        public void Jsoniter() {
-            try {
-                JsonIterator.parse(new ByteArrayInputStream(jsonLarge), 8192).readAny();
+                JSONValue.parse(new InputStreamReader(new ByteArrayInputStream(jsonLarge)));
             } catch (Exception x) {
                 throw new RuntimeException(x);
             }
@@ -264,9 +240,7 @@ public class AonBenchmark {
 
         private JSONDeserializer flexjson = new JSONDeserializer();
         private Genson genson = new Genson();
-        private Gson gson = new Gson();
         private ObjectMapper jackson = new ObjectMapper();
-        private JSONParser jsonSimple = new JSONParser();
 
         @Benchmark
         public void Aon() {
@@ -279,33 +253,24 @@ public class AonBenchmark {
         }
 
         @Benchmark
-        public void Boon() {
-            try {
-                JsonFactory.fromJson(new InputStreamReader(new ByteArrayInputStream(jsonSmall)));
-            } catch (Exception io) {
-                throw new RuntimeException(io);
-            }
-        }
-
-        @Benchmark
         public void Flexjson() {
             flexjson.deserialize(new InputStreamReader(new ByteArrayInputStream(jsonSmall)));
         }
 
         @Benchmark
         public void Genson() {
-            genson.deserialize(new ByteArrayInputStream(jsonSmall), Map.class);
+            genson.deserialize(new InputStreamReader(new ByteArrayInputStream(jsonSmall)), Map.class);
         }
 
         @Benchmark
         public void Gson() {
-            gson.toJson(new ByteArrayInputStream(jsonSmall), nullWriter);
+            new JsonParser().parse(new InputStreamReader(new ByteArrayInputStream(jsonSmall)));
         }
 
         @Benchmark
         public void Jackson() {
             try {
-                jackson.readTree(new ByteArrayInputStream(jsonSmall));
+                jackson.readTree(new InputStreamReader(new ByteArrayInputStream(jsonSmall)));
             } catch (IOException x) {
                 throw new RuntimeException(x);
             }
@@ -314,16 +279,7 @@ public class AonBenchmark {
         @Benchmark
         public void JsonSimple() {
             try {
-                jsonSimple.parse(new InputStreamReader(new ByteArrayInputStream(jsonSmall)));
-            } catch (Exception x) {
-                throw new RuntimeException(x);
-            }
-        }
-
-        @Benchmark
-        public void Jsoniter() {
-            try {
-                JsonIterator.parse(new ByteArrayInputStream(jsonSmall), 8192).readAny();
+                JSONValue.parse(new InputStreamReader(new ByteArrayInputStream(jsonSmall)));
             } catch (Exception x) {
                 throw new RuntimeException(x);
             }
@@ -338,17 +294,15 @@ public class AonBenchmark {
     @State(Scope.Benchmark)
     public static class EncodeLargeDoc {
 
-        private Object boonObj;
         private JSONSerializer flexjson = new JSONSerializer();
         private Object flexjsonObj;
         private Genson genson = new Genson();
         private Object gensonObj;
         private Gson gson = new Gson();
-        private Object gsonObj;
+        private JsonElement gsonObj;
         private ObjectMapper jackson = new ObjectMapper();
         private Object jacksonObj;
-        private JSONObject jsonSimpleObj;
-        private Object jsoniterObj;
+        private Object jsonSimpleObj;
 
         @Benchmark
         public void Aon() {
@@ -357,12 +311,7 @@ public class AonBenchmark {
 
         @Benchmark
         public void AonJson() {
-            encodeAonJson(aobjLarge, nullOutputStream);
-        }
-
-        @Benchmark
-        public void Boon() {
-            JsonFactory.toJson(boonObj, nullWriter);
+            new JsonWriter(nullWriter).value(aobjLarge).close();
         }
 
         @Benchmark
@@ -377,13 +326,13 @@ public class AonBenchmark {
 
         @Benchmark
         public void Gson() {
-            gson.toJson(gsonObj, nullWriter);
+            gson.toJson(gsonObj);
         }
 
         @Benchmark
         public void Jackson() {
             try {
-                jackson.writeValue(nullOutputStream, jacksonObj);
+                jackson.writeValue(nullWriter, jacksonObj);
             } catch (IOException x) {
                 throw new RuntimeException(x);
             }
@@ -391,15 +340,8 @@ public class AonBenchmark {
 
         @Benchmark
         public void JsonSimple() {
-            jsonSimpleObj.toJSONString();
-        }
-
-        @Benchmark
-        public void Jsoniter() {
             try {
-                JsonStream stream = new JsonStream(nullOutputStream, 8192);
-                stream.writeVal((Any) jsoniterObj);
-                stream.close();
+                JSONValue.writeJSONString(jsonSimpleObj, nullWriter);
             } catch (IOException x) {
                 throw new RuntimeException(x);
             }
@@ -412,8 +354,6 @@ public class AonBenchmark {
         @Setup
         public void start() {
             try {
-                boonObj = JsonFactory.fromJson(
-                        new InputStreamReader(new ByteArrayInputStream(jsonLarge)));
                 flexjsonObj = new JSONDeserializer().deserialize(
                         new InputStreamReader(new ByteArrayInputStream(jsonLarge)));
                 gensonObj = genson.deserialize(
@@ -422,9 +362,7 @@ public class AonBenchmark {
                         new InputStreamReader(new ByteArrayInputStream(jsonLarge)));
                 jacksonObj = jackson.readTree(
                         new ByteArrayInputStream(jsonLarge));
-                jsoniterObj = JsonIterator.parse(
-                        new ByteArrayInputStream(jsonLarge), 8192).readAny();
-                jsonSimpleObj = (JSONObject) new JSONParser().parse(
+                jsonSimpleObj = JSONValue.parse(
                         new InputStreamReader(new ByteArrayInputStream(jsonLarge)));
             } catch (Exception x) {
                 throw new RuntimeException(x);
@@ -435,7 +373,6 @@ public class AonBenchmark {
     @State(Scope.Benchmark)
     public static class EncodeSmallDoc {
 
-        private Object boonObj;
         private JSONSerializer flexjson = new JSONSerializer();
         private Object flexjsonObj;
         private Genson genson = new Genson();
@@ -444,8 +381,7 @@ public class AonBenchmark {
         private Object gsonObj;
         private ObjectMapper jackson = new ObjectMapper();
         private Object jacksonObj;
-        private JSONObject jsonSimpleObj;
-        private Object jsoniterObj;
+        private Object jsonSimpleObj;
 
         @Benchmark
         public void Aon() {
@@ -454,12 +390,7 @@ public class AonBenchmark {
 
         @Benchmark
         public void AonJson() {
-            encodeAonJson(aobjSmall, nullOutputStream);
-        }
-
-        @Benchmark
-        public void Boon() {
-            JsonFactory.toJson(boonObj, nullWriter);
+            new JsonWriter(nullWriter).value(aobjSmall).close();
         }
 
         @Benchmark
@@ -480,7 +411,7 @@ public class AonBenchmark {
         @Benchmark
         public void Jackson() {
             try {
-                jackson.writeValue(nullOutputStream, jacksonObj);
+                jackson.writeValue(nullWriter, jacksonObj);
             } catch (IOException x) {
                 throw new RuntimeException(x);
             }
@@ -488,15 +419,8 @@ public class AonBenchmark {
 
         @Benchmark
         public void JsonSimple() {
-            jsonSimpleObj.toJSONString();
-        }
-
-        @Benchmark
-        public void Jsoniter() {
             try {
-                JsonStream stream = new JsonStream(nullOutputStream, 8192);
-                stream.writeVal((Any) jsoniterObj);
-                stream.close();
+                JSONValue.writeJSONString(jsonSimpleObj, nullWriter);
             } catch (IOException x) {
                 throw new RuntimeException(x);
             }
@@ -509,8 +433,6 @@ public class AonBenchmark {
         @Setup
         public void start() {
             try {
-                boonObj = JsonFactory.fromJson(
-                        new InputStreamReader(new ByteArrayInputStream(jsonSmall)));
                 flexjsonObj = new JSONDeserializer().deserialize(
                         new InputStreamReader(new ByteArrayInputStream(jsonSmall)));
                 gensonObj = genson.deserialize(
@@ -519,9 +441,7 @@ public class AonBenchmark {
                         new InputStreamReader(new ByteArrayInputStream(jsonSmall)));
                 jacksonObj = jackson.readTree(
                         new ByteArrayInputStream(jsonSmall));
-                jsoniterObj = JsonIterator.parse(
-                        new ByteArrayInputStream(jsonSmall), 8192).readAny();
-                jsonSimpleObj = (JSONObject) new JSONParser().parse(
+                jsonSimpleObj = JSONValue.parse(
                         new InputStreamReader(new ByteArrayInputStream(jsonSmall)));
             } catch (Exception x) {
                 throw new RuntimeException(x);
@@ -531,12 +451,15 @@ public class AonBenchmark {
 
     private static class NullOutputStream extends OutputStream {
 
+        @Override
         public void write(byte[] b) {
         }
 
+        @Override
         public void write(byte[] b, int off, int len) {
         }
 
+        @Override
         public void write(int b) {
         }
     }
@@ -544,15 +467,15 @@ public class AonBenchmark {
     private static class NullWriter extends Writer {
 
         @Override
-        public void close() throws IOException {
+        public void close() {
         }
 
         @Override
-        public void flush() throws IOException {
+        public void flush() {
         }
 
         @Override
-        public void write(char[] cbuf, int off, int len) throws IOException {
+        public void write(char[] cbuf, int off, int len) {
         }
 
     }
