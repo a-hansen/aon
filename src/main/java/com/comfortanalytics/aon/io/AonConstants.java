@@ -26,7 +26,6 @@ public interface AonConstants {
     char DEC32 = 'h';
 
     int I5 = 0xC0;
-    int NEG_I5_WRITE_MASK = 0xDF;
     char I8 = 'i';
     char I16 = 'I';
     char I32 = 'j';

@@ -11,8 +11,8 @@ Overview
 
 Aon is another object notation like JSON but is more compact, supports
 more data types, and preserves the order of object members.  Unlike
-many binary JSON schemes, this doesn't encode the lengths of objects
-or lists making it stream friendly.
+most other binary JSON schemes, this doesn't encode the lengths of
+objects or lists in order to support streaming IO.
 
 #### Compact
 Borrows techniques from MsgPack and UBJSON to create a hybrid binary
@@ -302,6 +302,61 @@ public void streaming(Awriter out) {
             .key("c").value(3)
             .endObj();
 }
+```
+
+Benchmark
+---------
+
+There is a benchmark that compares native Aon encoding with Aon-JSON
+as well as many other JSON libs.  The benchmark uses JMH and takes
+10-15 minutes.  At the end of the benchmark are some Aon vs JSON
+document size comparisions.
+
+Example benchmark results:
+
+```
+Benchmark                                             Mode  Cnt     Score      Error  Units
+AonBenchmark.DecodeLargeDoc.Aon                       avgt    4   975.111 ±  328.698  us/op
+AonBenchmark.DecodeLargeDoc.AonJson                   avgt    4  2312.974 ±  251.520  us/op
+AonBenchmark.DecodeLargeDoc.Flexjson                  avgt    4  8548.223 ± 1313.849  us/op
+AonBenchmark.DecodeLargeDoc.Genson                    avgt    4  1615.309 ±   95.464  us/op
+AonBenchmark.DecodeLargeDoc.Gson                      avgt    4  2651.733 ±  317.195  us/op
+AonBenchmark.DecodeLargeDoc.Jackson                   avgt    4  2133.457 ± 1447.510  us/op
+AonBenchmark.DecodeLargeDoc.JsonSimple                avgt    4  4547.263 ±  139.267  us/op
+AonBenchmark.DecodeLargeDoc.THE_END_OF_GROUP________  avgt    4     0.001 ±    0.001  us/op
+AonBenchmark.DecodeSmallDoc.Aon                       avgt    4     1.716 ±    0.157  us/op
+AonBenchmark.DecodeSmallDoc.AonJson                   avgt    4     6.232 ±    0.592  us/op
+AonBenchmark.DecodeSmallDoc.Flexjson                  avgt    4    21.293 ±   12.643  us/op
+AonBenchmark.DecodeSmallDoc.Genson                    avgt    4     7.449 ±    1.322  us/op
+AonBenchmark.DecodeSmallDoc.Gson                      avgt    4     6.496 ±    1.321  us/op
+AonBenchmark.DecodeSmallDoc.Jackson                   avgt    4     5.309 ±    0.746  us/op
+AonBenchmark.DecodeSmallDoc.JsonSimple                avgt    4    18.020 ±    1.273  us/op
+AonBenchmark.DecodeSmallDoc.THE_END_OF_GROUP________  avgt    4     0.001 ±    0.001  us/op
+AonBenchmark.EncodeLargeDoc.Aon                       avgt    4   755.315 ±   69.104  us/op
+AonBenchmark.EncodeLargeDoc.AonJson                   avgt    4  1581.966 ±  208.914  us/op
+AonBenchmark.EncodeLargeDoc.Flexjson                  avgt    4  5076.796 ± 1846.097  us/op
+AonBenchmark.EncodeLargeDoc.Genson                    avgt    4  1756.630 ±  177.190  us/op
+AonBenchmark.EncodeLargeDoc.Gson                      avgt    4  1835.124 ±  445.181  us/op
+AonBenchmark.EncodeLargeDoc.Jackson                   avgt    4   974.625 ±   28.251  us/op
+AonBenchmark.EncodeLargeDoc.JsonSimple                avgt    4  8505.397 ± 2905.306  us/op
+AonBenchmark.EncodeLargeDoc.THE_END_OF_GROUP________  avgt    4     0.001 ±    0.001  us/op
+AonBenchmark.EncodeSmallDoc.Aon                       avgt    4     1.175 ±    0.161  us/op
+AonBenchmark.EncodeSmallDoc.AonJson                   avgt    4     2.673 ±    0.283  us/op
+AonBenchmark.EncodeSmallDoc.Flexjson                  avgt    4    14.328 ±    6.559  us/op
+AonBenchmark.EncodeSmallDoc.Genson                    avgt    4     3.361 ±    0.133  us/op
+AonBenchmark.EncodeSmallDoc.Gson                      avgt    4    12.197 ±    9.608  us/op
+AonBenchmark.EncodeSmallDoc.Jackson                   avgt    4     1.547 ±    0.118  us/op
+AonBenchmark.EncodeSmallDoc.JsonSimple                avgt    4    17.370 ±    8.667  us/op
+ AON small doc size: 183
+JSON small doc size: 261
+ AON large doc size: 111596
+JSON large doc size: 159198
+```
+
+The benchmark is a Gradle task and can be run as follows:
+
+```
+gradlew benchmark
 ```
 
 History

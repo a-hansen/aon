@@ -230,7 +230,7 @@ public class AonBenchmark {
         }
 
         @Benchmark
-        public void Separator____() {
+        public void THE_END_OF_GROUP________() {
         }
 
     }
@@ -286,7 +286,7 @@ public class AonBenchmark {
         }
 
         @Benchmark
-        public void Separator____() {
+        public void THE_END_OF_GROUP________() {
         }
 
     }
@@ -348,7 +348,7 @@ public class AonBenchmark {
         }
 
         @Benchmark
-        public void Separator____() {
+        public void THE_END_OF_GROUP________() {
         }
 
         @Setup
@@ -424,10 +424,6 @@ public class AonBenchmark {
             } catch (IOException x) {
                 throw new RuntimeException(x);
             }
-        }
-
-        @Benchmark
-        public void Separator____() {
         }
 
         @Setup
