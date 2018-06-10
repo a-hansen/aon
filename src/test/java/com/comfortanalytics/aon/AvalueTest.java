@@ -6,7 +6,6 @@ import com.comfortanalytics.aon.json.JsonReader;
 import com.comfortanalytics.aon.json.JsonWriter;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
-import java.io.File;
 import java.io.InputStream;
 import java.io.OutputStream;
 import org.junit.Assert;
@@ -29,6 +28,7 @@ public class AvalueTest {
 
     @Test
     public void test() throws Exception {
+        aonFormat = true;
         allTests();
         aonFormat = false;
         allTests();
@@ -76,7 +76,9 @@ public class AvalueTest {
                 .add(100001)
                 .add(100001l)
                 .add("abcdefghij\r\njklmnopqrs\u0000\u0001\u0002tuvwxyz\r\n")
-                .addNull();
+                .addNull()
+                .add(5)
+                .add("abcde");
     }
 
     private Aobj primitiveMap() {
@@ -264,8 +266,8 @@ public class AvalueTest {
         list.add(primitiveMap());
         list.add(primitiveList());
         testList(list);
-        Assert.assertTrue(list.get(6).isObj());
-        Assert.assertTrue(list.get(7).isList());
+        Assert.assertTrue(list.get(8).isObj());
+        Assert.assertTrue(list.get(9).isList());
         out = new ByteArrayOutputStream();
         //new JsonWriter(out, "UTF-8").value(map).close();
         newWriter(out).value(map).close();
@@ -274,7 +276,7 @@ public class AvalueTest {
         map = newReader(in).getValue().toObj();
         Assert.assertTrue(map.get("map").isObj());
         Assert.assertTrue(map.get("list").isList());
-        testPrimitiveList(list.get(7).toList());
+        testPrimitiveList(list.get(9).toList());
     }
 
     private void testMap(Aobj map) {
@@ -334,6 +336,8 @@ public class AvalueTest {
         Assert.assertTrue(list.get(3).isNumber()); //Deserializes as an int
         Assert.assertTrue(list.get(4).isString());
         Assert.assertTrue(list.get(5).isNull());
+        Assert.assertEquals(list.get(6).toInt(), 5);
+        Assert.assertEquals(list.get(7).toString(), "abcde");
     }
 
     private void testPrimitiveMap(Aobj map) {

@@ -16,15 +16,15 @@ public abstract class AbstractReader implements Areader {
     ///////////////////////////////////////////////////////////////////////////
 
     private Token last = Token.ROOT;
-    protected BigInteger valBigint;
-    protected byte[] valBinary;
-    protected boolean valBoolean;
-    protected BigDecimal valDecimal;
-    protected double valDouble;
-    protected float valFloat;
-    protected int valInt;
-    protected long valLong;
-    protected String valString;
+    private BigInteger valBigint;
+    private byte[] valBinary;
+    private boolean valBoolean;
+    private BigDecimal valDecimal;
+    private double valDouble;
+    private float valFloat;
+    private int valInt;
+    private long valLong;
+    private String valString;
 
     ///////////////////////////////////////////////////////////////////////////
     // Public Methods

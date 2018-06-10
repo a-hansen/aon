@@ -66,9 +66,9 @@ public class AonWriter extends AbstractWriter implements AonConstants {
     protected void write(BigDecimal arg) throws IOException {
         byte[] b = arg.toString().getBytes(UTF8);
         int len = b.length;
-        if (len <= U8) {
+        if (len <= MAX_U8) {
             write1Byte(DEC8, len);
-        } else if (len <= U16) {
+        } else if (len <= MAX_U16) {
             write2Bytes(DEC16, len);
         } else {
             write4Bytes(DEC32, len);
@@ -80,9 +80,9 @@ public class AonWriter extends AbstractWriter implements AonConstants {
     protected void write(BigInteger arg) throws IOException {
         byte[] b = arg.toString().getBytes(UTF8);
         int len = b.length;
-        if (len <= U8) {
+        if (len <= MAX_U8) {
             write1Byte(BIGINT8, len);
-        } else if (len <= U16) {
+        } else if (len <= MAX_U16) {
             write2Bytes(BIGINT16, len);
         } else {
             write4Bytes(BIGINT32, len);
@@ -191,9 +191,9 @@ public class AonWriter extends AbstractWriter implements AonConstants {
     protected void writeValue(CharSequence arg) throws IOException {
         byte[] b = arg.toString().getBytes(UTF8);
         int len = b.length;
-        if (len <= U8) {
+        if (len <= MAX_U8) {
             write1Byte(S8, len);
-        } else if (len <= U16) {
+        } else if (len <= MAX_U16) {
             write2Bytes(S16, len);
         } else {
             write4Bytes(S32, len);

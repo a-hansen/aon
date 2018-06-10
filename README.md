@@ -9,44 +9,43 @@ Aon
 Overview
 --------
 
-Aon is another object notation like JSON but is more compact, supports
-more data types, and preserves the order of object members.  Unlike
-most other binary JSON schemes, this doesn't encode the lengths of
-objects or lists in order to support streaming IO.
+Aon is another object notation like JSON but is more compact, has
+more data types, and preserves the order of object members.  To be
+stream friendly Aon doesn't encode object or list lengths.
 
 #### Compact
 Borrows techniques from MsgPack and UBJSON to create a hybrid binary
 encoding.
 
 #### More Data Types
-Big decimal, Big integer, binary, boolean, double, float, list, long,
+Big decimal, big integer, binary, boolean, double, float, list, long,
 null, object, string and many flavors of signed and unsigned integers.
 
 #### Ordered Objects
-Order matters when displaying objects on user interfaces such as
-property sheets.  It's called object notation after all, not map or
-dictionary.
+Order matters when displaying object members on user interfaces such
+as property sheets.
 
 Comparisons to Other Formats
 ----------------------------
 
 Aon is like JSON, except:
 
-* It is more compact.
-* Supports more data types.
-* Object member order is preserved.
+* Aon is more compact.
+* Aon has data types.
+* Aon preserves object member order.
 
 Aon was influenced by [MsgPack](http://msgpack.org) compaction, except:
 
-* It is streaming IO friendly, lists and objects do not encode a size.
-* Only has data types that can be supported by Java (no U64 or S32).
-* Object member order is preserved.
+* Aon is streaming IO friendly; lists and objects do not encode their
+size.
+* Aon only has data types that can be supported by Java (no UINT64 or
+unsigned 32 bit lengths for datatypes that are backed by arrays).
+* Aon preserves object member order.
 
 Aon uses many [UBJSON](http://ubjson.org) concepts as well, except:
 
-* It is more compact.
-* Binary is a native data byte rather than a list of ints.
-* Object member order is preserved.
+* Aon is more compact.
+* Aon preserves object member order.
 
 **JSON** (42 bytes)
 ```
@@ -60,12 +59,12 @@ Aon uses many [UBJSON](http://ubjson.org) concepts as well, except:
 
 **UBJSON** (32 bytes)
 ```
-{ i 0x04 name s i 0x03 aon i 0x0B born I 0x01 0x33 0xEE 0x7A i 0x04 cool T }
+{ i 0x04 name s i 0x03 aon i 0x04 born I 0x01 0x33 0xEE 0x7A i 0x04 cool T }
 ```
 
-**Aon** (27 bytes)
+**Aon** (26 bytes)
 ```
-{ 0xE4 name 0xE3 aon 0xEB born j 0x01 0x33 0xEE 0x82 0x7A cool T }
+{ 0xE4 name 0xE3 aon 0xE4 born j 0x01 0x33 0xEE 0x7A cool T }
 ```
 
 Format
@@ -89,13 +88,14 @@ An ordered collection of key value pairs surrounded by curly braces.
 * There can be 0 or more key value pairs.
 
 #### List
-An ordered collection of values surrounded by brackets.
+An array of values surrounded by brackets.
 ```
 <List> ::= "[" <Value>* "]"
 ```
 * There can be 0 or more values in a list.
 
 #### Boolean
+Booleans require only a single byte.
 ```
 <Boolean> ::= "T" | "F"
 ```
@@ -103,89 +103,100 @@ An ordered collection of values surrounded by brackets.
 * F = false
 
 #### Double
+Requires 9 bytes, the letter 'D' followed by 8 bytes.
 ```
 <Double> ::= "D" byte[8]
 ```
 * IEEE 754 floating-point "double format" bit layout (64 bits).
 
 #### Float
+Requires 5 bytes, the letter 'd' followed by 4 bytes.
 ```
-<Float> ::= "D" byte[4]
+<Float> ::= "d" byte[4]
 ```
 * IEEE 754 floating-point "single format" bit layout (32 bits).
 
 #### Null
+Requires a single byte, the letter 'Z'.
 ```
 <Null> ::= "Z"
 ```
 
 #### Signed Integer
+Uses 1 to 5 bytes, depending on the value.
 ```
-<Signed-Int> ::= <tiny-int> | <1-byte-int> | <2-byte-int> | <4-byte-int> | <8-byte-int>
-<tiny-int>   ::= 0xC0
-<1-byte-int> ::= "i" int8
-<2-byte-int> ::= "I" int16
-<4-byte-int> ::= "j" int32
-<8-byte-int> ::= "J" int64
+<Signed-Int> ::= <signed-int5> | <signed-int8> | <signed-int16> | <signed-int32> | <signed-int64>
+<signed-int5>  ::= 0xC0
+<signed-int8>  ::= "i" int8
+<signed-int16> ::= "I" int16
+<signed-int32> ::= "j" int32
+<signed-int64> ::= "J" int64
 ```
 * The tiny int can be identified with the bitmask 0xC0.  The value
-is the signed lowest order 5 bits.  The value range for a tiny int
+is the 5 signed low order bits.  The value range for a tiny int
 is -16 to 15.
 
 #### String
+Strings require a type indicator and a length in addition to the UTF8
+encoded string.  If the string is small enough, a single byte can be
+used as the type indicator as well as its length.  Larger strings
+require additional bytes for the length.
 ```
-<String> ::= <tiny-string> | <small-string> | <med-string> | <large-string>
-<tiny-string>  ::= 0xE0 UTF8
-<small-string> ::= "s" uint8 UTF8
-<med-string>   ::= "S" uint16 UTF8
-<large-string> ::= "t" int32 UTF8
+<String> ::= <str5> | <str8> | <str16> | <str32>
+<str5>  ::= 0xE0 UTF8
+<str8>  ::= "s" uint8 UTF8
+<str16> ::= "S" uint16 UTF8
+<str32> ::= "t" int32 UTF8
 ```
-* The tiny string can be identified with the bitmask 0xE0.  The length
-of the string is the unsigned lowest order 5 bits.  The max length of
-a tiny string is 31 bytes.
-* The large string length must be a positive signed int
+* The str5 can be identified with the bitmask 0xE0.  The length of the
+string is the 5 unsigned low order bits.  The max length of a str5 is
+31 bytes.
+* The str32 length must be a positive signed int.
 
 #### Unsigned Integers
+Uses 1 to 5 bytes, depending on the value.
 ```
-<Unsigned-Int> ::= <uint5> | <uint8> | <uint16> | <uint32>
-<uint5>  ::= 0x80
-<uint8>  ::= "i" uint8
-<uint16> ::= "I" uint16
-<uint32> ::= "j" uint32
+<Unsigned-Int> ::= <unsigned-int5> | <unsigned-int8> | <unsigned-int16> | <unsigned-int32>
+<unsigned-int5>  ::= 0x80
+<unsigned-int8>  ::= "i" uint8
+<unsigned-int16> ::= "I" uint16
+<unsigned-int32> ::= "j" uint32
 ```
 * The uint5 can be identified with the bitmask 0x80.  The value is the
-unsigned lowest order 5 bits.  The max value of a tiny uint is 31.
+5 unsigned low order bits.  The max value of a tiny uint is 31.
 
 #### Binary (byte array)
+Requires 2 to 5 bytes in addition to the byte array.
 ```
 <Binary> ::= <bin8> | <bin16> | <bin32>
 <bin8>   ::= "b" uint8-length bytes
 <bin16>  ::= "I" uint16-length bytes
 <bin32>  ::= "j" int32-length bytes
 ```
+* The bin32 length must be a positive signed int.
 
 #### Big Integer
+An integer so large has to be encoded as a string.
 ```
 <Big-Integer> ::= <bigint8> | <bigint16> | <bigint32>
 <bigint>   ::= "n" uint8-length UTF8
 <bigint16> ::= "N" uint16-length UTF8
-<bigint32> ::= "o" int16-length UTF8
+<bigint32> ::= "o" int32-length UTF8
 ```
-* The string format is the same as java.math.BigInteger string
-constructor and toString method.
+* The bigint32 length must be a positive signed int.
 * "The String representation consists of an optional minus sign
 followed by a sequence of one or more decimal digits. The String may
 not contain any extraneous characters (whitespace, for example)."
 
 #### Big Decimal
+An decimal so large it has to be encoded as a string.
 ```
 <Big-Decimal> ::= <decimal8> | <decimal16> | <decimal32>
 <decimal8>  ::= "g" uint8-length UTF8
 <decimal16> ::= "G" uint16-length UTF8
-<decimal32> ::= "h" int16-length UTF8
+<decimal32> ::= "h" int32-length UTF8
 ```
-* The string format is the same as java.math.BigDecimal string
-constructor and toString method.
+* The decimal32 length must be a positive signed int.
 * "The string representation consists of an optional sign, '+'
 ( '\u002B') or '-' ('\u002D'), followed by a sequence of zero or more
 decimal digits ("the integer"), optionally followed by a fraction,
@@ -286,7 +297,7 @@ public void encode(Aobj map) throws IOException {
 }
 ```
 
-Streaming io is supported as well.  The following two methods produce the same result.
+Streaming IO is supported as well.  The following two methods produce the same result.
 
 ```java
 import com.comfortanalytics.aon.*;
