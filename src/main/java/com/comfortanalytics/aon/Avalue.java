@@ -1,6 +1,7 @@
 package com.comfortanalytics.aon;
 
 import com.comfortanalytics.aon.json.JsonAppender;
+import java.io.Closeable;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 
@@ -15,12 +16,16 @@ import java.math.BigInteger;
  *
  * @author Aaron Hansen
  */
-public abstract class Avalue {
+public abstract class Avalue implements Cloneable {
 
     /**
      * For switch statements.
      */
     public abstract Atype aonType();
+
+    public Avalue clone() {
+        return copy();
+    }
 
     /**
      * If an object is mutable (list or map) then this should clone it,
@@ -243,10 +248,11 @@ public abstract class Avalue {
     }
 
     /**
-     * Appends the JSON encoding to the given buffer.
+     * Appends the JSON encoding to the given buffer and returns the buffer.
      */
-    public void toString(Appendable buf) {
+    public Appendable toString(Appendable buf) {
         new JsonAppender(buf).value(this);
+        return buf;
     }
 
 

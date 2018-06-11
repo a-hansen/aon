@@ -1,7 +1,5 @@
 package com.comfortanalytics.aon.io;
 
-import java.nio.charset.Charset;
-
 /**
  * @author Aaron Hansen
  */
@@ -34,7 +32,6 @@ public interface AonConstants {
     char LIST_START = '[';
     char LIST_END = ']';
 
-    int MAX_I5 = 0x0F;
     int MAX_I8 = Byte.MAX_VALUE;
     int MAX_I16 = Short.MAX_VALUE;
     int MAX_I32 = Integer.MAX_VALUE;

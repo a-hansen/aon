@@ -181,6 +181,14 @@ public class AonReader extends AbstractReader implements AonConstants {
         return (short) (((in.read() & 0xFF) << 8) | in.read());
     }
 
+    private String readString(int len) throws IOException {
+        byte[] buf = getBuffer(len);
+        if (in.read(buf, 0, len) != len) {
+            throw new IOException("Unexpected end of stream");
+        }
+        return new String(buf, 0, len);
+    }
+
     private static int readU16(InputStream in) throws IOException {
         return ((in.read() & 0xFF) << 8) | in.read();
     }
@@ -194,14 +202,6 @@ public class AonReader extends AbstractReader implements AonConstants {
 
     private static int readU8(InputStream in) throws IOException {
         return in.read() & 0xFF;
-    }
-
-    private String readString(int len) throws IOException {
-        byte[] buf = getBuffer(len);
-        if (in.read(buf, 0, len) != len) {
-            throw new IOException("Unexpected end of stream");
-        }
-        return new String(buf, 0, len);
     }
 
 }

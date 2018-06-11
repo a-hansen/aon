@@ -11,11 +11,11 @@ Overview
 
 Aon is another object notation like JSON but is more compact, has
 more data types, and preserves the order of object members.  To be
-stream friendly Aon doesn't encode object or list lengths.
+stream friendly, Aon doesn't encode object or list lengths.
 
 #### Compact
-Borrows techniques from MsgPack and UBJSON to create a hybrid binary
-encoding.
+Uses techniques from MsgPack and UBJSON to create a hybrid binary
+encoding that is almost readable.
 
 #### More Data Types
 Big decimal, big integer, binary, boolean, double, float, list, long,
@@ -25,8 +25,8 @@ null, object, string and many flavors of signed and unsigned integers.
 Order matters when displaying object members on user interfaces such
 as property sheets.
 
-Comparing to Formats
---------------------
+Comparing Formats
+-----------------
 
 **JSON** (42 bytes)
 ```
@@ -252,13 +252,13 @@ import com.comfortanalytics.aon.*;
 import com.comfortanalytics.aon.io.*;
 
 public Aobj decode() throws IOException {
-    try (AonReader reader = new AonReader(new File("data.aon"))) {
+    try (AonReader reader = Aon.readAon(new File("data.aon"))) {
         return reader.getObj();
     }
 }
 
 public void encode(Aobj map) throws IOException {
-    new AonWriter(new File("data.aon")).value(map).close();
+    Aon.writeAon(new File("data.aon")).value(map).close();
 }
 ```
 
@@ -269,13 +269,13 @@ import com.comfortanalytics.aon.*;
 import com.comfortanalytics.aon.json.*;
 
 public Aobj decode() throws IOException {
-    try (JsonReader reader = new JsonReader(new File("data.json"))) {
+    try (JsonReader reader = Aon.readJson(new File("data.json"))) {
         return reader.getObj();
     }
 }
 
 public void encode(Aobj map) throws IOException {
-    new JsonWriter(new File("data.json")).value(map).close();
+    Aon.writeJson(new File("data.json")).value(map).close();
 }
 ```
 

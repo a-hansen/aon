@@ -32,6 +32,8 @@ import java.math.BigInteger;
  */
 public interface Areader extends Closeable {
 
+    public void close();
+
     /**
      * Returns the value when last() == DECIMAL.
      */

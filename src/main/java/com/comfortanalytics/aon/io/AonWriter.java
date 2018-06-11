@@ -2,8 +2,6 @@ package com.comfortanalytics.aon.io;
 
 import com.comfortanalytics.aon.AbstractWriter;
 import com.comfortanalytics.aon.Aon;
-import com.comfortanalytics.aon.Awriter;
-import com.sun.xml.internal.ws.policy.privateutil.PolicyUtils.IO;
 import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
@@ -125,7 +123,8 @@ public class AonWriter extends AbstractWriter implements AonConstants {
         } else {
             if (arg <= MAX_U5) {
                 write(U5 | arg);
-            } if (arg <= MAX_I8) {
+            }
+            if (arg <= MAX_I8) {
                 write1Byte(I8, arg);
             } else if (arg <= MAX_U8) {
                 write1Byte(U8, arg);

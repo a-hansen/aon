@@ -1,6 +1,7 @@
 package com.comfortanalytics.aon;
 
 import com.comfortanalytics.aon.Aobj.Member;
+import java.io.Closeable;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.util.HashMap;
@@ -227,17 +228,6 @@ public class Aobj extends Agroup implements Iterable<Member> {
         return o.toString();
     }
 
-    /**
-     * Returns true if the key isn't in the entryMap, or it's value is null.
-     */
-    public boolean isNull(String key) {
-        Avalue o = get(key);
-        if (o == null) {
-            return true;
-        }
-        return o.aonType() == Atype.NULL;
-    }
-
     @Override
     public int hashCode() {
         int hashCode = 1;
@@ -247,6 +237,17 @@ public class Aobj extends Agroup implements Iterable<Member> {
             e = e.next();
         }
         return hashCode;
+    }
+
+    /**
+     * Returns true if the key isn't in the entryMap, or it's value is null.
+     */
+    public boolean isNull(String key) {
+        Avalue o = get(key);
+        if (o == null) {
+            return true;
+        }
+        return o.aonType() == Atype.NULL;
     }
 
     /**
@@ -260,8 +261,8 @@ public class Aobj extends Agroup implements Iterable<Member> {
     @Override
     public Iterator<Member> iterator() {
         return new Iterator<Member>() {
-            private Member prev;
             private Member next = getFirst();
+            private Member prev;
 
             @Override
             public boolean hasNext() {

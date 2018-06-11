@@ -11,7 +11,7 @@ import java.io.Reader;
 import java.nio.charset.Charset;
 
 /**
- * Static convenience methods.
+ * Static conveniences.
  *
  * @author Aaron Hansen
  */
@@ -26,6 +26,39 @@ public class Aon {
     ///////////////////////////////////////////////////////////////////////////
     // Public Methods
     ///////////////////////////////////////////////////////////////////////////
+
+    public Avalue decodeAon(File in) {
+        Areader reader = readAon(in);
+        Avalue ret = reader.getValue();
+        reader.close();
+        return ret;
+    }
+
+    public Avalue decodeAon(InputStream in) {
+        Areader reader = readAon(in);
+        Avalue ret = reader.getValue();
+        reader.close();
+        return ret;
+    }
+
+    public void encodeAon(Agroup val, File out) {
+        Awriter writer = writeAon(out);
+        writer.value(val);
+        writer.close();
+    }
+
+    /**
+     * @param val What to encode.
+     * @param out Where to encode it.
+     * @param close Whether or not to close the stream.
+     */
+    public void encodeAon(Agroup val, OutputStream out, boolean close) {
+        Awriter writer = writeAon(out);
+        writer.value(val);
+        if (close) {
+            writer.close();
+        }
+    }
 
     public AonReader readAon(File in) {
         return new AonReader(in);

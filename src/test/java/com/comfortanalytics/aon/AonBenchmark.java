@@ -203,7 +203,8 @@ public class AonBenchmark {
 
         @Benchmark
         public void Genson() {
-            genson.deserialize(new InputStreamReader(new ByteArrayInputStream(jsonLarge)), Map.class);
+            genson.deserialize(new InputStreamReader(new ByteArrayInputStream(jsonLarge)),
+                               Map.class);
         }
 
         @Benchmark
@@ -259,7 +260,8 @@ public class AonBenchmark {
 
         @Benchmark
         public void Genson() {
-            genson.deserialize(new InputStreamReader(new ByteArrayInputStream(jsonSmall)), Map.class);
+            genson.deserialize(new InputStreamReader(new ByteArrayInputStream(jsonSmall)),
+                               Map.class);
         }
 
         @Benchmark
