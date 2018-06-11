@@ -19,7 +19,6 @@ dependencies {
     testCompile 'com.googlecode.json-simple:json-simple:+'
     testCompile 'com.owlike:genson:+'
     testCompile 'net.sf.flexjson:flexjson:+'
-    testCompile 'org.javassist:javassist:+'
     testCompile 'org.openjdk.jmh:jmh-core:+'
     testCompile 'org.openjdk.jmh:jmh-generator-annprocess:+'
     testCompile 'junit:junit:+'
