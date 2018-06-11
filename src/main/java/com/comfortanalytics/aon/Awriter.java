@@ -1,6 +1,7 @@
 package com.comfortanalytics.aon;
 
 import java.io.Closeable;
+import java.io.Flushable;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 
@@ -21,7 +22,7 @@ import java.math.BigInteger;
  *
  * @author Aaron Hansen
  */
-public interface Awriter extends Closeable {
+public interface Awriter extends Closeable, Flushable {
 
     /**
      * Start a new list and return this.
@@ -59,7 +60,7 @@ public interface Awriter extends Closeable {
     /**
      * Flush the stream. IOExceptions will be wrapped in runtime exceptions.
      */
-    public Awriter flush();
+    public void flush();
 
     /**
      * Write a key in the current map.  Cannot be called in a list, must be followed

@@ -1,5 +1,6 @@
 package com.comfortanalytics.aon.json;
 
+import com.comfortanalytics.aon.Aon;
 import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -26,7 +27,6 @@ public class JsonWriter extends AbstractJsonWriter {
     ///////////////////////////////////////////////////////////////////////////
 
     private static final int BUF_SIZE = 512;
-    private static Charset UTF8 = Charset.forName("UTF-8");
 
     ///////////////////////////////////////////////////////////////////////////
     // Instance Fields
@@ -41,7 +41,7 @@ public class JsonWriter extends AbstractJsonWriter {
     ///////////////////////////////////////////////////////////////////////////
 
     public JsonWriter(File file) {
-        this(fos(file), UTF8);
+        this(fos(file), Aon.UTF8);
     }
 
     public JsonWriter(File file, Charset charset) {
@@ -49,7 +49,7 @@ public class JsonWriter extends AbstractJsonWriter {
     }
 
     public JsonWriter(OutputStream out) {
-        this(new OutputStreamWriter(out, UTF8));
+        this(new OutputStreamWriter(out, Aon.UTF8));
     }
 
     public JsonWriter(OutputStream out, Charset charset) {
@@ -149,7 +149,7 @@ public class JsonWriter extends AbstractJsonWriter {
     }
 
     @Override
-    public JsonWriter flush() {
+    public void flush() {
         try {
             if (buflen > 0) {
                 out.write(buf, 0, buflen);
@@ -158,7 +158,6 @@ public class JsonWriter extends AbstractJsonWriter {
         } catch (IOException x) {
             throw new RuntimeException(x);
         }
-        return this;
     }
 
     @Override

@@ -62,6 +62,4 @@ public interface AonConstants {
     char U16 = 'U';
     char U32 = 'v';
 
-    Charset UTF8 = Charset.forName("UTF-8");
-
 }

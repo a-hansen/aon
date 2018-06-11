@@ -4,6 +4,7 @@ import com.comfortanalytics.aon.AbstractReader;
 import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.math.BigDecimal;
@@ -27,8 +28,8 @@ public class AonReader extends AbstractReader implements AonConstants {
     // Constructors
     ///////////////////////////////////////////////////////////////////////////
 
-    public AonReader(File file) throws IOException {
-        this.in = new BufferedInputStream(new FileInputStream(file));
+    public AonReader(File file) {
+        this.in = new BufferedInputStream(fis(file));
     }
 
     public AonReader(InputStream in) {
@@ -134,6 +135,14 @@ public class AonReader extends AbstractReader implements AonConstants {
     ///////////////////////////////////////////////////////////////////////////
     // Package / Private Methods
     ///////////////////////////////////////////////////////////////////////////
+
+    private static InputStream fis(File file) {
+        try {
+            return new FileInputStream(file);
+        } catch (FileNotFoundException x) {
+            throw new RuntimeException(x);
+        }
+    }
 
     private byte[] getBuffer(int len) {
         if ((buffer == null) || (buffer.length < len)) {

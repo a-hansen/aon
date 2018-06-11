@@ -1,7 +1,9 @@
 package com.comfortanalytics.aon.io;
 
 import com.comfortanalytics.aon.AbstractWriter;
+import com.comfortanalytics.aon.Aon;
 import com.comfortanalytics.aon.Awriter;
+import com.sun.xml.internal.ws.policy.privateutil.PolicyUtils.IO;
 import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
@@ -27,8 +29,8 @@ public class AonWriter extends AbstractWriter implements AonConstants {
     // Constructors
     ///////////////////////////////////////////////////////////////////////////
 
-    public AonWriter(File file) throws IOException {
-        this.out = new BufferedOutputStream(new FileOutputStream(file));
+    public AonWriter(File file) {
+        this.out = new BufferedOutputStream(fos(file));
     }
 
     public AonWriter(OutputStream out) {
@@ -49,13 +51,12 @@ public class AonWriter extends AbstractWriter implements AonConstants {
     }
 
     @Override
-    public Awriter flush() {
+    public void flush() {
         try {
             out.flush();
         } catch (Exception x) {
             throw new RuntimeException(x);
         }
-        return this;
     }
 
     ///////////////////////////////////////////////////////////////////////////
@@ -64,7 +65,7 @@ public class AonWriter extends AbstractWriter implements AonConstants {
 
     @Override
     protected void write(BigDecimal arg) throws IOException {
-        byte[] b = arg.toString().getBytes(UTF8);
+        byte[] b = arg.toString().getBytes(Aon.UTF8);
         int len = b.length;
         if (len <= MAX_U8) {
             write1Byte(DEC8, len);
@@ -78,7 +79,7 @@ public class AonWriter extends AbstractWriter implements AonConstants {
 
     @Override
     protected void write(BigInteger arg) throws IOException {
-        byte[] b = arg.toString().getBytes(UTF8);
+        byte[] b = arg.toString().getBytes(Aon.UTF8);
         int len = b.length;
         if (len <= MAX_U8) {
             write1Byte(BIGINT8, len);
@@ -189,7 +190,7 @@ public class AonWriter extends AbstractWriter implements AonConstants {
 
     @Override
     protected void writeValue(CharSequence arg) throws IOException {
-        byte[] b = arg.toString().getBytes(UTF8);
+        byte[] b = arg.toString().getBytes(Aon.UTF8);
         int len = b.length;
         if (len <= MAX_U8) {
             write1Byte(S8, len);
@@ -204,6 +205,14 @@ public class AonWriter extends AbstractWriter implements AonConstants {
     ///////////////////////////////////////////////////////////////////////////
     // Package / Private Methods
     ///////////////////////////////////////////////////////////////////////////
+
+    private static FileOutputStream fos(File file) {
+        try {
+            return new FileOutputStream(file);
+        } catch (IOException x) {
+            throw new RuntimeException(x);
+        }
+    }
 
     private void write1Byte(int b, int v) throws IOException {
         out.write(b & 0xff);

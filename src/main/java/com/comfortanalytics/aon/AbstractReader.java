@@ -1,5 +1,7 @@
 package com.comfortanalytics.aon;
 
+import java.io.Closeable;
+import java.io.Flushable;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 

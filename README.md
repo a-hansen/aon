@@ -25,27 +25,8 @@ null, object, string and many flavors of signed and unsigned integers.
 Order matters when displaying object members on user interfaces such
 as property sheets.
 
-Comparisons to Other Formats
-----------------------------
-
-Aon is like JSON, except:
-
-* Aon is more compact.
-* Aon has data types.
-* Aon preserves object member order.
-
-Aon was influenced by [MsgPack](http://msgpack.org) compaction, except:
-
-* Aon is streaming IO friendly; lists and objects do not encode their
-size.
-* Aon only has data types that can be supported by Java (no UINT64 or
-unsigned 32 bit lengths for datatypes that are backed by arrays).
-* Aon preserves object member order.
-
-Aon uses many [UBJSON](http://ubjson.org) concepts as well, except:
-
-* Aon is more compact.
-* Aon preserves object member order.
+Comparing to Formats
+--------------------
 
 **JSON** (42 bytes)
 ```
@@ -95,35 +76,35 @@ An array of values surrounded by brackets.
 * There can be 0 or more values in a list.
 
 #### Boolean
-Booleans require only a single byte.
+A single byte the letter 'T' for true, or 'F' for false.
 ```
 <Boolean> ::= "T" | "F"
 ```
-* T = true
-* F = false
 
 #### Double
-Requires 9 bytes, the letter 'D' followed by 8 bytes.
+Requires 9 bytes, the letter 'D' followed by the IEEE 754
+floating-point "double format" bit layout (64 bits).
 ```
 <Double> ::= "D" byte[8]
 ```
-* IEEE 754 floating-point "double format" bit layout (64 bits).
 
 #### Float
-Requires 5 bytes, the letter 'd' followed by 4 bytes.
+Requires 5 bytes, the letter 'd' followed by the IEEE 754
+floating-point "single format" bit layout (32 bits).
 ```
 <Float> ::= "d" byte[4]
 ```
-* IEEE 754 floating-point "single format" bit layout (32 bits).
 
 #### Null
-Requires a single byte, the letter 'Z'.
+A single byte, the letter 'Z'.
 ```
 <Null> ::= "Z"
 ```
 
 #### Signed Integer
-Uses 1 to 5 bytes, depending on the value.
+Uses 1 to 5 bytes.  All signed ints start with a type byte that
+describes the value.  If the value is small enough, a single byte can
+be used for both the type and the value.
 ```
 <Signed-Int> ::= <signed-int5> | <signed-int8> | <signed-int16> | <signed-int32> | <signed-int64>
 <signed-int5>  ::= 0xC0
@@ -132,35 +113,38 @@ Uses 1 to 5 bytes, depending on the value.
 <signed-int32> ::= "j" int32
 <signed-int64> ::= "J" int64
 ```
-* The tiny int can be identified with the bitmask 0xC0.  The value
+* The signed-int5 can be identified with the bitmask 0xC0.  The value
 is the 5 signed low order bits.  The value range for a tiny int
 is -16 to 15.
 
 #### String
-Strings require a type indicator and a length in addition to the UTF8
-encoded string.  If the string is small enough, a single byte can be
-used as the type indicator as well as its length.  Larger strings
+Strings require a type byte, a length, and a UTF8 encoded
+string. If the string is small enough, a single byte can be
+used for both the type and the length.  Larger strings
 require additional bytes for the length.
 ```
 <String> ::= <str5> | <str8> | <str16> | <str32>
 <str5>  ::= 0xE0 UTF8
-<str8>  ::= "s" uint8 UTF8
-<str16> ::= "S" uint16 UTF8
-<str32> ::= "t" int32 UTF8
+<str8>  ::= "s" uint8-length UTF8
+<str16> ::= "S" uint16-length UTF8
+<str32> ::= "r" int32-length UTF8
 ```
 * The str5 can be identified with the bitmask 0xE0.  The length of the
 string is the 5 unsigned low order bits.  The max length of a str5 is
 31 bytes.
+* The length can be 0 for an empty string.
 * The str32 length must be a positive signed int.
 
 #### Unsigned Integers
-Uses 1 to 5 bytes, depending on the value.
+Uses 1 to 5 bytes.  All unsigned ints start with a type byte that
+describes the value.  If the value is small enough, a single byte can
+be used for both the type and the value.
 ```
 <Unsigned-Int> ::= <unsigned-int5> | <unsigned-int8> | <unsigned-int16> | <unsigned-int32>
 <unsigned-int5>  ::= 0x80
-<unsigned-int8>  ::= "i" uint8
-<unsigned-int16> ::= "I" uint16
-<unsigned-int32> ::= "j" uint32
+<unsigned-int8>  ::= "u" uint8
+<unsigned-int16> ::= "U" uint16
+<unsigned-int32> ::= "v" uint32
 ```
 * The uint5 can be identified with the bitmask 0x80.  The value is the
 5 unsigned low order bits.  The max value of a tiny uint is 31.
@@ -170,13 +154,13 @@ Requires 2 to 5 bytes in addition to the byte array.
 ```
 <Binary> ::= <bin8> | <bin16> | <bin32>
 <bin8>   ::= "b" uint8-length bytes
-<bin16>  ::= "I" uint16-length bytes
-<bin32>  ::= "j" int32-length bytes
+<bin16>  ::= "B" uint16-length bytes
+<bin32>  ::= "c" int32-length bytes
 ```
 * The bin32 length must be a positive signed int.
 
 #### Big Integer
-An integer so large has to be encoded as a string.
+An integer so large it has to be encoded as a string.
 ```
 <Big-Integer> ::= <bigint8> | <bigint16> | <bigint32>
 <bigint>   ::= "n" uint8-length UTF8
@@ -184,9 +168,9 @@ An integer so large has to be encoded as a string.
 <bigint32> ::= "o" int32-length UTF8
 ```
 * The bigint32 length must be a positive signed int.
-* "The String representation consists of an optional minus sign
-followed by a sequence of one or more decimal digits. The String may
-not contain any extraneous characters (whitespace, for example)."
+* The String should consist of an optional minus sign followed by a
+sequence of one or more digits.  It should not contain any any
+extraneous characters such as whitespace.
 
 #### Big Decimal
 An decimal so large it has to be encoded as a string.
@@ -197,15 +181,13 @@ An decimal so large it has to be encoded as a string.
 <decimal32> ::= "h" int32-length UTF8
 ```
 * The decimal32 length must be a positive signed int.
-* "The string representation consists of an optional sign, '+'
-( '\u002B') or '-' ('\u002D'), followed by a sequence of zero or more
-decimal digits ("the integer"), optionally followed by a fraction,
-optionally followed by an exponent. The fraction consists of a decimal
-point followed by zero or more decimal digits. The string must contain
-at least one digit in either the integer or the fraction. The number
-formed by the sign, the integer and the fraction is referred to as the
-significand. The exponent consists of the character 'e' ('\u0065') or
-'E' ('\u0045') followed by one or more decimal digits."
+* The string should consist of an optional sign, '+' or '-',
+followed by a sequence of zero or more digits ("the integer"),
+optionally followed by a fraction, optionally followed by an exponent.
+The fraction consists of a decimal point followed by zero or more
+digits. The string must contain at least one digit in either the
+integer or the fraction. The exponent consists of the character 'e'
+or 'E' followed by one or more digits.
 
 Endianness
 ----------
@@ -318,10 +300,10 @@ public void streaming(Awriter out) {
 Benchmark
 ---------
 
-There is a benchmark that compares native Aon encoding with Aon-JSON
-as well as many other JSON libs.  The benchmark uses JMH and takes
-10-15 minutes.  At the end of the benchmark are some Aon vs JSON
-document size comparisions.
+There is a benchmark in the test classes that compares native Aon
+encoding with Aon-JSON as well as many other JSON libs.  The benchmark
+uses JMH and takes 10-15 minutes.  At the end of the benchmark are some
+Aon vs JSON document size comparisions.
 
 Example benchmark results:
 

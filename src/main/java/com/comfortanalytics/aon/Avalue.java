@@ -1,5 +1,6 @@
 package com.comfortanalytics.aon;
 
+import com.comfortanalytics.aon.json.JsonAppender;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 
@@ -239,6 +240,13 @@ public abstract class Avalue {
      */
     public Aobj toObj() {
         throw new ClassCastException(getClass().getName() + " not map");
+    }
+
+    /**
+     * Appends the JSON encoding to the given buffer.
+     */
+    public void toString(Appendable buf) {
+        new JsonAppender(buf).value(this);
     }
 
 

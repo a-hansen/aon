@@ -1,16 +1,8 @@
 package com.comfortanalytics.aon.json;
 
-import java.io.BufferedOutputStream;
 import java.io.Closeable;
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.FileWriter;
 import java.io.Flushable;
 import java.io.IOException;
-import java.io.OutputStream;
-import java.io.OutputStreamWriter;
-import java.util.zip.ZipEntry;
-import java.util.zip.ZipOutputStream;
 
 /**
  * Json implementation of Awriter intended for Appendables such as StringBuilders.
@@ -20,7 +12,7 @@ import java.util.zip.ZipOutputStream;
  *
  * @author Aaron Hansen
  */
-public class JsonAppender extends AbstractJsonWriter {
+public class JsonAppender extends AbstractJsonWriter implements Appendable {
 
     ///////////////////////////////////////////////////////////////////////////
     // Class Fields
@@ -129,7 +121,7 @@ public class JsonAppender extends AbstractJsonWriter {
     }
 
     @Override
-    public JsonAppender flush() {
+    public void flush() {
         try {
             if (buf.length() > 0) {
                 out.append(buf);
@@ -141,7 +133,6 @@ public class JsonAppender extends AbstractJsonWriter {
         } catch (IOException x) {
             throw new RuntimeException(x);
         }
-        return this;
     }
 
     @Override

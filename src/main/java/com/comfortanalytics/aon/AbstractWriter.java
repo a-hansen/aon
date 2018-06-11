@@ -2,6 +2,7 @@ package com.comfortanalytics.aon;
 
 import com.comfortanalytics.aon.Aobj.Member;
 import java.io.Closeable;
+import java.io.Flushable;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.math.BigInteger;
@@ -12,7 +13,7 @@ import java.math.BigInteger;
  *
  * @author Aaron Hansen
  */
-public abstract class AbstractWriter implements Closeable, Awriter {
+public abstract class AbstractWriter implements Awriter {
 
     ///////////////////////////////////////////////////////////////////////////
     // Class Fields

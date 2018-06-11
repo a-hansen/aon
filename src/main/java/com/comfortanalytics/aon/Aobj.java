@@ -262,16 +262,19 @@ public class Aobj extends Agroup implements Iterable<Member> {
         return new Iterator<Member>() {
             private Member prev;
             private Member next = getFirst();
+
             @Override
             public boolean hasNext() {
                 return next != null;
             }
+
             @Override
             public Member next() {
                 prev = next;
                 next = next.next();
                 return prev;
             }
+
             @Override
             public void remove() {
                 Aobj.this.remove(prev.key);
@@ -501,14 +504,14 @@ public class Aobj extends Agroup implements Iterable<Member> {
             if (obj == this) {
                 return true;
             }
-            if (!(obj instanceof Member)) {
-                return false;
+            if (obj instanceof Member) {
+                Member e = (Member) obj;
+                if (!e.getKey().equals(key)) {
+                    return false;
+                }
+                return e.getValue().equals(val);
             }
-            Member e = (Member) obj;
-            if (!e.getKey().equals(key)) {
-                return false;
-            }
-            return e.getValue().equals(val);
+            return false;
         }
 
         public String getKey() {
