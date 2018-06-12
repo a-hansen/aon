@@ -1,12 +1,10 @@
 package com.comfortanalytics.aon;
 
-import com.comfortanalytics.aon.io.AonConstants;
 import java.io.ByteArrayOutputStream;
 import java.util.Arrays;
 
 /**
- * Thread-safe Base64 encoder and decoder.  This only exists because to be compatible with
- * Java 6 and to avoid a dependency.
+ * Base64 encoder and decoder.
  */
 class AonBase64 {
 
@@ -41,7 +39,7 @@ class AonBase64 {
     public static byte[] decode(String str) {
         byte[] src = null;
         try {
-            src = str.getBytes(AonConstants.UTF8);
+            src = str.getBytes(Aon.UTF8);
         } catch (Exception willNotHappen) {
             throw new RuntimeException(willNotHappen);
         }

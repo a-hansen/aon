@@ -112,7 +112,7 @@ public class AonWriter extends AbstractWriter implements AonConstants {
     protected void write(int arg) throws IOException {
         if (arg < 0) {
             if (arg >= MIN_I5) {
-                write(0xD0 | (arg & 0x0F));
+                write((I5 | arg) & 0xFF);
             } else if (arg >= MIN_I8) {
                 write1Byte(I8, arg);
             } else if (arg >= MIN_I16) {

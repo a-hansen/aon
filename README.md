@@ -14,8 +14,9 @@ more data types, and preserves the order of object members.  To be
 stream friendly, Aon doesn't encode object or list lengths.
 
 #### Compact
-Uses techniques from MsgPack and UBJSON to create a hybrid binary
-encoding that is almost readable.
+Uses a hybrid binary encoding that is somewhat readable like
+[UBJSON](http://www.ubjson.org) and compact like
+[MsgPack](http://www.msgpack.org).
 
 #### More Data Types
 Big decimal, big integer, binary, boolean, double, float, list, long,
@@ -51,10 +52,24 @@ Comparing Formats
 Format
 ------
 
-The Aon format is represented here using a pseudo-BNF syntax.
+Aon uses a 1 byte indicator and two optional segments (length and data)
+for all types:
 
 ```
-<Document> ::= <Object> | <List>
+<Indicator> [Length] [Data]
+```
+
+* Indicator - A single byte ASCII character or a bitmask.  There are
+three bitmasks used for compaction; a small negative int (-32 to -1),
+a small positive int (0 - 31) and a small string (&lt;= 31 chars).
+* Length - An optional positive int specifying the length of the data.
+* Data - Bytes representing data such as 32 bit integers or UTF8
+strings.
+
+The subsequent Aon format is represented using a pseudo-BNF syntax.
+
+```
+<Aon> ::= <Object> | <List>
 <Value> :== <Object> | <List> | <Boolean> | <Double> | <Float> |
          <Null> | <Signed-Int> | <String> | <Unsigned-Int> |
          <Binary> | <Big-Integer> | <Big-Decimal>
@@ -103,8 +118,9 @@ A single byte, the letter 'Z'.
 
 #### Signed Integer
 Uses 1 to 5 bytes.  All signed ints start with a type byte that
-describes the value.  If the value is small enough, a single byte can
-be used for both the type and the value.
+describes the value.  If the value is -32 to -1, a single byte
+can be used for both the type and the value.  If the signed int
+is in the range 0 to 31, use unsigned-int5.
 ```
 <Signed-Int> ::= <signed-int5> | <signed-int8> | <signed-int16> | <signed-int32> | <signed-int64>
 <signed-int5>  ::= 0xC0
@@ -113,15 +129,16 @@ be used for both the type and the value.
 <signed-int32> ::= "j" int32
 <signed-int64> ::= "J" int64
 ```
-* The signed-int5 can be identified with the bitmask 0xC0.  The value
-is the 5 signed low order bits.  The value range for a tiny int
-is -16 to 15.
+* Signed-int5 can be identified with the bitmask 0xC0.  The value
+is stored in the 5 lowest order bits.  To encode, use
+((0xC0 | value) & 0xFF).  To decode into a signed 32 bit integer, use
+(value | 0xFFFFFFE0).
 
 #### String
-Strings require a type byte, a length, and a UTF8 encoded
-string. If the string is small enough, a single byte can be
-used for both the type and the length.  Larger strings
-require additional bytes for the length.
+Strings require a type byte, a length, and a UTF8 encoded string. If
+the length is 31 bytes or less, a single byte can be used for both the
+type and the length.  Larger strings require additional bytes for the
+length.
 ```
 <String> ::= <str5> | <str8> | <str16> | <str32>
 <str5>  ::= 0xE0 UTF8
@@ -129,15 +146,16 @@ require additional bytes for the length.
 <str16> ::= "S" uint16-length UTF8
 <str32> ::= "r" int32-length UTF8
 ```
-* The str5 can be identified with the bitmask 0xE0.  The length of the
-string is the 5 unsigned low order bits.  The max length of a str5 is
-31 bytes.
+* Str5 can be identified with the bitmask 0x80.  The value is
+stored in the 5 lowest order bits.  To write, use the equation:
+(0xE0 | value).  To read into a signed 32 bit integer, use the
+equation: (value & 0x1F).
 * The length can be 0 for an empty string.
 * The str32 length must be a positive signed int.
 
 #### Unsigned Integers
 Uses 1 to 5 bytes.  All unsigned ints start with a type byte that
-describes the value.  If the value is small enough, a single byte can
+describes the value.  If the value is 0 to 31, a single byte can
 be used for both the type and the value.
 ```
 <Unsigned-Int> ::= <unsigned-int5> | <unsigned-int8> | <unsigned-int16> | <unsigned-int32>
@@ -146,8 +164,10 @@ be used for both the type and the value.
 <unsigned-int16> ::= "U" uint16
 <unsigned-int32> ::= "v" uint32
 ```
-* The uint5 can be identified with the bitmask 0x80.  The value is the
-5 unsigned low order bits.  The max value of a tiny uint is 31.
+* Unsigned-int5 can be identified with the bitmask 0x80.  The value
+is stored in the 5 lowest order bits.  To write, use the equation:
+(0x80 | value).  To read into a signed 32 bit integer, use the
+equation: (value & 0x1F).
 
 #### Binary (byte array)
 Requires 2 to 5 bytes in addition to the byte array.
@@ -300,10 +320,10 @@ public void streaming(Awriter out) {
 Benchmark
 ---------
 
-There is a benchmark in the test classes that compares native Aon
-encoding with Aon-JSON as well as many other JSON libs.  The benchmark
-uses JMH and takes 10-15 minutes.  At the end of the benchmark are some
-Aon vs JSON document size comparisions.
+There is a benchmark test class that compares native Aon encoding with
+Aon-JSON as well as many other JSON libs.  The benchmark uses JMH and
+takes 10-15 minutes.  At the end of the benchmark are some Aon vs JSON
+document size comparisions.
 
 Example benchmark results:
 
