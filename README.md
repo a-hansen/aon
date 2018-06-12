@@ -267,13 +267,13 @@ import com.comfortanalytics.aon.*;
 import com.comfortanalytics.aon.io.*;
 
 public Aobj decode() throws IOException {
-    try (AonReader reader = Aon.readAon(new File("data.aon"))) {
+    try (AonReader reader = Aon.reader(new File("data.aon"))) {
         return reader.getObj();
     }
 }
 
 public void encode(Aobj map) throws IOException {
-    Aon.writeAon(new File("data.aon")).value(map).close();
+    Aon.writer(new File("data.aon")).value(map).close();
 }
 ```
 
@@ -284,13 +284,13 @@ import com.comfortanalytics.aon.*;
 import com.comfortanalytics.aon.json.*;
 
 public Aobj decode() throws IOException {
-    try (JsonReader reader = Aon.readJson(new File("data.json"))) {
+    try (JsonReader reader = Aon.jsonReader(new File("data.json"))) {
         return reader.getObj();
     }
 }
 
 public void encode(Aobj map) throws IOException {
-    Aon.writeJson(new File("data.json")).value(map).close();
+    Aon.jsonWriter(new File("data.json")).value(map).close();
 }
 ```
 

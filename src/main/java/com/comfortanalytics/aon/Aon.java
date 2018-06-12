@@ -28,100 +28,100 @@ public class Aon {
     ///////////////////////////////////////////////////////////////////////////
 
     public Avalue decodeAon(File in) {
-        Areader reader = readAon(in);
+        Areader reader = reader(in);
         Avalue ret = reader.getValue();
         reader.close();
         return ret;
     }
 
     public Avalue decodeAon(InputStream in) {
-        Areader reader = readAon(in);
+        Areader reader = reader(in);
         Avalue ret = reader.getValue();
         reader.close();
         return ret;
     }
 
     public void encodeAon(Agroup val, File out) {
-        Awriter writer = writeAon(out);
+        Awriter writer = writer(out);
         writer.value(val);
         writer.close();
     }
 
     /**
-     * @param val What to encode.
-     * @param out Where to encode it.
+     * @param val   What to encode.
+     * @param out   Where to encode it.
      * @param close Whether or not to close the stream.
      */
     public void encodeAon(Agroup val, OutputStream out, boolean close) {
-        Awriter writer = writeAon(out);
+        Awriter writer = writer(out);
         writer.value(val);
         if (close) {
             writer.close();
         }
     }
 
-    public AonReader readAon(File in) {
-        return new AonReader(in);
-    }
-
-    public AonReader readAon(InputStream in) {
-        return new AonReader(in);
-    }
-
     /**
      * Returns a reader for a UTF-8 encoded file.
      */
-    public JsonReader readJson(File in) {
+    public JsonReader jsonReader(File in) {
         return new JsonReader(in);
     }
 
-    public JsonReader readJson(File in, Charset charset) {
+    public JsonReader jsonReader(File in, Charset charset) {
         return new JsonReader(in, charset);
     }
 
     /**
      * Returns a reader for a UTF-8 encoded stream.
      */
-    public JsonReader readJson(InputStream in) {
+    public JsonReader jsonReader(InputStream in) {
         return new JsonReader(in);
     }
 
-    public JsonReader readJson(InputStream in, Charset charset) {
+    public JsonReader jsonReader(InputStream in, Charset charset) {
         return new JsonReader(in, charset);
     }
 
-    public JsonReader readJson(Reader in) {
+    public JsonReader jsonReader(Reader in) {
         return new JsonReader(in);
     }
 
-    public AonWriter writeAon(File out) {
-        return new AonWriter(out);
-    }
-
-    public AonWriter writeAon(OutputStream out) {
-        return new AonWriter(out);
-    }
-
     /**
      * Encodes in UTF-8.
      */
-    public JsonWriter writeJson(File out) {
+    public JsonWriter jsonWriter(File out) {
         return new JsonWriter(out);
     }
 
-    public JsonWriter writeJson(File out, Charset charset) {
+    public JsonWriter jsonWriter(File out, Charset charset) {
         return new JsonWriter(out);
     }
 
     /**
      * Encodes in UTF-8.
      */
-    public JsonWriter writeJson(OutputStream out) {
+    public JsonWriter jsonWriter(OutputStream out) {
         return new JsonWriter(out);
     }
 
-    public JsonWriter writeJson(OutputStream out, Charset charset) {
+    public JsonWriter jsonWriter(OutputStream out, Charset charset) {
         return new JsonWriter(out, charset);
+    }
+
+    public AonReader reader(File in) {
+        return new AonReader(in);
+    }
+
+    public AonReader reader(InputStream in) {
+        return new AonReader(in);
+    }
+
+    public AonWriter writer(File out) {
+        return new AonWriter(out);
+    }
+
+    public AonWriter writer(OutputStream out) {
+        return new AonWriter(out);
     }
 
 }
