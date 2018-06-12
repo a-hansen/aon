@@ -27,39 +27,6 @@ public class Aon {
     // Public Methods
     ///////////////////////////////////////////////////////////////////////////
 
-    public Avalue decodeAon(File in) {
-        Areader reader = reader(in);
-        Avalue ret = reader.getValue();
-        reader.close();
-        return ret;
-    }
-
-    public Avalue decodeAon(InputStream in) {
-        Areader reader = reader(in);
-        Avalue ret = reader.getValue();
-        reader.close();
-        return ret;
-    }
-
-    public void encodeAon(Agroup val, File out) {
-        Awriter writer = writer(out);
-        writer.value(val);
-        writer.close();
-    }
-
-    /**
-     * @param val   What to encode.
-     * @param out   Where to encode it.
-     * @param close Whether or not to close the stream.
-     */
-    public void encodeAon(Agroup val, OutputStream out, boolean close) {
-        Awriter writer = writer(out);
-        writer.value(val);
-        if (close) {
-            writer.close();
-        }
-    }
-
     /**
      * Returns a reader for a UTF-8 encoded file.
      */
@@ -108,12 +75,73 @@ public class Aon {
         return new JsonWriter(out, charset);
     }
 
+    public Avalue read(File in) {
+        Areader reader = null;
+        try {
+            reader = reader(in);
+            return reader.getValue();
+        } finally {
+            if (reader != null) {
+                reader.close();
+            }
+        }
+    }
+
+    /**
+     * Decodes the next value in the stream and optionally closes the stream.
+     *
+     * @param in    Where to read from.
+     * @param close Whether or not to close the input.
+     */
+    public Avalue read(InputStream in, boolean close) {
+        Areader reader = null;
+        try {
+            reader = reader(in);
+            return reader.getValue();
+        } finally {
+            if (close && (reader != null)) {
+                reader.close();
+            }
+        }
+    }
+
     public AonReader reader(File in) {
         return new AonReader(in);
     }
 
     public AonReader reader(InputStream in) {
         return new AonReader(in);
+    }
+
+    public void write(Agroup val, File out) {
+        Awriter writer = null;
+        try {
+            writer = writer(out);
+            writer.value(val);
+        } finally {
+            if (writer != null) {
+                writer.close();
+            }
+        }
+    }
+
+    /**
+     * Encodes the next value in the stream and optionally closes the stream.
+     *
+     * @param val   What to encode.
+     * @param out   Where to encode it.
+     * @param close Whether or not to close the stream.
+     */
+    public void write(Agroup val, OutputStream out, boolean close) {
+        AonWriter writer = null;
+        try {
+            writer = writer(out);
+            writer.value(val);
+        } finally {
+            if (close && (writer != null)) {
+                writer.close();
+            }
+        }
     }
 
     public AonWriter writer(File out) {

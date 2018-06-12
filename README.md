@@ -52,14 +52,14 @@ Comparing Formats
 Format
 ------
 
-Aon uses a 1 byte indicator and two optional segments (length and data)
+Aon uses a 1 byte indicator and two optional fields (length and data)
 for all types:
 
 ```
 <Indicator> [Length] [Data]
 ```
 
-* Indicator - A single byte ASCII character or a bitmask.  There are
+* Indicator - A single byte ASCII character or bitmask.  There are
 three bitmasks used for compaction; a small negative int (-32 to -1),
 a small positive int (0 - 31) and a small string (&lt;= 31 chars).
 * Length - An optional positive int specifying the length of the data.
@@ -69,7 +69,7 @@ strings.
 The subsequent Aon format is represented using a pseudo-BNF syntax.
 
 ```
-<Aon> ::= <Object> | <List>
+<Aon-Graph> ::= <Object> | <List>
 <Value> :== <Object> | <List> | <Boolean> | <Double> | <Float> |
          <Null> | <Signed-Int> | <String> | <Unsigned-Int> |
          <Binary> | <Big-Integer> | <Big-Decimal>
@@ -97,15 +97,15 @@ A single byte character, 'T' for true, or 'F' for false.
 ```
 
 #### Double
-Requires 9 bytes, the letter 'D' followed by the IEEE 754
-floating-point "double format" bit layout (64 bits).
+Requires 9 bytes, the letter 'D' followed by 8 bytes in the IEEE 754
+floating-point "double format" bit layout.
 ```
 <Double> ::= "D" byte[8]
 ```
 
 #### Float
-Requires 5 bytes, the letter 'd' followed by the IEEE 754
-floating-point "single format" bit layout (32 bits).
+Requires 5 bytes, the letter 'd' followed by 4 bytes in the IEEE 754
+floating-point "single format" bit layout.
 ```
 <Float> ::= "d" byte[4]
 ```
@@ -118,9 +118,9 @@ A single byte, the letter 'Z'.
 
 #### Signed Integer
 Uses 1 to 5 bytes.  All signed ints start with a type byte that
-describes the value.  If the value is -32 to -1, a single byte
-can be used for both the type and the value.  If the signed int
-is in the range 0 to 31, use unsigned-int5.
+describes the value.  If the value is small enough (-32 to -1), a
+single byte can be used for both the type and the value.  If the
+signed int is in the range 0 to 31, use unsigned-int5.
 ```
 <Signed-Int> ::= <signed-int5> | <signed-int8> | <signed-int16> | <signed-int32> | <signed-int64>
 <signed-int5>  ::= 0xC0
@@ -131,12 +131,13 @@ is in the range 0 to 31, use unsigned-int5.
 ```
 * Signed-int5 can be identified with the bitmask 0xC0.  The value
 is stored in the 5 lowest order bits.  To encode, use
-((0xC0 | value) & 0xFF).  To decode into a signed 32 bit integer, use
+((value | 0xC0) & 0xFF).  To decode into a signed 32 bit integer, use
 (value | 0xFFFFFFE0).
 
 #### String
 Strings require a type byte, a length, and a UTF8 encoded string. If
 the length is 31 bytes or less, a single byte can be used for both the
+type and the length.
 ```
 <String> ::= <str5> | <str8> | <str16> | <str32>
 <str5>  ::= 0xE0 UTF8
@@ -146,14 +147,14 @@ the length is 31 bytes or less, a single byte can be used for both the
 ```
 * Str5 can be identified with the bitmask 0x80.  The value is
 stored in the 5 lowest order bits.  To write, use the equation:
-(0xE0 | value).  To read, use the equation: (value & 0x1F).
+(value | 0xE0).  To read, use the equation: (value & 0x1F).
 * The length can be 0 for an empty string.
 * The str32 length must be a positive signed int.
 
 #### Unsigned Integers
 Uses 1 to 5 bytes.  All unsigned ints start with a type byte that
-describes the value.  If the value is 0 to 31, a single byte can
-be used for both the type and the value.
+describes the value.  If the value is small enough (0 to 31), a single
+byte can be used for both the type and the value.
 ```
 <Unsigned-Int> ::= <unsigned-int5> | <unsigned-int8> | <unsigned-int16> | <unsigned-int32>
 <unsigned-int5>  ::= 0x80
@@ -163,7 +164,7 @@ be used for both the type and the value.
 ```
 * Unsigned-int5 can be identified with the bitmask 0x80.  The value
 is stored in the 5 lowest order bits.  To write, use the equation:
-(0x80 | value).  To read, use the equation: (value & 0x1F).
+(value | 0x80).  To read, use the equation: (value & 0x1F).
 
 #### Binary (byte array)
 Requires 2 to 5 bytes in addition to the byte array.
@@ -270,10 +271,14 @@ public Aobj decode() throws IOException {
     try (AonReader reader = Aon.reader(new File("data.aon"))) {
         return reader.getObj();
     }
+
+    //or Aon.read(new File("data.aon"))
 }
 
-public void encode(Aobj map) throws IOException {
-    Aon.writer(new File("data.aon")).value(map).close();
+public void encode(Aobj obj) throws IOException {
+    Aon.writer(new File("data.aon")).value(obj).close();
+
+    //or Aon.write(obj, new File("data.aon"))
 }
 ```
 
@@ -299,16 +304,16 @@ Streaming IO is supported as well.  The following two methods produce the same r
 ```java
 import com.comfortanalytics.aon.*;
 
-public void notStreaming(Awriter out) {
-    out.value(new Aobj().put("a",1).put("b",2).put("c",3));
-}
-
 public void streaming(Awriter out) {
     out.beginObj()
             .key("a").value(1)
             .key("b").value(3)
             .key("c").value(3)
             .endObj();
+}
+
+public void notStreaming(Awriter out) {
+    out.value(new Aobj().put("a",1).put("b",2).put("c",3));
 }
 ```
 
@@ -381,7 +386,6 @@ _4.0.0_
   - Minor parenting fixes.
   
 _3.1.0_
-  - Added Jsoniter to the benchmark, wow fast!
   - Now compatible with jdk 1.5
   - Removed idea and findbugs from the gradle script.
   
