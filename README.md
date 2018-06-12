@@ -91,7 +91,7 @@ An array of values surrounded by brackets.
 * There can be 0 or more values in a list.
 
 #### Boolean
-A single byte the letter 'T' for true, or 'F' for false.
+A single byte character, 'T' for true, or 'F' for false.
 ```
 <Boolean> ::= "T" | "F"
 ```
@@ -137,8 +137,6 @@ is stored in the 5 lowest order bits.  To encode, use
 #### String
 Strings require a type byte, a length, and a UTF8 encoded string. If
 the length is 31 bytes or less, a single byte can be used for both the
-type and the length.  Larger strings require additional bytes for the
-length.
 ```
 <String> ::= <str5> | <str8> | <str16> | <str32>
 <str5>  ::= 0xE0 UTF8
@@ -148,8 +146,7 @@ length.
 ```
 * Str5 can be identified with the bitmask 0x80.  The value is
 stored in the 5 lowest order bits.  To write, use the equation:
-(0xE0 | value).  To read into a signed 32 bit integer, use the
-equation: (value & 0x1F).
+(0xE0 | value).  To read, use the equation: (value & 0x1F).
 * The length can be 0 for an empty string.
 * The str32 length must be a positive signed int.
 
@@ -166,8 +163,7 @@ be used for both the type and the value.
 ```
 * Unsigned-int5 can be identified with the bitmask 0x80.  The value
 is stored in the 5 lowest order bits.  To write, use the equation:
-(0x80 | value).  To read into a signed 32 bit integer, use the
-equation: (value & 0x1F).
+(0x80 | value).  To read, use the equation: (value & 0x1F).
 
 #### Binary (byte array)
 Requires 2 to 5 bytes in addition to the byte array.
@@ -213,7 +209,6 @@ Endianness
 ----------
 Big endian
 
-Java Library
 MIME Type
 ---------
 application/aon
@@ -252,7 +247,7 @@ public static void main(String[] args) {
             .add(100l)
             .add("abcdefghij\r\njklmnopqrs\u0000\u0001\u0002tuvwxyz\r\n")
             .addNull();
-    System.out.println("The int value in the list is " + list.get(2));
+    System.out.println("The int value in the list is " + list.get(4));
     Alist complex = new Alist();
     complex.addList()
            .add(1)
