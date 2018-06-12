@@ -1,7 +1,6 @@
 package com.comfortanalytics.aon;
 
 import com.comfortanalytics.aon.Aobj.Member;
-import java.io.Closeable;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.util.HashMap;
@@ -19,7 +18,7 @@ public class Aobj extends Agroup implements Iterable<Member> {
     // Instance Fields
     ///////////////////////////////////////////////////////////////////////////
 
-    private Map<String, Member> entryMap = new HashMap<String, Member>();
+    private Map<String, Member> map = new HashMap<String, Member>();
     private Member first;
     private Member last;
 
@@ -36,7 +35,7 @@ public class Aobj extends Agroup implements Iterable<Member> {
     public Aobj clear() {
         first = null;
         last = null;
-        entryMap.clear();
+        map.clear();
         return this;
     }
 
@@ -73,7 +72,7 @@ public class Aobj extends Agroup implements Iterable<Member> {
      * Returns the value for the given key or null.
      */
     public Avalue get(String key) {
-        Member e = entryMap.get(key);
+        Member e = map.get(key);
         if (e == null) {
             return null;
         }
@@ -240,7 +239,7 @@ public class Aobj extends Agroup implements Iterable<Member> {
     }
 
     /**
-     * Returns true if the key isn't in the entryMap, or it's value is null.
+     * Returns true if the key isn't in the object, or it's value is null.
      */
     public boolean isNull(String key) {
         Avalue o = get(key);
@@ -294,7 +293,7 @@ public class Aobj extends Agroup implements Iterable<Member> {
         if (val == null) {
             val = Anull.NULL;
         }
-        Member e = entryMap.get(key);
+        Member e = map.get(key);
         if (e != null) {
             Avalue curr = e.getValue();
             if (curr != val) {
@@ -311,7 +310,7 @@ public class Aobj extends Agroup implements Iterable<Member> {
                 val.toGroup().setParent(this);
             }
             e = new Member(key, val);
-            entryMap.put(key, e);
+            map.put(key, e);
             if (first == null) {
                 first = e;
                 last = e;
@@ -368,7 +367,7 @@ public class Aobj extends Agroup implements Iterable<Member> {
     }
 
     /**
-     * Puts a String representing the stack trace into the entryMap.
+     * Puts a String representing the stack trace into the object.
      */
     public Aobj put(String key, Throwable val) {
         StringWriter str = new StringWriter();
@@ -397,9 +396,9 @@ public class Aobj extends Agroup implements Iterable<Member> {
     }
 
     /**
-     * Puts a new entryMap for given key and returns it.
+     * Creates and puts a new object for given key and returns it.
      */
-    public Aobj putMap(String key) {
+    public Aobj putObj(String key) {
         Aobj ret = new Aobj();
         put(key, ret);
         return ret;
@@ -418,7 +417,7 @@ public class Aobj extends Agroup implements Iterable<Member> {
      * @return Possibly null.
      */
     public Avalue remove(String key) {
-        Member e = entryMap.remove(key);
+        Member e = map.remove(key);
         if (e == null) {
             return null;
         }
@@ -457,7 +456,7 @@ public class Aobj extends Agroup implements Iterable<Member> {
 
     @Override
     public int size() {
-        return entryMap.size();
+        return map.size();
     }
 
     @Override
