@@ -78,12 +78,21 @@ public class AonReader extends AbstractReader implements AonConstants {
                     return setNext(readBigInteger(readU16(in)));
                 case BIGINT32:
                     return setNext(readBigInteger(readInt(in)));
-                case BIN8:
-                    return setNext(new byte[readU8(in)]);
-                case BIN16:
-                    return setNext(new byte[readU16(in)]);
-                case BIN32:
-                    return setNext(new byte[readInt(in)]);
+                case BIN8: {
+                    byte[] b = new byte[readU8(in)];
+                    in.read(b);
+                    return setNext(b);
+                }
+                case BIN16: {
+                    byte[] b = new byte[readU16(in)];
+                    in.read(b);
+                    return setNext(b);
+                }
+                case BIN32: {
+                    byte[] b = new byte[readInt(in)];
+                    in.read(b);
+                    return setNext(b);
+                }
                 case DEC8:
                     return setNext(readBigDecimal(readU8(in)));
                 case DEC16:
@@ -152,7 +161,9 @@ public class AonReader extends AbstractReader implements AonConstants {
     }
 
     private BigInteger readBigInteger(int len) throws IOException {
-        return new BigInteger(readString(len));
+        byte[] buf = new byte[len];
+        in.read(buf);
+        return new BigInteger(buf);
     }
 
     private static int readInt(InputStream in) throws IOException {
@@ -186,7 +197,7 @@ public class AonReader extends AbstractReader implements AonConstants {
     }
 
     private static int readU16(InputStream in) throws IOException {
-        return ((in.read() & 0xFF) << 8) | in.read();
+        return ((in.read() & 0xFF) << 8) | (in.read() & 0xFF);
     }
 
     private static long readU32(InputStream in) throws IOException {

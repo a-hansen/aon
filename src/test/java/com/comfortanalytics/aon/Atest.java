@@ -14,7 +14,7 @@ import org.junit.Test;
 /**
  * @author Aaron Hansen
  */
-public class AvalueTest {
+public class Atest {
 
     ///////////////////////////////////////////////////////////////////////////
     // Instance Field
@@ -289,7 +289,7 @@ public class AvalueTest {
         if (map.isEmpty()) {
             Assert.assertTrue(size == 0);
         }
-        Assert.assertTrue(map.get("mustNotContain", null) == null);
+        Assert.assertTrue(map.get("mustNotContain", (String) null) == null);
         Assert.assertTrue(map.isNull("mustNotContain"));
         map.put("mustNotContain", 10);
         Assert.assertFalse(map.isNull("mustNotContain"));

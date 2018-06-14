@@ -1,7 +1,6 @@
 package com.comfortanalytics.aon;
 
 import com.comfortanalytics.aon.json.JsonAppender;
-import java.io.Closeable;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 
@@ -153,15 +152,6 @@ public abstract class Avalue implements Cloneable {
     }
 
     /**
-     * Binaries return themselves, everything else results in a class cast exception.
-     *
-     * @throws ClassCastException If not convertible.
-     */
-    public Abinary toBinary() {
-        throw new ClassCastException(getClass().getName() + " not binary");
-    }
-
-    /**
      * Attempts to return a boolean value.  Numerics will return false for 0 and true for
      * anything else.  Strings should return true for "true" or "1" and false for
      * "false" or "0".  Anything else will throws a ClassCastException.
@@ -170,6 +160,15 @@ public abstract class Avalue implements Cloneable {
      */
     public boolean toBoolean() {
         throw new ClassCastException(getClass().getName() + " not boolean");
+    }
+
+    /**
+     * Binaries return themselves, everything else results in a class cast exception.
+     *
+     * @throws ClassCastException If not convertible.
+     */
+    public Abinary toBinary() {
+        throw new ClassCastException(getClass().getName() + " not binary");
     }
 
     /**

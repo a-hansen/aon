@@ -172,6 +172,9 @@ public abstract class AbstractWriter implements Awriter {
             case BIGINT:
                 value(arg.toBigInt());
                 break;
+            case BINARY:
+                value(((Abinary)arg).value);
+                break;
             case BOOLEAN:
                 value(arg.toBoolean());
                 break;
@@ -269,6 +272,33 @@ public abstract class AbstractWriter implements Awriter {
     }
 
     public AbstractWriter value(boolean arg) {
+        try {
+            switch (last) {
+                case LAST_DONE:
+                    throw new IllegalStateException("Nesting error: " + arg);
+                case LAST_INIT:
+                    throw new IllegalStateException("Not expecting value: " + arg);
+                case LAST_VAL:
+                case LAST_END:
+                    writeSeparator();
+                    if (prettyPrint) {
+                        writeNewLineIndent();
+                    }
+                    break;
+                case LAST_LIST:
+                    if (prettyPrint) {
+                        writeNewLineIndent();
+                    }
+            }
+            write(arg);
+            last = LAST_VAL;
+        } catch (IOException x) {
+            throw new RuntimeException(x);
+        }
+        return this;
+    }
+
+    public AbstractWriter value(byte[] arg) {
         try {
             switch (last) {
                 case LAST_DONE:
@@ -459,6 +489,13 @@ public abstract class AbstractWriter implements Awriter {
      * Write the value.
      */
     protected abstract void write(boolean arg) throws IOException;
+
+    /**
+     * Base64 encodes the array and writes the string byte by default.
+     */
+    protected void write(byte[] arg) throws IOException {
+        writeValue(AonBase64.encode(arg));
+    }
 
     /**
      * Write the value.

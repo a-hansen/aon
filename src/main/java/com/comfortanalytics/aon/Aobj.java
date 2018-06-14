@@ -8,7 +8,10 @@ import java.util.Iterator;
 import java.util.Map;
 
 /**
- * String keyed collection of values that preserves the order of addition. This is not thread safe.
+ * String keyed collection of values that preserves the order of addition.  To traverse
+ * members in order, use the iterator, or getFirstMember() and use it's next() method.
+ * <p>
+ * This is not thread safe.
  *
  * @author Aaron Hansen
  */
@@ -153,6 +156,13 @@ public class Aobj extends Agroup implements Iterable<Member> {
             return def;
         }
         return ret.toString();
+    }
+
+    /**
+     * Returns the value, null or throws a ClassCastException.
+     */
+    public Abinary getBinary(String key) {
+        return get(key).toBinary();
     }
 
     /**

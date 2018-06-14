@@ -4,6 +4,8 @@ import com.comfortanalytics.aon.io.AonReader;
 import com.comfortanalytics.aon.io.AonWriter;
 import com.comfortanalytics.aon.json.JsonReader;
 import com.comfortanalytics.aon.json.JsonWriter;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -28,58 +30,78 @@ public class Aon {
     ///////////////////////////////////////////////////////////////////////////
 
     /**
+     * Decodes an Aon encoded list or object.
+     */
+    public static Agroup decode(byte[] arg) {
+        ByteArrayInputStream in = new ByteArrayInputStream(arg);
+        return read(in, true);
+    }
+
+    /**
+     * Encodes using Aon format.
+     */
+    public static byte[] encode(Agroup arg) {
+        ByteArrayOutputStream out = new ByteArrayOutputStream();
+        write(arg, out, true);
+        return out.toByteArray();
+    }
+
+    /**
      * Returns a reader for a UTF-8 encoded file.
      */
-    public JsonReader jsonReader(File in) {
+    public static JsonReader jsonReader(File in) {
         return new JsonReader(in);
     }
 
-    public JsonReader jsonReader(File in, Charset charset) {
+    public static JsonReader jsonReader(File in, Charset charset) {
         return new JsonReader(in, charset);
     }
 
     /**
      * Returns a reader for a UTF-8 encoded stream.
      */
-    public JsonReader jsonReader(InputStream in) {
+    public static JsonReader jsonReader(InputStream in) {
         return new JsonReader(in);
     }
 
-    public JsonReader jsonReader(InputStream in, Charset charset) {
+    public static JsonReader jsonReader(InputStream in, Charset charset) {
         return new JsonReader(in, charset);
     }
 
-    public JsonReader jsonReader(Reader in) {
+    public static JsonReader jsonReader(Reader in) {
         return new JsonReader(in);
     }
 
     /**
      * Encodes in UTF-8.
      */
-    public JsonWriter jsonWriter(File out) {
+    public static JsonWriter jsonWriter(File out) {
         return new JsonWriter(out);
     }
 
-    public JsonWriter jsonWriter(File out, Charset charset) {
+    public static JsonWriter jsonWriter(File out, Charset charset) {
         return new JsonWriter(out);
     }
 
     /**
      * Encodes in UTF-8.
      */
-    public JsonWriter jsonWriter(OutputStream out) {
+    public static JsonWriter jsonWriter(OutputStream out) {
         return new JsonWriter(out);
     }
 
-    public JsonWriter jsonWriter(OutputStream out, Charset charset) {
+    public static JsonWriter jsonWriter(OutputStream out, Charset charset) {
         return new JsonWriter(out, charset);
     }
 
-    public Avalue read(File in) {
+    /**
+     * Decodes an Aon encoded list or object.
+     */
+    public static Agroup read(File in) {
         Areader reader = null;
         try {
             reader = reader(in);
-            return reader.getValue();
+            return reader.getValue().toGroup();
         } finally {
             if (reader != null) {
                 reader.close();
@@ -88,16 +110,13 @@ public class Aon {
     }
 
     /**
-     * Decodes the next value in the stream and optionally closes the stream.
-     *
-     * @param in    Where to read from.
-     * @param close Whether or not to close the input.
+     * Decodes an Aon encoded list or object and optionally closes the stream.
      */
-    public Avalue read(InputStream in, boolean close) {
+    public static Agroup read(InputStream in, boolean close) {
         Areader reader = null;
         try {
             reader = reader(in);
-            return reader.getValue();
+            return reader.getValue().toGroup();
         } finally {
             if (close && (reader != null)) {
                 reader.close();
@@ -105,15 +124,18 @@ public class Aon {
         }
     }
 
-    public AonReader reader(File in) {
+    public static AonReader reader(File in) {
         return new AonReader(in);
     }
 
-    public AonReader reader(InputStream in) {
+    public static AonReader reader(InputStream in) {
         return new AonReader(in);
     }
 
-    public void write(Agroup val, File out) {
+    /**
+     * Encodes using the Aon format.
+     */
+    public static void write(Agroup val, File out) {
         Awriter writer = null;
         try {
             writer = writer(out);
@@ -126,13 +148,9 @@ public class Aon {
     }
 
     /**
-     * Encodes the next value in the stream and optionally closes the stream.
-     *
-     * @param val   What to encode.
-     * @param out   Where to encode it.
-     * @param close Whether or not to close the stream.
+     * Encodes using the Aon format and optionally closes the stream.
      */
-    public void write(Agroup val, OutputStream out, boolean close) {
+    public static void write(Agroup val, OutputStream out, boolean close) {
         AonWriter writer = null;
         try {
             writer = writer(out);
@@ -144,11 +162,11 @@ public class Aon {
         }
     }
 
-    public AonWriter writer(File out) {
+    public static AonWriter writer(File out) {
         return new AonWriter(out);
     }
 
-    public AonWriter writer(OutputStream out) {
+    public static AonWriter writer(OutputStream out) {
         return new AonWriter(out);
     }
 

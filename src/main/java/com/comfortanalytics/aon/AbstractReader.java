@@ -174,6 +174,9 @@ public abstract class AbstractReader implements Areader {
                 case BIGINT:
                     ret.add(valBigint);
                     break;
+                case BINARY:
+                    ret.add(valBinary);
+                    break;
                 case BOOLEAN:
                     ret.add(valBoolean);
                     break;
@@ -262,6 +265,9 @@ public abstract class AbstractReader implements Areader {
                 case BIGINT:
                     ret.put(key, Abigint.valueOf(valBigint));
                     break;
+                case BINARY:
+                    ret.put(key, Abinary.valueOf(valBinary));
+                    break;
                 case BOOLEAN:
                     ret.put(key, Abool.valueOf(valBoolean));
                     break;
@@ -313,6 +319,8 @@ public abstract class AbstractReader implements Areader {
                 return Adecimal.valueOf(valDecimal);
             case BIGINT:
                 return Abigint.valueOf(valBigint);
+            case BINARY:
+                return Abinary.valueOf(valBinary);
             case BOOLEAN:
                 return Abool.valueOf(valBoolean);
             case DOUBLE:

@@ -6,7 +6,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 
 /**
- * Indexed collection of values implemented as a linked list.  This is not thread safe.
+ * Indexed collection of values implemented.  This is not thread safe.
  *
  * @author Aaron Hansen
  */
@@ -60,6 +60,14 @@ public class Alist extends Agroup implements Iterable<Avalue> {
      */
     public Alist add(boolean val) {
         add(Abool.valueOf(val));
+        return this;
+    }
+
+    /**
+     * Appends the primitive and returns this.
+     */
+    public Alist add(byte[] val) {
+        add(Abinary.valueOf(val));
         return this;
     }
 
@@ -250,6 +258,10 @@ public class Alist extends Agroup implements Iterable<Avalue> {
         return get(idx).toBoolean();
     }
 
+    public Abinary getBinary(int idx) {
+        return get(idx).toBinary();
+    }
+
     /**
      * Primitive getter.
      */
@@ -437,6 +449,14 @@ public class Alist extends Agroup implements Iterable<Avalue> {
      */
     public Alist put(int idx, boolean val) {
         put(idx, Abool.valueOf(val));
+        return this;
+    }
+
+    /**
+     * Primitive setter, returns this.
+     */
+    public Alist put(int idx, byte[] val) {
+        put(idx, Abinary.valueOf(val));
         return this;
     }
 

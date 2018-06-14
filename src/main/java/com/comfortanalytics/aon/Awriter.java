@@ -76,7 +76,7 @@ public interface Awriter extends Closeable, Flushable {
     public Awriter reset();
 
     /**
-     * Write a value to the map or list.  If in a map, this must have been preceeded
+     * Write a value to the map or list.  If in a map, this must have been preceded
      * by a call to key(String).  This can be used to encode an entire graph.
      *
      * @throws IllegalStateException when improperly called.
@@ -84,7 +84,7 @@ public interface Awriter extends Closeable, Flushable {
     public Awriter value(Avalue arg);
 
     /**
-     * Write a value to the map or list.  If in a map, this must have been preceeded
+     * Write a value to the map or list.  If in a map, this must have been preceded
      * by a call to key(String).
      *
      * @throws IllegalStateException when improperly called.
@@ -92,7 +92,7 @@ public interface Awriter extends Closeable, Flushable {
     public Awriter value(BigDecimal arg);
 
     /**
-     * Write a value to the map or list.  If in a map, this must have been preceeded
+     * Write a value to the map or list.  If in a map, this must have been preceded
      * by a call to key(String).
      *
      * @throws IllegalStateException when improperly called.
@@ -100,7 +100,7 @@ public interface Awriter extends Closeable, Flushable {
     public Awriter value(BigInteger arg);
 
     /**
-     * Write a value to the map or list.  If in a map, this must have been preceeded
+     * Write a value to the map or list.  If in a map, this must have been preceded
      * by a call to key(String).
      *
      * @throws IllegalStateException when improperly called.
@@ -108,7 +108,15 @@ public interface Awriter extends Closeable, Flushable {
     public Awriter value(boolean arg);
 
     /**
-     * Write a value to the map or list.  If in a map, this must have been preceeded
+     * Write a value to the map or list.  If in a map, this must have been preceded
+     * by a call to key(String).
+     *
+     * @throws IllegalStateException when improperly called.
+     */
+    public Awriter value(byte[] arg);
+
+    /**
+     * Write a value to the map or list.  If in a map, this must have been preceded
      * by a call to key(String).
      *
      * @throws IllegalStateException when improperly called.
@@ -116,7 +124,7 @@ public interface Awriter extends Closeable, Flushable {
     public Awriter value(double arg);
 
     /**
-     * Write a value to the map or list.  If in a map, this must have been preceeded
+     * Write a value to the map or list.  If in a map, this must have been preceded
      * by a call to key(String).
      *
      * @throws IllegalStateException when improperly called.
@@ -124,7 +132,7 @@ public interface Awriter extends Closeable, Flushable {
     public Awriter value(float arg);
 
     /**
-     * Write a value to the map or list.  If in a map, this must have been preceeded
+     * Write a value to the map or list.  If in a map, this must have been preceded
      * by a call to key(String).
      *
      * @throws IllegalStateException when improperly called.
@@ -132,7 +140,7 @@ public interface Awriter extends Closeable, Flushable {
     public Awriter value(int arg);
 
     /**
-     * Write a value to the map or list.  If in a map, this must have been preceeded
+     * Write a value to the map or list.  If in a map, this must have been preceded
      * by a call to key(String).
      *
      * @throws IllegalStateException when improperly called.
@@ -140,7 +148,7 @@ public interface Awriter extends Closeable, Flushable {
     public Awriter value(long arg);
 
     /**
-     * Write a value to the map or list.  If in a map, this must have been preceeded
+     * Write a value to the map or list.  If in a map, this must have been preceded
      * by a call to key(String).
      *
      * @throws IllegalStateException when improperly called.

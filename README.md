@@ -1,3 +1,7 @@
+TODO
+====
+* Fix all map getters to return null.
+
 Aon
 ===
 
@@ -14,8 +18,8 @@ more data types, and preserves the order of object members.  To be
 stream friendly, Aon doesn't encode object or list lengths.
 
 #### Compact
-Uses a hybrid binary encoding that is somewhat readable like
-[UBJSON](http://www.ubjson.org) and compact like
+Uses a hybrid binary encoding that is almost as readable as
+[UBJSON](http://www.ubjson.org) and almost as compact as
 [MsgPack](http://www.msgpack.org).
 
 #### More Data Types
@@ -146,8 +150,8 @@ type and the length.
 <str32> ::= "r" int32-length UTF8
 ```
 * Str5 can be identified with the bitmask 0x80.  The value is
-stored in the 5 lowest order bits.  To write, use the equation:
-(value | 0xE0).  To read, use the equation: (value & 0x1F).
+stored in the 5 lowest order bits.  To encode, use (value | 0xE0).
+To decode, use (value & 0x1F).
 * The length can be 0 for an empty string.
 * The str32 length must be a positive signed int.
 
@@ -163,8 +167,8 @@ byte can be used for both the type and the value.
 <unsigned-int32> ::= "v" uint32
 ```
 * Unsigned-int5 can be identified with the bitmask 0x80.  The value
-is stored in the 5 lowest order bits.  To write, use the equation:
-(value | 0x80).  To read, use the equation: (value & 0x1F).
+is stored in the 5 lowest order bits.  To encode use (value | 0x80).
+To read, use (value & 0x1F).
 
 #### Binary (byte array)
 Requires 2 to 5 bytes in addition to the byte array.
@@ -177,17 +181,18 @@ Requires 2 to 5 bytes in addition to the byte array.
 * The bin32 length must be a positive signed int.
 
 #### Big Integer
-An integer so large it has to be encoded as a string.
+An integer so large it has to be encoded as a byte array.
 ```
 <Big-Integer> ::= <bigint8> | <bigint16> | <bigint32>
-<bigint>   ::= "n" uint8-length UTF8
-<bigint16> ::= "N" uint16-length UTF8
-<bigint32> ::= "o" int32-length UTF8
+<bigint>   ::= "n" uint8-length bytes
+<bigint16> ::= "N" uint16-length bytes
+<bigint32> ::= "o" int32-length bytes
 ```
 * The bigint32 length must be a positive signed int.
-* The String should consist of an optional minus sign followed by a
-sequence of one or more digits.  It should not contain any any
-extraneous characters such as whitespace.
+* The array represents the two's-complement represention of the big
+integer.  The array must be in big endian byte order, with the most
+significant byte in the zeroth element (left most byte).  The array
+must include at least one sign bit.
 
 #### Big Decimal
 An decimal so large it has to be encoded as a string.
@@ -208,7 +213,7 @@ or 'E' followed by one or more digits.
 
 Endianness
 ----------
-Big endian
+All numeric values must be written in **big endian** order.
 
 MIME Type
 ---------

@@ -21,7 +21,7 @@ public class Abinary extends Avalue {
     // Instance Fields
     ///////////////////////////////////////////////////////////////////////////
 
-    private byte[] value;
+    byte[] value;
 
     ///////////////////////////////////////////////////////////////////////////
     // Constructors
@@ -57,7 +57,7 @@ public class Abinary extends Avalue {
 
     @Override
     public int hashCode() {
-        return value.hashCode();
+        return Arrays.hashCode(value);
     }
 
     @Override
@@ -89,6 +89,10 @@ public class Abinary extends Avalue {
         return AonBase64.encode(value);
     }
 
+    /**
+     * Does not copy the byte array, which means it is possible to modify the underlying data -
+     * so be careful.
+     */
     public static Abinary valueOf(byte[] arg) {
         if (arg == null) {
             return null;
