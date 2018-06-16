@@ -27,7 +27,7 @@ public abstract class Avalue implements Cloneable {
     }
 
     /**
-     * If an object is mutable (list or map) then this should clone it,
+     * If an object is mutable (list or object) then this should clone it,
      * immutable objects can simply return themselves.
      */
     public Avalue copy() {
@@ -196,7 +196,7 @@ public abstract class Avalue implements Cloneable {
     }
 
     /**
-     * Lists and maps return themselves, everything else results in an exception.
+     * Lists and objects return themselves, everything else results in an exception.
      *
      * @throws ClassCastException If not convertible.
      */
@@ -249,12 +249,12 @@ public abstract class Avalue implements Cloneable {
     }
 
     /**
-     * Maps return themselves, everything else results in an exception.
+     * Objects return themselves, everything else results in an exception.
      *
      * @throws ClassCastException If not convertible.
      */
     public Aobj toObj() {
-        throw new ClassCastException(getClass().getName() + " not map");
+        throw new ClassCastException(getClass().getName() + " not object");
     }
 
     /**

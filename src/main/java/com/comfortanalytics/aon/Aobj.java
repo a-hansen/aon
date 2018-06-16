@@ -23,7 +23,7 @@ public class Aobj extends Agroup implements Iterable<Member> {
 
     private Member first;
     private Member last;
-    private Map<String, Member> map = new HashMap<String, Member>();
+    private Map<String, Member> object = new HashMap<String, Member>();
 
     ///////////////////////////////////////////////////////////////////////////
     // Methods
@@ -38,7 +38,7 @@ public class Aobj extends Agroup implements Iterable<Member> {
     public Aobj clear() {
         first = null;
         last = null;
-        map.clear();
+        object.clear();
         return this;
     }
 
@@ -75,7 +75,7 @@ public class Aobj extends Agroup implements Iterable<Member> {
      * Returns the value for the given key or null.
      */
     public Avalue get(String key) {
-        Member e = map.get(key);
+        Member e = object.get(key);
         if (e == null) {
             return null;
         }
@@ -83,7 +83,7 @@ public class Aobj extends Agroup implements Iterable<Member> {
     }
 
     /**
-     * Optional getter, returns the provided default if the value mapped to the key is
+     * Optional getter, returns the provided default if the value objectped to the key is
      * null or not convertible.
      */
     public boolean get(String key, boolean def) {
@@ -99,7 +99,7 @@ public class Aobj extends Agroup implements Iterable<Member> {
     }
 
     /**
-     * Optional getter, returns the provided default if the value mapped to the key is
+     * Optional getter, returns the provided default if the value objectped to the key is
      * null.
      */
     public double get(String key, double def) {
@@ -115,7 +115,7 @@ public class Aobj extends Agroup implements Iterable<Member> {
     }
 
     /**
-     * Optional getter, returns the provided default if the value mapped to the key is
+     * Optional getter, returns the provided default if the value objectped to the key is
      * null.
      */
     public float get(String key, float def) {
@@ -131,7 +131,7 @@ public class Aobj extends Agroup implements Iterable<Member> {
     }
 
     /**
-     * Optional getter, returns the provided default if the value mapped to the key is
+     * Optional getter, returns the provided default if the value objectped to the key is
      * null or not convertible.
      */
     public int get(String key, int def) {
@@ -147,7 +147,7 @@ public class Aobj extends Agroup implements Iterable<Member> {
     }
 
     /**
-     * Optional getter, returns the provided default if the value mapped to the key is
+     * Optional getter, returns the provided default if the value objectped to the key is
      * null or not convertible.
      */
     public long get(String key, long def) {
@@ -163,7 +163,7 @@ public class Aobj extends Agroup implements Iterable<Member> {
     }
 
     /**
-     * Optional getter, returns the provided default if the value mapped to the key is
+     * Optional getter, returns the provided default if the value objectped to the key is
      * null.
      */
     public String get(String key, String def) {
@@ -316,6 +316,24 @@ public class Aobj extends Agroup implements Iterable<Member> {
     }
 
     /**
+     * Puts a new list for given key and returns it.
+     */
+    public Alist newList(String key) {
+        Alist ret = new Alist();
+        put(key, ret);
+        return ret;
+    }
+
+    /**
+     * Creates and puts a new object for given key and returns it.
+     */
+    public Aobj newObj(String key) {
+        Aobj ret = new Aobj();
+        put(key, ret);
+        return ret;
+    }
+
+    /**
      * Adds or replaces the value for the given key and returns this.
      *
      * @param key Must not be null.
@@ -326,7 +344,7 @@ public class Aobj extends Agroup implements Iterable<Member> {
         if (val == null) {
             val = Anull.NULL;
         }
-        Member e = map.get(key);
+        Member e = object.get(key);
         if (e != null) {
             Avalue curr = e.getValue();
             if (curr != val) {
@@ -343,7 +361,7 @@ public class Aobj extends Agroup implements Iterable<Member> {
                 val.toGroup().setParent(this);
             }
             e = new Member(key, val);
-            map.put(key, e);
+            object.put(key, e);
             if (first == null) {
                 first = e;
                 last = e;
@@ -420,28 +438,10 @@ public class Aobj extends Agroup implements Iterable<Member> {
     }
 
     /**
-     * Puts a new list for given key and returns it.
-     */
-    public Alist putList(String key) {
-        Alist ret = new Alist();
-        put(key, ret);
-        return ret;
-    }
-
-    /**
      * Puts a null value for given key and returns this.
      */
     public Aobj putNull(String key) {
         return put(key, Anull.NULL);
-    }
-
-    /**
-     * Creates and puts a new object for given key and returns it.
-     */
-    public Aobj putObj(String key) {
-        Aobj ret = new Aobj();
-        put(key, ret);
-        return ret;
     }
 
     /**
@@ -450,7 +450,7 @@ public class Aobj extends Agroup implements Iterable<Member> {
      * @return Possibly null.
      */
     public Avalue remove(String key) {
-        Member e = map.remove(key);
+        Member e = object.remove(key);
         if (e == null) {
             return null;
         }
@@ -489,7 +489,7 @@ public class Aobj extends Agroup implements Iterable<Member> {
 
     @Override
     public int size() {
-        return map.size();
+        return object.size();
     }
 
     @Override

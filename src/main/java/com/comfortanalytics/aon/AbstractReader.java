@@ -167,7 +167,7 @@ public abstract class AbstractReader implements Areader {
                 case END_LIST:
                     return ret;
                 case END_OBJ:
-                    throw new IllegalStateException("Unexpected end of map in list");
+                    throw new IllegalStateException("Unexpected end of object in list");
                 case DECIMAL:
                     ret.add(valDecimal);
                     break;
@@ -237,7 +237,7 @@ public abstract class AbstractReader implements Areader {
             next();
         }
         if (last != Token.BEGIN_OBJ) {
-            throw new IllegalStateException("Not a map");
+            throw new IllegalStateException("Not a object");
         }
         Aobj ret = new Aobj();
         String key = null;
@@ -250,13 +250,13 @@ public abstract class AbstractReader implements Areader {
                 case END_INPUT:
                     return ret;
                 default:
-                    throw new IllegalStateException("Expecting a string key or map end");
+                    throw new IllegalStateException("Expecting a string key or object end");
             }
             switch (next()) {
                 case END_INPUT:
                     throw new IllegalStateException("Unexpected end of input");
                 case END_LIST:
-                    throw new IllegalStateException("Unexpected end of list in map");
+                    throw new IllegalStateException("Unexpected end of list in object");
                 case END_OBJ:
                     return ret;
                 case DECIMAL:
@@ -296,7 +296,7 @@ public abstract class AbstractReader implements Areader {
                     ret.put(key, Astr.valueOf(valString));
                     break;
                 default:
-                    throw new IllegalStateException("Unexpected token in map: " + last);
+                    throw new IllegalStateException("Unexpected token in object: " + last);
             }
         }
     }

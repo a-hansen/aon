@@ -75,8 +75,8 @@ public class AonBenchmark {
                 .jvmArgs("")
                 .build();
         new Runner(opt).run();
-        aobjSmall = makeSmallMap();
-        aobjLarge = makeLargeMap();
+        aobjSmall = makeSmallObj();
+        aobjLarge = makeLargeObj();
         ByteArrayOutputStream out = null;
         encodeAon(aobjSmall, out = new ByteArrayOutputStream());
         aonSmall = out.toByteArray();
@@ -124,8 +124,8 @@ public class AonBenchmark {
     // Package / Private Methods
     ///////////////////////////////////////////////////////////////////////////
 
-    static Aobj makeLargeMap() {
-        Aobj primitiveMap = new Aobj()
+    static Aobj makeLargeObj() {
+        Aobj primitiveObj = new Aobj()
                 .put("boolean", true)
                 .put("double", 100.001d)
                 .put("float", 100.001f)
@@ -139,26 +139,26 @@ public class AonBenchmark {
                 .add(100001)
                 .add(100001l)
                 .add("abcdefghij\r\njklmnopqrs\u0000\u0001\u0002tuvwxyz\r\n");
-        Aobj complexMap = (Aobj) primitiveMap.copy();
-        complexMap.put("list", primitiveList.copy())
-                  .put("map", primitiveMap.copy());
+        Aobj complexObj = (Aobj) primitiveObj.copy();
+        complexObj.put("list", primitiveList.copy())
+                  .put("object", primitiveObj.copy());
         Alist complexList = (Alist) primitiveList.copy();
         complexList.add(primitiveList.copy());
-        complexList.add(primitiveMap.copy());
-        Aobj testMap = new Aobj();
+        complexList.add(primitiveObj.copy());
+        Aobj testObj = new Aobj();
         for (int i = 0; i < LARGE_OBJ_FACTOR; i++) {
             if ((i % 100) == 0) {
                 Aobj tmp = new Aobj();
-                tmp.put("map", testMap);
-                testMap = tmp;
+                tmp.put("object", testObj);
+                testObj = tmp;
             }
-            testMap.put("map" + i, complexMap.copy());
-            testMap.put("list" + i, complexList.copy());
+            testObj.put("object" + i, complexObj.copy());
+            testObj.put("list" + i, complexList.copy());
         }
-        return testMap;
+        return testObj;
     }
 
-    static Aobj makeSmallMap() {
+    static Aobj makeSmallObj() {
         return new Aobj()
                 .put("boolean", true)
                 .put("double", 100.001d)
@@ -483,8 +483,8 @@ public class AonBenchmark {
     ///////////////////////////////////////////////////////////////////////////
 
     static {
-        aobjSmall = makeSmallMap();
-        aobjLarge = makeLargeMap();
+        aobjSmall = makeSmallObj();
+        aobjLarge = makeLargeObj();
         ByteArrayOutputStream out;
         encodeAon(aobjSmall, out = new ByteArrayOutputStream());
         aonSmall = out.toByteArray();

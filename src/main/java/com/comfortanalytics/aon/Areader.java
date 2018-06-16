@@ -17,16 +17,14 @@ import java.math.BigInteger;
  * <li>BEGIN_LIST - Call getList() to decode the entire list, or call next() again to get
  * the first element of the list (or END_LIST if empty).
  * <li>BEGIN_OBJ - Call getObj() to decode the entire object, or call next again to get
- * the first key of the map (or END_OBJ if empty).
+ * the first key of the object (or END_OBJ if empty).
  * <li>END_INPUT - Parsing is finished, close the reader.
  * <li>END_LIST - The current list is complete.
- * <li>END_OBJ - The current map is complete.
+ * <li>END_OBJ - The current object is complete.
  * <li>Everything else - Call the corresponding getter.
  * </ul>
  * <p>
- * Be aware that if the underlying encoding (such as JSON) doesn't provide a mechanism to
- * differentiate between data types (such as numbers), values might not decode as the same
- * type they were encoded.
+ * Be aware that numbers may not decode to the same type they were encoded from.
  *
  * @author Aaron Hansen
  */
@@ -82,7 +80,7 @@ public interface Areader extends Closeable {
 
     /**
      * This should only be called when last() == BEGIN_OBJ and it will decode the
-     * entire map.  Call next rather than this method get the map in pieces.
+     * entire object.  Call next rather than this method get the object in pieces.
      */
     public Aobj getObj();
 

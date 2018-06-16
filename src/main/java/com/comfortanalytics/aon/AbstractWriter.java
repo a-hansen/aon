@@ -18,11 +18,11 @@ public abstract class AbstractWriter implements Awriter {
     ///////////////////////////////////////////////////////////////////////////
 
     private static final int LAST_DONE = 0; //document complete
-    private static final int LAST_END = 1;  //end of map/list
+    private static final int LAST_END = 1;  //end of object/list
     private static final int LAST_INIT = 2; //start
     private static final int LAST_KEY = 3;  //object key
     private static final int LAST_LIST = 4; //started a list
-    private static final int LAST_OBJ = 5;  //started a map
+    private static final int LAST_OBJ = 5;  //started a object
     private static final int LAST_VAL = 6;  //list or object value
 
     ///////////////////////////////////////////////////////////////////////////
@@ -45,7 +45,7 @@ public abstract class AbstractWriter implements Awriter {
         try {
             switch (last) {
                 case LAST_OBJ:
-                    throw new IllegalStateException("Expecting map key.");
+                    throw new IllegalStateException("Expecting object key.");
                 case LAST_DONE:
                     throw new IllegalStateException("Nesting error.");
                 case LAST_VAL:
@@ -69,7 +69,7 @@ public abstract class AbstractWriter implements Awriter {
         try {
             switch (last) {
                 case LAST_OBJ:
-                    throw new IllegalStateException("Expecting map key.");
+                    throw new IllegalStateException("Expecting object key.");
                 case LAST_DONE:
                     throw new IllegalStateException("Nesting error.");
                 case LAST_VAL:
@@ -199,8 +199,8 @@ public abstract class AbstractWriter implements Awriter {
                 break;
             case OBJECT:
                 beginObj();
-                Aobj map = arg.toObj();
-                Member e = map.getFirst();
+                Aobj object = arg.toObj();
+                Member e = object.getFirst();
                 while (e != null) {
                     key(e.getKey()).value(e.getValue());
                     e = e.next();
@@ -518,12 +518,12 @@ public abstract class AbstractWriter implements Awriter {
     protected abstract void write(long arg) throws IOException;
 
     /**
-     * Write string key of a map entry.
+     * Write string key of a object entry.
      */
     protected abstract void writeKey(CharSequence arg) throws IOException;
 
     /**
-     * Separate the key from the value in a map.
+     * Separate the key from the value in a object.
      */
     protected abstract void writeKeyValueSeparator() throws IOException;
 
@@ -552,12 +552,12 @@ public abstract class AbstractWriter implements Awriter {
     protected abstract void writeNull() throws IOException;
 
     /**
-     * End the current map.
+     * End the current object.
      */
     protected abstract void writeObjEnd() throws IOException;
 
     /**
-     * Start a new map.
+     * Start a new object.
      */
     protected abstract void writeObjStart() throws IOException;
 

@@ -420,6 +420,24 @@ public class Alist extends Agroup implements Iterable<Avalue> {
     }
 
     /**
+     * Creates a new Alist, adds it to this list and returns the new list.
+     */
+    public Alist newList() {
+        Alist list = new Alist();
+        add(list);
+        return list;
+    }
+
+    /**
+     * Creates a new Aobj, adds it to this list and returns it.
+     */
+    public Aobj newObj() {
+        Aobj obj = new Aobj();
+        add(obj);
+        return obj;
+    }
+
+    /**
      * Replaces a value and returns this.
      *
      * @param val Can be null.

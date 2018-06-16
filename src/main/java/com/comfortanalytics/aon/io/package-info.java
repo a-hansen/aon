@@ -9,8 +9,8 @@
  *     return new AonReader(new File("file.aon")).getObj();
  * }
  *
- * public void encode(Aobj map) throws IOException {
- *     new AonWriter(new File("file.aon")).value(map).close();
+ * public void encode(Aobj object) throws IOException {
+ *     new AonWriter(new File("file.aon")).value(object).close();
  * }
  * </pre>
  *
