@@ -1,10 +1,14 @@
 TODO
 ====
+* Document that obj decode must preserve the order of addition / encoded order
 * writer writeValue(String)
 * do we need key(""), can't everything be write()?
-* allow Writer / Reader to to primitive values
-* "not a map" Abstract reader
-* reader/writer begin/endMap
+* allow Writer / Reader to do primitive values
+* 3 byte numbers?
+* encode long using byte, but ressurect long?
+    * would need bits for all the various types
+* 0-9 simple numbers?  Conflicts with above
+* Timestamps, Duration
 
 Aon
 ===
@@ -22,9 +26,8 @@ more data types, and preserves the order of object members.  To be
 stream friendly, Aon doesn't encode object or list lengths.
 
 #### Compact
-Uses a hybrid binary encoding that is almost as readable as
-[UBJSON](http://www.ubjson.org) and almost as compact as
-[MsgPack](http://www.msgpack.org).
+Uses a binary encoding that borrows techniques from
+[UBJSON](http://www.ubjson.org) and [MsgPack](http://www.msgpack.org).
 
 #### More Data Types
 Big decimal, big integer, binary, boolean, double, float, list, long,
@@ -138,7 +141,7 @@ signed int is in the range 0 to 31, use unsigned-int5.
 <signed-int64> ::= "J" int64
 ```
 * Signed-int5 can be identified with the bitmask 0xA0.  The value is
-stored in the 5 lowest order bits.
+stored in the 5 lowest order bits, without a sign bit.
 * To encode: (value & 0x1F) | 0xA0
 * To decode (into 32 bit int): (read() & 0x1F) | 0xFFFFFFE0
 
