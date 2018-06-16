@@ -21,9 +21,9 @@ public class Aobj extends Agroup implements Iterable<Member> {
     // Instance Fields
     ///////////////////////////////////////////////////////////////////////////
 
-    private Map<String, Member> map = new HashMap<String, Member>();
     private Member first;
     private Member last;
+    private Map<String, Member> map = new HashMap<String, Member>();
 
     ///////////////////////////////////////////////////////////////////////////
     // Methods
@@ -429,19 +429,19 @@ public class Aobj extends Agroup implements Iterable<Member> {
     }
 
     /**
+     * Puts a null value for given key and returns this.
+     */
+    public Aobj putNull(String key) {
+        return put(key, Anull.NULL);
+    }
+
+    /**
      * Creates and puts a new object for given key and returns it.
      */
     public Aobj putObj(String key) {
         Aobj ret = new Aobj();
         put(key, ret);
         return ret;
-    }
-
-    /**
-     * Puts a null value for given key and returns this.
-     */
-    public Aobj putNull(String key) {
-        return put(key, Anull.NULL);
     }
 
     /**

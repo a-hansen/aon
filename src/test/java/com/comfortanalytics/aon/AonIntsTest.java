@@ -1,8 +1,6 @@
 package com.comfortanalytics.aon;
 
 import com.comfortanalytics.aon.Aobj.Member;
-import java.io.File;
-import java.util.Random;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -43,7 +41,7 @@ public class AonIntsTest {
     @Test
     public void testObj() throws Exception {
         Aobj obj = new Aobj();
-        obj.put("0",Long.MIN_VALUE);
+        obj.put("0", Long.MIN_VALUE);
         obj.put("1", Integer.MIN_VALUE);
         obj.put("2", Short.MIN_VALUE);
         obj.put("3", Byte.MIN_VALUE);

@@ -116,6 +116,14 @@ public class Abool extends Avalue {
         return 0;
     }
 
+    /**
+     * 0 or 1.
+     */
+    @Override
+    public Number toNumber() {
+        return toInt();
+    }
+
     @Override
     public String toString() {
         return String.valueOf(value);

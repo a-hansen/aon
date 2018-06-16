@@ -77,7 +77,7 @@ public abstract class Avalue implements Cloneable {
     }
 
     /**
-     * Whether or not the object represents a list or map.
+     * Whether or not the object represents a list or object.
      */
     public boolean isGroup() {
         return false;
@@ -152,6 +152,15 @@ public abstract class Avalue implements Cloneable {
     }
 
     /**
+     * Binaries return themselves, everything else results in a class cast exception.
+     *
+     * @throws ClassCastException If not convertible.
+     */
+    public Abinary toBinary() {
+        throw new ClassCastException(getClass().getName() + " not binary");
+    }
+
+    /**
      * Attempts to return a boolean value.  Numerics will return false for 0 and true for
      * anything else.  Strings should return true for "true" or "1" and false for
      * "false" or "0".  Anything else will throws a ClassCastException.
@@ -160,15 +169,6 @@ public abstract class Avalue implements Cloneable {
      */
     public boolean toBoolean() {
         throw new ClassCastException(getClass().getName() + " not boolean");
-    }
-
-    /**
-     * Binaries return themselves, everything else results in a class cast exception.
-     *
-     * @throws ClassCastException If not convertible.
-     */
-    public Abinary toBinary() {
-        throw new ClassCastException(getClass().getName() + " not binary");
     }
 
     /**
@@ -235,6 +235,17 @@ public abstract class Avalue implements Cloneable {
      */
     public long toLong() {
         throw new ClassCastException(getClass().getName() + " not long");
+    }
+
+    /**
+     * Attempts to return number.  Actual numbers return their value. Booleans will return 0 for
+     * false and 1 for true. Strings will attempt to parse the numeric which may result in a parse
+     * exception.  Anything else will throw a ClassCastException.
+     *
+     * @throws ClassCastException If not convertible.
+     */
+    public Number toNumber() {
+        throw new ClassCastException(getClass().getName() + " not number");
     }
 
     /**

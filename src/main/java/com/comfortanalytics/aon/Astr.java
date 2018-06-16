@@ -1,5 +1,8 @@
 package com.comfortanalytics.aon;
 
+import java.math.BigDecimal;
+import java.math.BigInteger;
+
 /**
  * String value.
  *
@@ -64,6 +67,22 @@ public class Astr extends Avalue {
         return true;
     }
 
+    /**
+     * Attempts to parse the number so may throw an exception.
+     */
+    @Override
+    public BigDecimal toBigDecimal() {
+        return new BigDecimal(value);
+    }
+
+    /**
+     * Attempts to parse the number so may throw an exception.
+     */
+    @Override
+    public BigInteger toBigInt() {
+        return new BigInteger(value);
+    }
+
     @Override
     public boolean toBoolean() {
         if (value.equals("0")) {
@@ -80,6 +99,46 @@ public class Astr extends Avalue {
             return false;
         }
         return false;
+    }
+
+    /**
+     * Attempts to parse the number so may throw an exception.
+     */
+    @Override
+    public double toDouble() {
+        return Double.parseDouble(value);
+    }
+
+    /**
+     * Attempts to parse the number so may throw an exception.
+     */
+    @Override
+    public float toFloat() {
+        return Float.parseFloat(value);
+    }
+
+    /**
+     * Attempts to parse the number so may throw an exception.
+     */
+    @Override
+    public int toInt() {
+        return Integer.parseInt(value);
+    }
+
+    /**
+     * Attempts to parse the number so may throw an exception.
+     */
+    @Override
+    public long toLong() {
+        return Long.parseLong(value);
+    }
+
+    /**
+     * Attempts to parse the number so may throw an exception.
+     */
+    @Override
+    public Number toNumber() {
+        return toBigDecimal();
     }
 
     @Override

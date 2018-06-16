@@ -159,16 +159,6 @@ public abstract class AbstractJsonWriter extends AbstractWriter implements Appen
     }
 
     @Override
-    protected void writeObjEnd() throws IOException {
-        append('}');
-    }
-
-    @Override
-    protected void writeObjStart() throws IOException {
-        append('{');
-    }
-
-    @Override
     protected void writeNewLineIndent() throws IOException {
         append('\n');
         for (int i = getDepth(); --i >= 0; ) {
@@ -179,6 +169,16 @@ public abstract class AbstractJsonWriter extends AbstractWriter implements Appen
     @Override
     protected void writeNull() throws IOException {
         append(C_NULL, 0, 4);
+    }
+
+    @Override
+    protected void writeObjEnd() throws IOException {
+        append('}');
+    }
+
+    @Override
+    protected void writeObjStart() throws IOException {
+        append('{');
     }
 
     @Override

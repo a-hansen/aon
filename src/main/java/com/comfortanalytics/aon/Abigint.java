@@ -96,6 +96,11 @@ public class Abigint extends Avalue {
     }
 
     @Override
+    public Number toNumber() {
+        return value;
+    }
+
+    @Override
     public String toString() {
         return String.valueOf(value);
     }

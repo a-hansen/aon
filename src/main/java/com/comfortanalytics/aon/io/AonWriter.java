@@ -181,6 +181,11 @@ public class AonWriter extends AbstractWriter implements AonConstants {
     }
 
     @Override
+    protected void writeNull() throws IOException {
+        out.write(NULL);
+    }
+
+    @Override
     protected void writeObjEnd() throws IOException {
         out.write(OBJ_END);
     }
@@ -188,11 +193,6 @@ public class AonWriter extends AbstractWriter implements AonConstants {
     @Override
     protected void writeObjStart() throws IOException {
         out.write(OBJ_START);
-    }
-
-    @Override
-    protected void writeNull() throws IOException {
-        out.write(NULL);
     }
 
     @Override

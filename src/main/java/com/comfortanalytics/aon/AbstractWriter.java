@@ -173,7 +173,7 @@ public abstract class AbstractWriter implements Awriter {
                 value(arg.toBigInt());
                 break;
             case BINARY:
-                value(((Abinary)arg).value);
+                value(((Abinary) arg).value);
                 break;
             case BOOLEAN:
                 value(arg.toBoolean());
@@ -538,16 +538,6 @@ public abstract class AbstractWriter implements Awriter {
     protected abstract void writeListStart() throws IOException;
 
     /**
-     * End the current map.
-     */
-    protected abstract void writeObjEnd() throws IOException;
-
-    /**
-     * Start a new map.
-     */
-    protected abstract void writeObjStart() throws IOException;
-
-    /**
      * Override point for subclasses which perform use pretty printing, such as json.
      * Does nothing by default.
      *
@@ -560,6 +550,16 @@ public abstract class AbstractWriter implements Awriter {
      * Write a null value.
      */
     protected abstract void writeNull() throws IOException;
+
+    /**
+     * End the current map.
+     */
+    protected abstract void writeObjEnd() throws IOException;
+
+    /**
+     * Start a new map.
+     */
+    protected abstract void writeObjStart() throws IOException;
 
     /**
      * Write a list value or object entry separator, such as the comma in json.

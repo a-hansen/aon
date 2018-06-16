@@ -259,15 +259,15 @@ public class Alist extends Agroup implements Iterable<Avalue> {
         return ret.toString();
     }
 
+    public Abinary getBinary(int idx) {
+        return get(idx).toBinary();
+    }
+
     /**
      * Primitive getter.
      */
     public boolean getBoolean(int idx) {
         return get(idx).toBoolean();
-    }
-
-    public Abinary getBinary(int idx) {
-        return get(idx).toBinary();
     }
 
     /**
