@@ -65,7 +65,7 @@ public abstract class AbstractWriter implements Awriter {
         return this;
     }
 
-    public AbstractWriter beginMap() {
+    public AbstractWriter beginObj() {
         try {
             switch (last) {
                 case LAST_OBJ:
@@ -80,7 +80,7 @@ public abstract class AbstractWriter implements Awriter {
                         writeNewLineIndent();
                     }
             }
-            writeMapStart();
+            writeObjStart();
             last = LAST_OBJ;
             depth++;
         } catch (IOException x) {
@@ -110,7 +110,7 @@ public abstract class AbstractWriter implements Awriter {
         return this;
     }
 
-    public AbstractWriter endMap() {
+    public AbstractWriter endObj() {
         try {
             if (depth == 0) {
                 throw new IllegalStateException("Nesting error.");
@@ -119,7 +119,7 @@ public abstract class AbstractWriter implements Awriter {
             if (prettyPrint) {
                 writeNewLineIndent();
             }
-            writeMapEnd();
+            writeObjEnd();
             if (depth == 0) {
                 last = LAST_DONE;
             } else {
@@ -198,14 +198,14 @@ public abstract class AbstractWriter implements Awriter {
                 value(arg.toLong());
                 break;
             case OBJECT:
-                beginMap();
+                beginObj();
                 Aobj map = arg.toObj();
                 Member e = map.getFirst();
                 while (e != null) {
                     key(e.getKey()).value(e.getValue());
                     e = e.next();
                 }
-                endMap();
+                endObj();
                 break;
             case NULL:
                 value((String) null);
@@ -540,12 +540,12 @@ public abstract class AbstractWriter implements Awriter {
     /**
      * End the current map.
      */
-    protected abstract void writeMapEnd() throws IOException;
+    protected abstract void writeObjEnd() throws IOException;
 
     /**
      * Start a new map.
      */
-    protected abstract void writeMapStart() throws IOException;
+    protected abstract void writeObjStart() throws IOException;
 
     /**
      * Override point for subclasses which perform use pretty printing, such as json.

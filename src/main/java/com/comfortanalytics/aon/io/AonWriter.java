@@ -125,7 +125,7 @@ public class AonWriter extends AbstractWriter implements AonConstants {
     protected void write(int arg) throws IOException {
         if (arg < 0) {
             if (arg >= MIN_I5) {
-                write((I5 | arg) & 0xFF);
+                out.write(I5 | (arg & LSB5));
             } else if (arg >= MIN_I8) {
                 write1Byte(I8, arg);
             } else if (arg >= MIN_I16) {
@@ -135,9 +135,8 @@ public class AonWriter extends AbstractWriter implements AonConstants {
             }
         } else {
             if (arg <= MAX_U5) {
-                write(U5 | arg);
-            }
-            if (arg <= MAX_I8) {
+                out.write(U5 | arg);
+            } else if (arg <= MAX_I8) {
                 write1Byte(I8, arg);
             } else if (arg <= MAX_U8) {
                 write1Byte(U8, arg);
@@ -153,9 +152,9 @@ public class AonWriter extends AbstractWriter implements AonConstants {
 
     @Override
     protected void write(long arg) throws IOException {
-        if ((arg >= MIN_I32) || (arg <= MAX_I32)) {
+        if ((arg >= MIN_I32) && (arg <= MAX_I32)) {
             write((int) arg);
-        } else if ((arg > 0) && (arg <= MAX_U32)) {
+        } else if ((arg >= 0) && (arg <= MAX_U32)) {
             write4Bytes(U32, arg);
         } else {
             write8Bytes(I64, arg);
@@ -182,12 +181,12 @@ public class AonWriter extends AbstractWriter implements AonConstants {
     }
 
     @Override
-    protected void writeMapEnd() throws IOException {
+    protected void writeObjEnd() throws IOException {
         out.write(OBJ_END);
     }
 
     @Override
-    protected void writeMapStart() throws IOException {
+    protected void writeObjStart() throws IOException {
         out.write(OBJ_START);
     }
 
@@ -204,7 +203,9 @@ public class AonWriter extends AbstractWriter implements AonConstants {
     protected void writeValue(CharSequence arg) throws IOException {
         byte[] b = arg.toString().getBytes(Aon.UTF8);
         int len = b.length;
-        if (len <= MAX_U8) {
+        if (len <= MAX_U5) {
+            out.write(S5 | len);
+        } else if (len <= MAX_U8) {
             write1Byte(S8, len);
         } else if (len <= MAX_U16) {
             write2Bytes(S16, len);

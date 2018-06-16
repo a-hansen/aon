@@ -1,6 +1,10 @@
 TODO
 ====
-* Fix all map getters to return null.
+* writer writeValue(String)
+* do we need key(""), can't everything be write()?
+* allow Writer / Reader to to primitive values
+* "not a map" Abstract reader
+* reader/writer begin/endMap
 
 Aon
 ===
@@ -50,7 +54,7 @@ Comparing Formats
 
 **Aon** (26 bytes)
 ```
-{ 0xE4 name 0xE3 aon 0xE4 born j 0x01 0x33 0xEE 0x7A cool T }
+{ 0xC4 name 0xC3 aon 0xC4 born j 0x01 0x33 0xEE 0x7A cool T }
 ```
 
 Format
@@ -127,16 +131,16 @@ single byte can be used for both the type and the value.  If the
 signed int is in the range 0 to 31, use unsigned-int5.
 ```
 <Signed-Int> ::= <signed-int5> | <signed-int8> | <signed-int16> | <signed-int32> | <signed-int64>
-<signed-int5>  ::= 0xC0
+<signed-int5>  ::= 0xA0
 <signed-int8>  ::= "i" int8
 <signed-int16> ::= "I" int16
 <signed-int32> ::= "j" int32
 <signed-int64> ::= "J" int64
 ```
-* Signed-int5 can be identified with the bitmask 0xC0.  The value
-is stored in the 5 lowest order bits.  To encode, use
-((value | 0xC0) & 0xFF).  To decode into a signed 32 bit integer, use
-(value | 0xFFFFFFE0).
+* Signed-int5 can be identified with the bitmask 0xA0.  The value is
+stored in the 5 lowest order bits.
+* To encode: (value & 0x1F) | 0xA0
+* To decode (into 32 bit int): (read() & 0x1F) | 0xFFFFFFE0
 
 #### String
 Strings require a type byte, a length, and a UTF8 encoded string. If
@@ -144,15 +148,16 @@ the length is 31 bytes or less, a single byte can be used for both the
 type and the length.
 ```
 <String> ::= <str5> | <str8> | <str16> | <str32>
-<str5>  ::= 0xE0 UTF8
+<str5>  ::= 0xC0 UTF8
 <str8>  ::= "s" uint8-length UTF8
 <str16> ::= "S" uint16-length UTF8
 <str32> ::= "r" int32-length UTF8
 ```
-* Str5 can be identified with the bitmask 0x80.  The value is
-stored in the 5 lowest order bits.  To encode, use (value | 0xE0).
-To decode, use (value & 0x1F).
-* The length can be 0 for an empty string.
+* Str5 can be identified with the bitmask 0xC0.  The value is
+stored in the 5 lowest order bits.
+* To encode: value | 0xC0
+* To decode: read() & 0x1F
+* The length can be 0 for an empty string and not data field.
 * The str32 length must be a positive signed int.
 
 #### Unsigned Integers
@@ -161,14 +166,15 @@ describes the value.  If the value is small enough (0 to 31), a single
 byte can be used for both the type and the value.
 ```
 <Unsigned-Int> ::= <unsigned-int5> | <unsigned-int8> | <unsigned-int16> | <unsigned-int32>
-<unsigned-int5>  ::= 0x80
+<unsigned-int5>  ::= 0xE0
 <unsigned-int8>  ::= "u" uint8
 <unsigned-int16> ::= "U" uint16
 <unsigned-int32> ::= "v" uint32
 ```
-* Unsigned-int5 can be identified with the bitmask 0x80.  The value
-is stored in the 5 lowest order bits.  To encode use (value | 0x80).
-To read, use (value & 0x1F).
+* Unsigned-int5 can be identified with the bitmask 0xE0.  The value
+is stored in the 5 lowest order bits.
+* To encode: value | 0xE0
+* To decode: read() & 0x1F
 
 #### Binary (byte array)
 Requires 2 to 5 bytes in addition to the byte array.

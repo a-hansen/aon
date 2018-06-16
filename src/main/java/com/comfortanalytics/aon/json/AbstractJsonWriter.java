@@ -159,12 +159,12 @@ public abstract class AbstractJsonWriter extends AbstractWriter implements Appen
     }
 
     @Override
-    protected void writeMapEnd() throws IOException {
+    protected void writeObjEnd() throws IOException {
         append('}');
     }
 
     @Override
-    protected void writeMapStart() throws IOException {
+    protected void writeObjStart() throws IOException {
         append('{');
     }
 

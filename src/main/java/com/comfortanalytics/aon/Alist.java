@@ -82,6 +82,14 @@ public class Alist extends Agroup implements Iterable<Avalue> {
     /**
      * Appends the primitive and returns this.
      */
+    public Alist add(float val) {
+        add(Afloat.valueOf(val));
+        return this;
+    }
+
+    /**
+     * Appends the primitive and returns this.
+     */
     public Alist add(int val) {
         add(Aint.valueOf(val));
         return this;
@@ -465,6 +473,14 @@ public class Alist extends Agroup implements Iterable<Avalue> {
      */
     public Alist put(int idx, double val) {
         put(idx, Adouble.valueOf(val));
+        return this;
+    }
+
+    /**
+     * Primitive setter, returns this.
+     */
+    public Alist put(int idx, float val) {
+        put(idx, Afloat.valueOf(val));
         return this;
     }
 

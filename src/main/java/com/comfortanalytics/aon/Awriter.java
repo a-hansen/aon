@@ -36,7 +36,7 @@ public interface Awriter extends Closeable, Flushable {
      *
      * @throws IllegalStateException when improperly called.
      */
-    public Awriter beginMap();
+    public Awriter beginObj();
 
     /**
      * Close the stream. IOExceptions will be wrapped in runtime exceptions.
@@ -55,7 +55,7 @@ public interface Awriter extends Closeable, Flushable {
      *
      * @throws IllegalStateException when improperly called.
      */
-    public Awriter endMap();
+    public Awriter endObj();
 
     /**
      * Flush the stream. IOExceptions will be wrapped in runtime exceptions.

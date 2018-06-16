@@ -52,7 +52,7 @@ public class AonReader extends AbstractReader implements AonConstants {
     @Override
     public Token next() {
         try {
-            int ch = in.read();
+            int ch = in.read() & 0xFF;
             switch (ch) {
                 case NULL:
                     return setNextNull();
@@ -65,9 +65,9 @@ public class AonReader extends AbstractReader implements AonConstants {
                 case TRUE:
                     return setNext(true);
                 case OBJ_START:
-                    return setBeginMap();
+                    return setBeginObj();
                 case OBJ_END:
-                    return setEndMap();
+                    return setEndObj();
                 case LIST_START:
                     return setBeginList();
                 case LIST_END:
@@ -100,7 +100,7 @@ public class AonReader extends AbstractReader implements AonConstants {
                 case DEC32:
                     return setNext(readBigDecimal(readInt(in)));
                 case I8:
-                    return setNext(in.read());
+                    return setNext((byte) in.read());
                 case I16:
                     return setNext(readShort(in));
                 case I32:
@@ -120,14 +120,14 @@ public class AonReader extends AbstractReader implements AonConstants {
                 case U32:
                     return setNext(readU32(in));
                 default:
-                    if ((ch & S5) == S5) {
-                        return setNext(ch & MAX_U5);
+                    if ((ch & MSB5) == S5) {
+                        return setNext(readString(ch & LSB5));
                     }
-                    if ((ch & U5) == U5) {
-                        return setNext(ch & MAX_U5);
+                    if ((ch & MSB5) == U5) {
+                        return setNext(ch & LSB5);
                     }
-                    if ((ch & I5) == I5) {
-                        return setNext(ch | MIN_I5);
+                    if ((ch & MSB5) == I5) {
+                        return setNext((ch & LSB5) | MIN_I5);
                     }
                     throw new IllegalStateException("Unexpected symbol: 0x"
                                                             + Integer.toHexString(ch));

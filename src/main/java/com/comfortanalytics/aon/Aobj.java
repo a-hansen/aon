@@ -116,6 +116,22 @@ public class Aobj extends Agroup implements Iterable<Member> {
 
     /**
      * Optional getter, returns the provided default if the value mapped to the key is
+     * null.
+     */
+    public float get(String key, float def) {
+        Avalue ret = get(key);
+        if ((ret == null) || ret.isNull()) {
+            return def;
+        }
+        try {
+            return ret.toFloat();
+        } catch (Exception x) {
+        }
+        return def;
+    }
+
+    /**
+     * Optional getter, returns the provided default if the value mapped to the key is
      * null or not convertible.
      */
     public int get(String key, int def) {
@@ -184,6 +200,13 @@ public class Aobj extends Agroup implements Iterable<Member> {
      */
     public Member getFirst() {
         return first;
+    }
+
+    /**
+     * Returns the value, null or throws a ClassCastException.
+     */
+    public float getFloat(String key) {
+        return get(key).toFloat();
     }
 
     /**

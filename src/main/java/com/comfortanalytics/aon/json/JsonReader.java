@@ -88,11 +88,11 @@ public class JsonReader extends AbstractReader {
                     case '[':
                         return setBeginList();
                     case '{':
-                        return setBeginMap();
+                        return setBeginObj();
                     case ']':
                         return setEndList();
                     case '}':
-                        return setEndMap();
+                        return setEndObj();
                     case -1:
                         return setEndInput();
                     //values

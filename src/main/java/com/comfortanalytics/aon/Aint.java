@@ -136,7 +136,7 @@ public class Aint extends Avalue {
             if (i == -1) {
                 return NEG_ONE;
             }
-            if (i > MAX) {
+            if ((i < 0) || (i > MAX)) {
                 return null;
             }
             if (cache[i] == null) {

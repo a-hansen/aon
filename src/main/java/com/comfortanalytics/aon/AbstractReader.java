@@ -370,7 +370,7 @@ public abstract class AbstractReader implements Areader {
         return last = Token.BEGIN_LIST;
     }
 
-    protected Token setBeginMap() {
+    protected Token setBeginObj() {
         return last = Token.BEGIN_OBJ;
     }
 
@@ -382,7 +382,7 @@ public abstract class AbstractReader implements Areader {
         return last = Token.END_LIST;
     }
 
-    protected Token setEndMap() {
+    protected Token setEndObj() {
         return last = Token.END_OBJ;
     }
 
@@ -418,7 +418,7 @@ public abstract class AbstractReader implements Areader {
     }
 
     protected Token setNext(float arg) {
-        valDouble = arg;
+        valFloat = arg;
         return last = Token.FLOAT;
     }
 
