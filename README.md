@@ -9,7 +9,7 @@ Aon
 Overview
 --------
 
-Aon is another object notation like JSON exception is it more compact
+Aon is another object notation like JSON except is it more compact,
 has more data types, and preserves the order of object members.  To be
 stream friendly, Aon doesn't encode object or list lengths.
 
@@ -26,7 +26,7 @@ Order matters when displaying object members on user interfaces such
 as property sheets.
 
 #### Stream Friendly
-Many binary formats encode object and array lengths at the start of
+Some binary formats encode object and array lengths at the start of
 the structure.  This makes it too difficult, for example, to write
 48K of query results before terminating a message.
 
