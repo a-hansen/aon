@@ -9,7 +9,8 @@ Aon
 Overview
 --------
 
-more data types, and preserves the order of object members.  To be
+Aon is another object notation like JSON exception is it more compact
+has more data types, and preserves the order of object members.  To be
 stream friendly, Aon doesn't encode object or list lengths.
 
 #### Compact
