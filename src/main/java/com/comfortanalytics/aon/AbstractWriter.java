@@ -302,9 +302,9 @@ public abstract class AbstractWriter implements Awriter {
         try {
             switch (last) {
                 case LAST_DONE:
-                    throw new IllegalStateException("Nesting error: " + arg);
+                    throw new IllegalStateException("Nesting error");
                 case LAST_INIT:
-                    throw new IllegalStateException("Not expecting value: " + arg);
+                    throw new IllegalStateException("Not expecting byte[] value");
                 case LAST_VAL:
                 case LAST_END:
                     writeSeparator();

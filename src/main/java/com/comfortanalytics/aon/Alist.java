@@ -157,7 +157,6 @@ public class Alist extends Agroup implements Iterable<Avalue> {
         }
         if (o instanceof Alist) {
             Alist arg = (Alist) o;
-            int size = arg.size();
             if (size() != arg.size()) {
                 return false;
             }
