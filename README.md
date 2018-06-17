@@ -1,15 +1,3 @@
-TODO
-====
-* Document that obj decode must preserve the order of addition / encoded order
-* writer writeValue(String)
-* do we need key(""), can't everything be write()?
-* allow Writer / Reader to do primitive values
-* 3 byte numbers?
-* encode long using byte, but ressurect long?
-    * would need bits for all the various types
-* 0-9 simple numbers?  Conflicts with above
-* Timestamps, Duration
-
 Aon
 ===
 
@@ -21,7 +9,6 @@ Aon
 Overview
 --------
 
-Aon is another object notation like JSON but is more compact, has
 more data types, and preserves the order of object members.  To be
 stream friendly, Aon doesn't encode object or list lengths.
 
@@ -36,6 +23,11 @@ null, object, string and many flavors of signed and unsigned integers.
 #### Ordered Objects
 Order matters when displaying object members on user interfaces such
 as property sheets.
+
+#### Stream Friendly
+Many binary formats encode object and array lengths at the start of
+the structure.  This makes it too difficult, for example, to write
+48K of query results before terminating a message.
 
 Comparing Formats
 -----------------
@@ -63,36 +55,41 @@ Comparing Formats
 Format
 ------
 
-Aon uses a 1 byte indicator and two optional fields (length and data)
+Aon uses a 1 byte prefix and two optional fields (length and data)
 for all types:
 
 ```
-<Indicator> [Length] [Data]
+<Prefix> [Length] [Data]
 ```
 
-* Indicator - A single byte ASCII character or bitmask.  There are
+* Prefix - A single byte ASCII character or bitmask.  There are
 three bitmasks used for compaction; a small negative int (-32 to -1),
 a small positive int (0 - 31) and a small string (&lt;= 31 chars).
 * Length - An optional positive int specifying the length of the data.
-* Data - Bytes representing data such as 32 bit integers or UTF8
-strings.
+* Data - Optional bytes representing data such as 32 bit integers or
+UTF8 strings.
 
 The subsequent Aon format is represented using a pseudo-BNF syntax.
+There is a [cheat sheet](#type-cheat-sheet) towards the end of this document.
+
 
 ```
-<Aon-Graph> ::= <Object> | <List>
+<Document> ::= <Object> | <List>
 <Value> :== <Object> | <List> | <Boolean> | <Double> | <Float> |
          <Null> | <Signed-Int> | <String> | <Unsigned-Int> |
          <Binary> | <Big-Integer> | <Big-Decimal>
 ```
 
 #### Object
-An ordered collection of key value pairs surrounded by curly braces.
+A collection of key value pairs surrounded by curly braces. Objects
+must preserve the order addition and encoding.  Object implementations
+must provide a mechanism to iterate memebers in order.
 ```
 <Object> ::= "{" <Member-Pair>* "}"
 <Member-Pair> ::= <String> <Value>
 ```
 * There can be 0 or more key value pairs.
+* The string key must be unique among all members of the same object.
 
 #### List
 An array of values surrounded by brackets.
@@ -160,7 +157,7 @@ type and the length.
 stored in the 5 lowest order bits.
 * To encode: value | 0xC0
 * To decode: read() & 0x1F
-* The length can be 0 for an empty string and not data field.
+* The length can be 0 for an empty string with no data field.
 * The str32 length must be a positive signed int.
 
 #### Unsigned Integers
@@ -206,10 +203,10 @@ must include at least one sign bit.
 #### Big Decimal
 An decimal so large it has to be encoded as a string.
 ```
-<Big-Decimal> ::= <decimal8> | <decimal16> | <decimal32>
-<decimal8>  ::= "g" uint8-length UTF8
-<decimal16> ::= "G" uint16-length UTF8
-<decimal32> ::= "h" int32-length UTF8
+<Big-Decimal> ::= <bigdec8> | <bigdec16> | <bigdec32>
+<bigdec8>  ::= "g" uint8-length UTF8
+<bigdec16> ::= "G" uint16-length UTF8
+<bigdec32> ::= "h" int32-length UTF8
 ```
 * The decimal32 length must be a positive signed int.
 * The string should consist of an optional sign, '+' or '-',
@@ -385,6 +382,46 @@ The benchmark is a Gradle task and can be run as follows:
 ```
 gradlew benchmark
 ```
+
+Type Cheat Sheet
+----------------
+
+|Type     |Prefix    |Length     |Data      |
+|---------|----------|-----------|----------|
+|boolean  | T _or_ F
+|double   | D
+|float    | d
+|list     | [ _or_ ]
+|null     | Z
+|object   | { _or_ }
+|
+|bigdec8  | g        | uint8     | Length bytes UTF8
+|bigdec16 | G        | uint16    | Length bytes UTF8
+|bigdec32 | h        | int32     | Length bytes UTF8
+|
+|bigint8  | n        | uint8     | Length bytes
+|bigint16 | N        | uint16    | Length bytes
+|bigint32 | o        | int32     | Length bytes
+|
+|bin8     | b        | uint8     | Length bytes
+|bin16    | B        | uint16    | Length bytes
+|bin32    | c        | int32     | Length bytes
+|
+|int5     | 0xA0     |           | In prefix
+|int8     | i        |           | 1 signed yte
+|int16    | I        |           | 2 signed bytes
+|int32    | j        |           | 4 signed bytes
+|int64    | J        |           | 8 signed bytes
+|
+|str5     | 0xC0     | In prefix | UTF8 bytes
+|str8     | s        | uint8     | Length bytes UTF8
+|str16    | S        | uint16    | Length bytes UTF8
+|str32    | r        | int32     | Length bytes UTF8
+|
+|uint5    | 0xE0     |           | In prefix
+|uint8    | u        |           | 1 unsigned byte
+|uint16   | U        |           | 2 unsigned bytes
+|uint32   | v        |           | 4 unsigned bytes
 
 History
 -------

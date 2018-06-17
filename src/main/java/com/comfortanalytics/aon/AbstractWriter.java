@@ -56,7 +56,7 @@ public abstract class AbstractWriter implements Awriter {
                         writeNewLineIndent();
                     }
             }
-            writeListStart();
+            writeBeginList();
             last = LAST_LIST;
             depth++;
         } catch (IOException x) {
@@ -80,7 +80,7 @@ public abstract class AbstractWriter implements Awriter {
                         writeNewLineIndent();
                     }
             }
-            writeObjStart();
+            writeBeginObj();
             last = LAST_OBJ;
             depth++;
         } catch (IOException x) {
@@ -98,7 +98,7 @@ public abstract class AbstractWriter implements Awriter {
             if (prettyPrint) {
                 writeNewLineIndent();
             }
-            writeListEnd();
+            writeEndList();
             if (depth == 0) {
                 last = LAST_DONE;
             } else {
@@ -119,7 +119,7 @@ public abstract class AbstractWriter implements Awriter {
             if (prettyPrint) {
                 writeNewLineIndent();
             }
-            writeObjEnd();
+            writeEndObj();
             if (depth == 0) {
                 last = LAST_DONE;
             } else {
@@ -455,7 +455,7 @@ public abstract class AbstractWriter implements Awriter {
             if (arg == null) {
                 writeNull();
             } else {
-                writeValue(arg);
+                write(arg);
             }
             last = LAST_VAL;
         } catch (IOException x) {
@@ -494,7 +494,7 @@ public abstract class AbstractWriter implements Awriter {
      * Base64 encodes the array and writes the string byte by default.
      */
     protected void write(byte[] arg) throws IOException {
-        writeValue(AonBase64.encode(arg));
+        write(AonBase64.encode(arg));
     }
 
     /**
@@ -518,6 +518,31 @@ public abstract class AbstractWriter implements Awriter {
     protected abstract void write(long arg) throws IOException;
 
     /**
+     * Write the value, which will never be null.
+     */
+    protected abstract void write(CharSequence arg) throws IOException;
+
+    /**
+     * Start a new list.
+     */
+    protected abstract void writeBeginList() throws IOException;
+
+    /**
+     * Start a new object.
+     */
+    protected abstract void writeBeginObj() throws IOException;
+
+    /**
+     * End the current list.
+     */
+    protected abstract void writeEndList() throws IOException;
+
+    /**
+     * End the current object.
+     */
+    protected abstract void writeEndObj() throws IOException;
+
+    /**
      * Write string key of a object entry.
      */
     protected abstract void writeKey(CharSequence arg) throws IOException;
@@ -526,16 +551,6 @@ public abstract class AbstractWriter implements Awriter {
      * Separate the key from the value in a object.
      */
     protected abstract void writeKeyValueSeparator() throws IOException;
-
-    /**
-     * End the current list.
-     */
-    protected abstract void writeListEnd() throws IOException;
-
-    /**
-     * Start a new list.
-     */
-    protected abstract void writeListStart() throws IOException;
 
     /**
      * Override point for subclasses which perform use pretty printing, such as json.
@@ -552,23 +567,8 @@ public abstract class AbstractWriter implements Awriter {
     protected abstract void writeNull() throws IOException;
 
     /**
-     * End the current object.
-     */
-    protected abstract void writeObjEnd() throws IOException;
-
-    /**
-     * Start a new object.
-     */
-    protected abstract void writeObjStart() throws IOException;
-
-    /**
      * Write a list value or object entry separator, such as the comma in json.
      */
     protected abstract void writeSeparator() throws IOException;
-
-    /**
-     * Write the value, which will never be null.
-     */
-    protected abstract void writeValue(CharSequence arg) throws IOException;
 
 }

@@ -164,45 +164,7 @@ public class AonWriter extends AbstractWriter implements AonConstants {
     }
 
     @Override
-    protected void writeKey(CharSequence arg) throws IOException {
-        writeValue(arg);
-    }
-
-    @Override
-    protected void writeKeyValueSeparator() throws IOException {
-    }
-
-    @Override
-    protected void writeListEnd() throws IOException {
-        out.write(LIST_END);
-    }
-
-    @Override
-    protected void writeListStart() throws IOException {
-        out.write(LIST_START);
-    }
-
-    @Override
-    protected void writeNull() throws IOException {
-        out.write(NULL);
-    }
-
-    @Override
-    protected void writeObjEnd() throws IOException {
-        out.write(OBJ_END);
-    }
-
-    @Override
-    protected void writeObjStart() throws IOException {
-        out.write(OBJ_START);
-    }
-
-    @Override
-    protected void writeSeparator() throws IOException {
-    }
-
-    @Override
-    protected void writeValue(CharSequence arg) throws IOException {
+    protected void write(CharSequence arg) throws IOException {
         byte[] b = arg.toString().getBytes(Aon.UTF8);
         int len = b.length;
         if (len <= MAX_U5) {
@@ -215,6 +177,44 @@ public class AonWriter extends AbstractWriter implements AonConstants {
             write4Bytes(S32, len);
         }
         out.write(b);
+    }
+
+    @Override
+    protected void writeBeginList() throws IOException {
+        out.write(LIST_START);
+    }
+
+    @Override
+    protected void writeBeginObj() throws IOException {
+        out.write(OBJ_START);
+    }
+
+    @Override
+    protected void writeEndList() throws IOException {
+        out.write(LIST_END);
+    }
+
+    @Override
+    protected void writeEndObj() throws IOException {
+        out.write(OBJ_END);
+    }
+
+    @Override
+    protected void writeKey(CharSequence arg) throws IOException {
+        write(arg);
+    }
+
+    @Override
+    protected void writeKeyValueSeparator() throws IOException {
+    }
+
+    @Override
+    protected void writeNull() throws IOException {
+        out.write(NULL);
+    }
+
+    @Override
+    protected void writeSeparator() throws IOException {
     }
 
     ///////////////////////////////////////////////////////////////////////////

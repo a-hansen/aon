@@ -135,59 +135,7 @@ public abstract class AbstractJsonWriter extends AbstractWriter implements Appen
     }
 
     @Override
-    protected void writeKey(CharSequence arg) throws IOException {
-        writeValue(arg);
-    }
-
-    @Override
-    protected void writeKeyValueSeparator() throws IOException {
-        if (prettyPrint) {
-            append(C_S, 0, 2);
-        } else {
-            append(':');
-        }
-    }
-
-    @Override
-    protected void writeListEnd() throws IOException {
-        append(']');
-    }
-
-    @Override
-    protected void writeListStart() throws IOException {
-        append('[');
-    }
-
-    @Override
-    protected void writeNewLineIndent() throws IOException {
-        append('\n');
-        for (int i = getDepth(); --i >= 0; ) {
-            append(C_INDENT, 0, 2);
-        }
-    }
-
-    @Override
-    protected void writeNull() throws IOException {
-        append(C_NULL, 0, 4);
-    }
-
-    @Override
-    protected void writeObjEnd() throws IOException {
-        append('}');
-    }
-
-    @Override
-    protected void writeObjStart() throws IOException {
-        append('{');
-    }
-
-    @Override
-    protected void writeSeparator() throws IOException {
-        append(',');
-    }
-
-    @Override
-    protected void writeValue(CharSequence buf) throws IOException {
+    protected void write(CharSequence buf) throws IOException {
         append('"');
         char ch;
         for (int i = 0, len = buf.length(); i < len; i++) {
@@ -222,6 +170,58 @@ public abstract class AbstractJsonWriter extends AbstractWriter implements Appen
             }
         }
         append('"');
+    }
+
+    @Override
+    protected void writeBeginList() throws IOException {
+        append('[');
+    }
+
+    @Override
+    protected void writeBeginObj() throws IOException {
+        append('{');
+    }
+
+    @Override
+    protected void writeEndList() throws IOException {
+        append(']');
+    }
+
+    @Override
+    protected void writeEndObj() throws IOException {
+        append('}');
+    }
+
+    @Override
+    protected void writeKey(CharSequence arg) throws IOException {
+        write(arg);
+    }
+
+    @Override
+    protected void writeKeyValueSeparator() throws IOException {
+        if (prettyPrint) {
+            append(C_S, 0, 2);
+        } else {
+            append(':');
+        }
+    }
+
+    @Override
+    protected void writeNewLineIndent() throws IOException {
+        append('\n');
+        for (int i = getDepth(); --i >= 0; ) {
+            append(C_INDENT, 0, 2);
+        }
+    }
+
+    @Override
+    protected void writeNull() throws IOException {
+        append(C_NULL, 0, 4);
+    }
+
+    @Override
+    protected void writeSeparator() throws IOException {
+        append(',');
     }
 
     ///////////////////////////////////////////////////////////////////////////
