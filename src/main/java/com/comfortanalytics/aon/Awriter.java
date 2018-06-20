@@ -6,7 +6,7 @@ import java.math.BigDecimal;
 import java.math.BigInteger;
 
 /**
- * An Aobj encoder that can be used to encode large graphs with or without Aobj instances.
+ * An encoder that can be used to encode large graphs with or without Avalue instances.
  * <p>
  * To simply encode an Aobj or Alist, use the value(Aobj) method.  For example:
  * <ul><li>new JsonWriter(out).value(myObj).close(); </li> </ul>

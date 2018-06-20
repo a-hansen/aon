@@ -396,33 +396,33 @@ Type Cheat Sheet
 |null     | Z
 |object   | { _or_ }
 |
-|bigdec8  | g        | uint8     | Length bytes UTF8
-|bigdec16 | G        | uint16    | Length bytes UTF8
-|bigdec32 | h        | int32     | Length bytes UTF8
+|bigdec8  | g        | uint8         | UTF8
+|bigdec16 | G        | uint16        | UTF8
+|bigdec32 | h        | int32         | UTF8
 |
-|bigint8  | n        | uint8     | Length bytes
-|bigint16 | N        | uint16    | Length bytes
-|bigint32 | o        | int32     | Length bytes
+|bigint8  | n        | uint8         | Length bytes
+|bigint16 | N        | uint16        | Length bytes
+|bigint32 | o        | int32         | Length bytes
 |
-|bin8     | b        | uint8     | Length bytes
-|bin16    | B        | uint16    | Length bytes
-|bin32    | c        | int32     | Length bytes
+|bin8     | b        | uint8         | Length bytes
+|bin16    | B        | uint16        | Length bytes
+|bin32    | c        | int32         | Length bytes
 |
-|int5     | 0xA0     |           | In prefix
-|int8     | i        |           | 1 signed yte
-|int16    | I        |           | 2 signed bytes
-|int32    | j        |           | 4 signed bytes
-|int64    | J        |           | 8 signed bytes
+|int5     | 0xA0     |               | (Prefix & 0x1F) \| 0xFFFFFFE0 (32 bits)
+|int8     | i        |               | 1 signed yte
+|int16    | I        |               | 2 signed bytes
+|int32    | j        |               | 4 signed bytes
+|int64    | J        |               | 8 signed bytes
 |
-|str5     | 0xC0     | In prefix | UTF8 bytes
-|str8     | s        | uint8     | Length bytes UTF8
-|str16    | S        | uint16    | Length bytes UTF8
-|str32    | r        | int32     | Length bytes UTF8
+|str5     | 0xC0     | Prefix & 0x1F | UTF8
+|str8     | s        | uint8         | UTF8
+|str16    | S        | uint16        | UTF8
+|str32    | r        | int32         | UTF8
 |
-|uint5    | 0xE0     |           | In prefix
-|uint8    | u        |           | 1 unsigned byte
-|uint16   | U        |           | 2 unsigned bytes
-|uint32   | v        |           | 4 unsigned bytes
+|uint5    | 0xE0     |               | Prefix & 0x1F
+|uint8    | u        |               | 1 unsigned byte
+|uint16   | U        |               | 2 unsigned bytes
+|uint32   | v        |               | 4 unsigned bytes
 
 History
 -------
