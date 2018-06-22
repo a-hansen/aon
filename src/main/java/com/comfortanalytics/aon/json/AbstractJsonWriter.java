@@ -1,36 +1,20 @@
-/* ISC License
- *
- * Copyright 2017 by Comfort Analytics, LLC.
- *
- * Permission to use, copy, modify, and/or distribute this software for any purpose with
- * or without fee is hereby granted, provided that the above copyright notice and this
- * permission notice appear in all copies.
- *
- * THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES WITH REGARD
- * TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS. IN
- * NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY SPECIAL, DIRECT, INDIRECT, OR
- * CONSEQUENTIAL DAMAGES OR ANY DAMAGES WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR
- * PROFITS, WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION,
- * ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
- */
-
 package com.comfortanalytics.aon.json;
 
 import com.comfortanalytics.aon.AbstractWriter;
 import java.io.Closeable;
 import java.io.IOException;
+import java.math.BigDecimal;
+import java.math.BigInteger;
 
 /**
  * @author Aaron Hansen
  */
-public abstract class AbstractJsonWriter
-        extends AbstractWriter
-        implements Appendable, Closeable {
+public abstract class AbstractJsonWriter extends AbstractWriter implements Appendable, Closeable {
 
-    // Constants
-    // ---------
+    ///////////////////////////////////////////////////////////////////////////
+    // Class Fields
+    ///////////////////////////////////////////////////////////////////////////
 
-    static final int BUF_SIZE = 8192;
     private static final char[] C_B = new char[]{'\\', 'b'};
     private static final char[] C_F = new char[]{'\\', 'f'};
     private static final char[] C_FALSE = new char[]{'f', 'a', 'l', 's', 'e'};
@@ -48,32 +32,40 @@ public abstract class AbstractJsonWriter
                     '8', '9', 'a', 'b', 'c', 'd', 'e', 'f'
             };
 
-
-    // Fields
-    // ------
-
-    // Constructors
-    // ------------
-
+    ///////////////////////////////////////////////////////////////////////////
     // Public Methods
-    // --------------
+    ///////////////////////////////////////////////////////////////////////////
 
     /**
      * Append the characters and return this.
      */
     public abstract AbstractJsonWriter append(char[] ch, int off, int len);
 
-    // Protected Methods
-    // -----------------
-
+    /**
+     * Pretty printing is disabled by default, use this to enable it.
+     *
+     * @return This
+     */
     public AbstractJsonWriter setPrettyPrint(boolean arg) {
         prettyPrint = arg;
         return this;
     }
 
-    /**
-     * Write the value.
-     */
+    ///////////////////////////////////////////////////////////////////////////
+    // Protected Methods
+    ///////////////////////////////////////////////////////////////////////////
+
+    @Override
+    protected void write(BigDecimal arg) throws IOException {
+        append(arg.toString());
+    }
+
+    @Override
+    protected void write(BigInteger arg) throws IOException {
+        append(arg.toString());
+    }
+
+    @Override
     protected void write(boolean arg) throws IOException {
         if (arg) {
             append(C_TRUE, 0, 4);
@@ -82,9 +74,7 @@ public abstract class AbstractJsonWriter
         }
     }
 
-    /**
-     * Write the value.
-     */
+    @Override
     protected void write(double arg) throws IOException {
         if ((arg % 1) == 0) {
             write((long) arg);
@@ -93,9 +83,16 @@ public abstract class AbstractJsonWriter
         }
     }
 
-    /**
-     * Write the value.
-     */
+    @Override
+    protected void write(float arg) throws IOException {
+        if ((arg % 1) == 0) {
+            write((long) arg);
+        } else {
+            append(String.valueOf(arg));
+        }
+    }
+
+    @Override
     protected void write(int arg) throws IOException {
         if (arg < 10) {
             append((char) (arg + '0'));
@@ -128,9 +125,7 @@ public abstract class AbstractJsonWriter
         }
     }
 
-    /**
-     * Write the value.
-     */
+    @Override
     protected void write(long arg) throws IOException {
         if (arg < 100000) {
             write((int) arg);
@@ -139,79 +134,8 @@ public abstract class AbstractJsonWriter
         }
     }
 
-    /**
-     * Write string key of a map entry.
-     */
-    protected void writeKey(CharSequence arg) throws IOException {
-        writeValue(arg);
-    }
-
-    /**
-     * Separate the key from the value in a map.
-     */
-    protected void writeKeyValueSeparator() throws IOException {
-        if (prettyPrint)
-            append(C_S, 0, 2);
-        else
-            append(':');
-    }
-
-    /**
-     * End the current list.
-     */
-    protected void writeListEnd() throws IOException {
-        append(']');
-    }
-
-    /**
-     * Start a new list.
-     */
-    protected void writeListStart() throws IOException {
-        append('[');
-    }
-
-    /**
-     * End the current map.
-     */
-    protected void writeMapEnd() throws IOException {
-        append('}');
-    }
-
-    /**
-     * Start a new map.
-     */
-    protected void writeMapStart() throws IOException {
-        append('{');
-    }
-
-    /**
-     * Two spaces per level.
-     */
-    protected void writeNewLineIndent() throws IOException {
-        append('\n');
-        for (int i = getDepth(); --i >= 0; ) {
-            append(C_INDENT, 0, 2);
-        }
-    }
-
-    /**
-     * Write a null value.
-     */
-    protected void writeNull() throws IOException {
-        append(C_NULL, 0, 4);
-    }
-
-    /**
-     * Write a value separator, such as the comma in json.
-     */
-    protected void writeSeparator() throws IOException {
-        append(',');
-    }
-
-    /**
-     * Encodes a string.
-     */
-    protected void writeValue(CharSequence buf) throws IOException {
+    @Override
+    protected void write(CharSequence buf) throws IOException {
         append('"');
         char ch;
         for (int i = 0, len = buf.length(); i < len; i++) {
@@ -248,6 +172,62 @@ public abstract class AbstractJsonWriter
         append('"');
     }
 
+    @Override
+    protected void writeBeginList() throws IOException {
+        append('[');
+    }
+
+    @Override
+    protected void writeBeginObj() throws IOException {
+        append('{');
+    }
+
+    @Override
+    protected void writeEndList() throws IOException {
+        append(']');
+    }
+
+    @Override
+    protected void writeEndObj() throws IOException {
+        append('}');
+    }
+
+    @Override
+    protected void writeKey(CharSequence arg) throws IOException {
+        write(arg);
+    }
+
+    @Override
+    protected void writeKeyValueSeparator() throws IOException {
+        if (prettyPrint) {
+            append(C_S, 0, 2);
+        } else {
+            append(':');
+        }
+    }
+
+    @Override
+    protected void writeNewLineIndent() throws IOException {
+        append('\n');
+        for (int i = getDepth(); --i >= 0; ) {
+            append(C_INDENT, 0, 2);
+        }
+    }
+
+    @Override
+    protected void writeNull() throws IOException {
+        append(C_NULL, 0, 4);
+    }
+
+    @Override
+    protected void writeSeparator() throws IOException {
+        append(',');
+    }
+
+    ///////////////////////////////////////////////////////////////////////////
+    // Package / Private Methods
+    ///////////////////////////////////////////////////////////////////////////
+
     /**
      * Encode a unicode char.
      */
@@ -259,8 +239,4 @@ public abstract class AbstractJsonWriter
         append(HEX[(ch) & 0xf]);
     }
 
-    // Inner Classes
-    // -------------
-
-
-}//Main
+}

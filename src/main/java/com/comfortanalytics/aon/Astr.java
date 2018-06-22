@@ -1,49 +1,41 @@
-/* ISC License
- *
- * Copyright 2017 by Comfort Analytics, LLC.
- *
- * Permission to use, copy, modify, and/or distribute this software for any purpose with
- * or without fee is hereby granted, provided that the above copyright notice and this
- * permission notice appear in all copies.
- *
- * THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES WITH REGARD
- * TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS. IN
- * NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY SPECIAL, DIRECT, INDIRECT, OR
- * CONSEQUENTIAL DAMAGES OR ANY DAMAGES WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR
- * PROFITS, WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION,
- * ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
- */
-
 package com.comfortanalytics.aon;
 
+import java.math.BigDecimal;
+import java.math.BigInteger;
+
 /**
- * String wrapper.
+ * String value.
  *
  * @author Aaron Hansen
  */
-class Astr extends Aobj {
+public class Astr extends Avalue {
 
-    // Constants
-    // ---------
+    ///////////////////////////////////////////////////////////////////////////
+    // Class Fields
+    ///////////////////////////////////////////////////////////////////////////
 
     public static final Astr EMPTY = new Astr("");
 
-    // Fields
-    // ------
+    ///////////////////////////////////////////////////////////////////////////
+    // Instance Fields
+    ///////////////////////////////////////////////////////////////////////////
 
     private String value;
 
-
+    ///////////////////////////////////////////////////////////////////////////
     // Constructors
-    // ------------
+    ///////////////////////////////////////////////////////////////////////////
 
-    Astr(String val) {
-        if (val == null) throw new NullPointerException("Null not allowed");
+    private Astr(String val) {
+        if (val == null) {
+            throw new NullPointerException("Null not allowed");
+        }
         value = val;
     }
 
+    ///////////////////////////////////////////////////////////////////////////
     // Public Methods
-    // --------------
+    ///////////////////////////////////////////////////////////////////////////
 
     @Override
     public Atype aonType() {
@@ -52,10 +44,16 @@ class Astr extends Aobj {
 
     @Override
     public boolean equals(Object o) {
-        if (o == this) return true;
-        if (!(o instanceof Aobj)) return false;
-        Aobj obj = (Aobj) o;
-        if (obj.aonType() != Atype.STRING) return false;
+        if (o == this) {
+            return true;
+        }
+        if (!(o instanceof Avalue)) {
+            return false;
+        }
+        Avalue obj = (Avalue) o;
+        if (obj.aonType() != Atype.STRING) {
+            return false;
+        }
         return value.equals(obj.toString());
     }
 
@@ -69,9 +67,20 @@ class Astr extends Aobj {
         return true;
     }
 
-    public static Astr make(String arg) {
-        if (arg.isEmpty()) return EMPTY;
-        return new Astr(arg);
+    /**
+     * Attempts to parse the number so may throw an exception.
+     */
+    @Override
+    public BigDecimal toBigDecimal() {
+        return new BigDecimal(value);
+    }
+
+    /**
+     * Attempts to parse the number so may throw an exception.
+     */
+    @Override
+    public BigInteger toBigInt() {
+        return new BigInteger(value);
     }
 
     @Override
@@ -92,10 +101,59 @@ class Astr extends Aobj {
         return false;
     }
 
+    /**
+     * Attempts to parse the number so may throw an exception.
+     */
+    @Override
+    public double toDouble() {
+        return Double.parseDouble(value);
+    }
+
+    /**
+     * Attempts to parse the number so may throw an exception.
+     */
+    @Override
+    public float toFloat() {
+        return Float.parseFloat(value);
+    }
+
+    /**
+     * Attempts to parse the number so may throw an exception.
+     */
+    @Override
+    public int toInt() {
+        return Integer.parseInt(value);
+    }
+
+    /**
+     * Attempts to parse the number so may throw an exception.
+     */
+    @Override
+    public long toLong() {
+        return Long.parseLong(value);
+    }
+
+    /**
+     * Attempts to parse the number so may throw an exception.
+     */
+    @Override
+    public Number toNumber() {
+        return toBigDecimal();
+    }
+
     @Override
     public String toString() {
         return value;
     }
 
+    public static Astr valueOf(String arg) {
+        if (arg == null) {
+            return null;
+        }
+        if (arg.length() == 0) {
+            return EMPTY;
+        }
+        return new Astr(arg);
+    }
 
 }

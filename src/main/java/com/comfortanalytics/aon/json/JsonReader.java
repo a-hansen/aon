@@ -1,77 +1,75 @@
-/* ISC License
- *
- * Copyright 2017 by Comfort Analytics, LLC.
- *
- * Permission to use, copy, modify, and/or distribute this software for any purpose with
- * or without fee is hereby granted, provided that the above copyright notice and this
- * permission notice appear in all copies.
- *
- * THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES WITH REGARD
- * TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS. IN
- * NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY SPECIAL, DIRECT, INDIRECT, OR
- * CONSEQUENTIAL DAMAGES OR ANY DAMAGES WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR
- * PROFITS, WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION,
- * ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
- */
-
 package com.comfortanalytics.aon.json;
 
 import com.comfortanalytics.aon.AbstractReader;
 import com.comfortanalytics.aon.Areader;
-import java.io.*;
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.Reader;
+import java.nio.charset.Charset;
 
 /**
  * Json implementation of Areader.  The same instance can be re-used with the
  * setInput methods.  This class is not thread safe.
  *
  * @author Aaron Hansen
- * @see com.comfortanalytics.aon.Areader
+ * @see Areader
  */
-public class JsonReader extends AbstractReader implements Closeable {
+public class JsonReader extends AbstractReader {
 
-    // Constants
-    // ---------
+    ///////////////////////////////////////////////////////////////////////////
+    // Class Fields
+    ///////////////////////////////////////////////////////////////////////////
 
-    private static final int BUFLEN = 8192;
+    private static final int[] alse = new int[]{'a', 'l', 's', 'e'};
+    private static final int[] rue = new int[]{'r', 'u', 'e'};
+    private static final int[] ull = new int[]{'u', 'l', 'l'};
 
-    private static final char[] alse = new char[]{'a', 'l', 's', 'e'};
-    private static final char[] rue = new char[]{'r', 'u', 'e'};
-    private static final char[] ull = new char[]{'u', 'l', 'l'};
+    private static final Charset UTF8 = Charset.forName("UTF-8");
 
-    // Fields
-    // ---------
+    ///////////////////////////////////////////////////////////////////////////
+    // Instance Fields
+    ///////////////////////////////////////////////////////////////////////////
 
-    private char[] buf = new char[BUFLEN];
-    private int buflen = 0;
-    private Input in;
+    private StringBuilder buf = new StringBuilder(512);
+    private char[] chars = new char[512];
+    private int charsLen = 0;
+    private int charsPos = 0;
+    private Reader in;
 
-
+    ///////////////////////////////////////////////////////////////////////////
     // Constructors
-    // ------------
-
-    public JsonReader() {
-    }
-
-    public JsonReader(CharSequence in) {
-        setInput(in);
-    }
+    ///////////////////////////////////////////////////////////////////////////
 
     public JsonReader(File file) {
-        setInput(file);
+        this(file, UTF8);
     }
 
-    public JsonReader(InputStream in, String charset) {
-        setInput(in, charset);
+    public JsonReader(File file, Charset charset) {
+        this(new BufferedReader(new InputStreamReader(fis(file), charset)));
     }
 
-    public JsonReader(java.io.Reader in) {
-        setInput(in);
+    public JsonReader(InputStream in) {
+        this(in, UTF8);
     }
 
+    public JsonReader(InputStream in, Charset charset) {
+        this(new InputStreamReader(in, charset));
+    }
 
+    public JsonReader(Reader in) {
+        this.in = in;
+    }
+
+    ///////////////////////////////////////////////////////////////////////////
     // Public Methods
-    // --------------
+    ///////////////////////////////////////////////////////////////////////////
 
+    @Override
     public void close() {
         try {
             in.close();
@@ -84,73 +82,33 @@ public class JsonReader extends AbstractReader implements Closeable {
     public Token next() {
         try {
             int ch;
-            boolean hasValue = false;
             while (true) {
-                ch = readNextClue();
+                ch = readChar();
                 switch (ch) {
                     case '[':
                         return setBeginList();
                     case '{':
-                        return setBeginMap();
-                    case ':':
-                        if (last() != Token.STRING)
-                            throw new IllegalStateException("Invalid key");
-                        return setNextKey();
-                    case ',':
-                        if ((last() == Token.END_LIST) || (last() == Token.END_MAP))
-                            break;
-                        return last();
+                        return setBeginObj();
                     case ']':
-                        if (!hasValue) return setEndList();
-                        in.unread();
-                        return last();
+                        return setEndList();
                     case '}':
-                        if (!hasValue) return setEndMap();
-                        in.unread();
-                        return last();
+                        return setEndObj();
                     case -1:
-                        if (!hasValue) return setEndInput();
-                        in.unread();
-                        return last();
+                        return setEndInput();
                     //values
                     case '"':
-                        String str = readString();
-                        if ((str.length() > 0) && (str.charAt(0) == '\u001B')) {
-                            if (str.equals(DBL_NEG_INF)) {
-                                setNextValue(Double.NEGATIVE_INFINITY);
-                                hasValue = true;
-                                break;
-                            }
-                            if (str.equals(DBL_POS_INF)) {
-                                setNextValue(Double.POSITIVE_INFINITY);
-                                hasValue = true;
-                                break;
-                            }
-                            if (str.equals(DBL_NAN)) {
-                                setNextValue(Double.NaN);
-                                hasValue = true;
-                                break;
-                            }
-                        }
-                        setNextValue(str);
-                        hasValue = true;
-                        break;
+                        return setNext(readString());
                     case 't':
                         validateNextChars(rue);
-                        setNextValue(true);
-                        hasValue = true;
-                        break;
+                        return setNext(true);
                     case 'f':
                         validateNextChars(alse);
-                        setNextValue(false);
-                        hasValue = true;
-                        break;
+                        return setNext(false);
                     case 'n':
                         validateNextChars(ull);
-                        setNextValueNull();
-                        hasValue = true;
-                        break;
+                        return setNextNull();
                     case '-':
+                    case '+':  //can number start with '+'?
                     case '.':  //can number start with '.'?
                     case '0':
                     case '1':
@@ -162,8 +120,7 @@ public class JsonReader extends AbstractReader implements Closeable {
                     case '7':
                     case '8':
                     case '9':
-                        readNumber((char) ch);
-                        hasValue = true;
+                        return readNumber(ch);
                 }
             }
         } catch (IOException x) {
@@ -171,118 +128,36 @@ public class JsonReader extends AbstractReader implements Closeable {
         }
     }
 
-    /**
-     * Sets the input source, resets to ROOT, and returns this.
-     */
-    public Areader setInput(CharSequence in) {
-        this.in = new CharSequenceInput(in);
-        return reset();
-    }
+    ///////////////////////////////////////////////////////////////////////////
+    // Package / Private Methods
+    ///////////////////////////////////////////////////////////////////////////
 
-    /**
-     * Sets the input source, resets to ROOT, and returns this.
-     */
-    public Areader setInput(File file) {
+    private static InputStream fis(File file) {
         try {
-            if (in instanceof JsonInput) {
-                ((JsonInput) in).setInput(new FileReader(file));
-            } else {
-                in = new JsonInput(new FileReader(file));
+            return new FileInputStream(file);
+        } catch (FileNotFoundException x) {
+            throw new RuntimeException(x);
+        }
+    }
+
+    private int readChar() throws IOException {
+        if (charsPos >= charsLen) {
+            if (charsLen == -1) {
+                return -1;
             }
-        } catch (Exception x) {
-            throw new IllegalStateException(x);
-        }
-        return reset();
-    }
-
-    /**
-     * Sets the input source, resets to ROOT, and returns this.
-     */
-    public Areader setInput(InputStream inputStream, String charset) {
-        try {
-            if (this.in instanceof JsonInput) {
-                ((JsonInput) this.in).setInput(inputStream, charset);
-            } else {
-                this.in = new JsonInput(inputStream, charset);
+            charsLen = in.read(chars);
+            if (charsLen < 0) {
+                return -1;
             }
-            return reset();
-        } catch (IOException x) {
-            throw new IllegalStateException("IOException: " + x.getMessage(), x);
+            charsPos = 0;
         }
+        return chars[charsPos++];
     }
 
-    /**
-     * Sets the input source, resets to ROOT, and returns this.
-     */
-    public Areader setInput(Reader reader) {
-        if (this.in instanceof JsonInput) {
-            ((JsonInput) this.in).setInput(reader);
-        } else {
-            this.in = new JsonInput(reader);
-        }
-        return reset();
-    }
-
-
-    // Private Methods
-    // ---------------
-
-    private void bufAppend(char ch) {
-        if (buflen == buf.length) {
-            char[] tmp = new char[buflen * 2];
-            System.arraycopy(buf, 0, tmp, 0, buflen);
-            buf = tmp;
-        }
-        buf[buflen++] = ch;
-    }
-
-    private String bufToString() {
-        String ret = new String(buf, 0, buflen);
-        buflen = 0;
-        return ret;
-    }
-
-    /**
-     * Scans for the next relevant character, skipping over whitespace etc.
-     */
-    private int readNextClue() throws IOException {
-        int ch = in.read();
-        while (ch >= 0) {
-            switch (ch) {
-                case '{':
-                case '}':
-                case '[':
-                case ']':
-                case ':':
-                case ',':
-                case '"':
-                case 't':
-                case 'f':
-                case 'n':
-                case '-':
-                case '.':
-                case '0':
-                case '1':
-                case '2':
-                case '3':
-                case '4':
-                case '5':
-                case '6':
-                case '7':
-                case '8':
-                case '9':
-                    return ch;
-            }
-            ch = in.read();
-        }
-        return ch;
-    }
-
-    private Token readNumber(char clue) throws IOException {
-        char ch = clue;
+    private Token readNumber(int ch) throws IOException {
         boolean hasDecimal = false;
-        boolean hasMore = true;
-        while (hasMore) {
+        boolean more = true;
+        while (more) {
             switch (ch) {
                 case '.':
                 case 'e':
@@ -300,29 +175,27 @@ public class JsonReader extends AbstractReader implements Closeable {
                 case '7':
                 case '8':
                 case '9':
-                    bufAppend(ch);
-                    ch = (char) in.read();
+                    buf.append((char) ch);
+                    ch = readChar();
                     break;
                 default:
-                    in.unread();
-                    hasMore = false;
+                    more = false;
+                    break;
             }
         }
+        String s = buf.toString();
+        buf.setLength(0);
         if (hasDecimal) {
-            return setNextValue(Double.parseDouble(bufToString()));
+            return setNext(Double.parseDouble(s));
         }
-        long l = Long.parseLong(bufToString());
-        if ((l < Integer.MIN_VALUE) || (l > Integer.MAX_VALUE)) {
-            return setNextValue(l);
-        }
-        return setNextValue((int) l);
+        return setNext(Long.parseLong(s));
     }
 
     private String readString() throws IOException {
-        char ch = (char) in.read();
+        int ch = readChar();
         while (ch != '"') {
             if (ch == '\\') {
-                ch = (char) in.read();
+                ch = readChar();
                 switch (ch) {
                     case 'u': //case 'U' :
                         ch = readUnicode();
@@ -350,17 +223,19 @@ public class JsonReader extends AbstractReader implements Closeable {
                         throw new IOException("Unexpected escape: \\" + ch);
                 }
             }
-            bufAppend(ch);
-            ch = (char) in.read();
+            buf.append((char) ch);
+            ch = readChar();
         }
-        return bufToString();
+        String s = buf.toString();
+        buf.setLength(0);
+        return s;
     }
 
     private char readUnicode() throws IOException {
         int ret = 0;
         int ch;
         for (int i = 0; i < 4; ++i) {
-            switch (ch = in.read()) {
+            switch (ch = readChar()) {
                 case '0':
                 case '1':
                 case '2':
@@ -397,34 +272,14 @@ public class JsonReader extends AbstractReader implements Closeable {
         return (char) ret;
     }
 
-    private static void validate(int ch1, int ch2) {
-        if (ch1 != ch2) {
-            throw new IllegalStateException("Expecting " + ch2 + ", but got " + ch1);
-        }
-    }
-
-    private void validateNextChars(char[] chars) throws IOException {
+    private void validateNextChars(int[] chars) throws IOException {
         int ch;
         for (int i = 0, len = chars.length; i < len; i++) {
-            ch = in.read();
+            ch = readChar();
             if (ch != chars[i]) {
-                throw new IllegalStateException(
-                        "Expecting " + chars[i] + ", but got " + ch);
+                throw new IllegalStateException("Expecting " + chars[i] + ", but got " + ch);
             }
         }
     }
 
-    // Inner Classes
-    // -------------
-
-    /**
-     * Needed for the ability to unread (pushback) a char.
-     */
-    static interface Input extends Closeable {
-        public int read() throws IOException;
-
-        public void unread();
-    }
-
-
-}//Aon
+}

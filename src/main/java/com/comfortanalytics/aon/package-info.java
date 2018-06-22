@@ -1,19 +1,19 @@
 /**
  * <p>
- * Create data structures with Alist and Amap:
+ * Create data structures with Alist and Aobj:
  * <p>
  * <pre>
  * import com.comfortanalytics.aon.*;
  *
  * public static void main(String[] args) {
- *     Amap map = new Amap()
+ *     Aobj object = new Aobj()
  *             .put("boolean", true)
  *             .put("double", 100.1d)
  *             .put("int", 100)
  *             .put("long", 100l)
  *             .put("string", "abcdefghij\r\njklmnopqrs\u0000\u0001\u0002tuvwxyz\r\n")
  *             .putNull("null");
- *     System.out.println("The int value in the map is " + map.getInt("int"));
+ *     System.out.println("The int value in the object is " + object.getInt("int"));
  *     Alist list = new Alist()
  *             .add(true)
  *             .add(100.1d)
@@ -23,33 +23,19 @@
  *             .addNull();
  *     System.out.println("The int value in the list is " + list.get(2));
  *     Alist complex = new Alist();
- *     complex.addList()
+ *     complex.newList()
  *            .add(1)
  *            .add(2)
  *            .add(3);
- *     complex.addMap()
+ *     complex.newObj()
  *            .put("a", 1)
  *            .put("b", 2)
  *            .put("c", 3);
  * }
  * </pre>
  * <p>
- * Create primitives with static make methods on Aobj.
- * <p>
- * <pre>
- * import com.comfortanalytics.aon.*;
- *
- * public static void main(String[] args) {
- *     Aobj aBool = Aobj.make(false);
- *     Aobj aDbl = Aobj.make(1d);
- *     Aobj anInt = Aobj.make(1);
- *     Aobj aLong = Aobj.make(1l);
- *     Aobj aStr = Aobj.make("1");
- * }
- * </pre>
- * <p>
  * Use implementations of Awriter and Areader for encoding / decoding.  See package
- * com.comfortanalytics.aon.json.
+ * com.comfortanalytics.aon.io and com.comfortanalytics.aon.json.
  *
  * @author Aaron Hansen
  */

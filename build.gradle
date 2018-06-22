@@ -2,10 +2,10 @@ apply plugin: 'java'
 apply plugin: 'maven'
 
 group 'aon'
-version '4.0.1'
+version '5.0.0'
 
-sourceCompatibility = 1.5
-targetCompatibility = 1.5
+sourceCompatibility = 1.6
+targetCompatibility = 1.6
 
 repositories {
     mavenLocal()
@@ -17,12 +17,15 @@ dependencies {
     testCompile 'com.fasterxml.jackson.core:jackson-databind:+'
     testCompile 'com.google.code.gson:gson:+'
     testCompile 'com.googlecode.json-simple:json-simple:+'
-    testCompile 'com.jsoniter:jsoniter:+'
     testCompile 'com.owlike:genson:+'
-    testCompile 'io.fastjson:boon:+'
     testCompile 'net.sf.flexjson:flexjson:+'
+    testCompile 'org.openjdk.jmh:jmh-core:+'
+    testCompile 'org.openjdk.jmh:jmh-generator-annprocess:+'
     testCompile 'junit:junit:+'
-    testCompile 'org.javassist:javassist:+'
+}
+
+test {
+    exclude '**/*Benchmark*'
 }
 
 task benchmark(type: Test) {

@@ -1,60 +1,51 @@
-/* ISC License
- *
- * Copyright 2017 by Comfort Analytics, LLC.
- *
- * Permission to use, copy, modify, and/or distribute this software for any purpose with
- * or without fee is hereby granted, provided that the above copyright notice and this
- * permission notice appear in all copies.
- *
- * THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES WITH REGARD
- * TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS. IN
- * NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY SPECIAL, DIRECT, INDIRECT, OR
- * CONSEQUENTIAL DAMAGES OR ANY DAMAGES WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR
- * PROFITS, WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION,
- * ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
- */
-
 package com.comfortanalytics.aon;
 
+import java.io.Closeable;
+import java.math.BigDecimal;
+import java.math.BigInteger;
+
 /**
- * An Aobj decoder that can be used to decode an entire graph in pieces, or one large
- * Aobj, or somewhere in between. To decode an entire graph, call getObj(), getMap()
- * or getList(). Otherwise, use the next() method to iterate the elements of the input
+ * A decoder that can be used to decode an entire graph in pieces, or one large
+ * Avalue, or somewhere in between. To decode an entire graph, call getObj(), getList()
+ * or getValue(). Otherwise, use the next() method to iterate the elements of the input
  * document.
  * <p>
- * When next() returns:
+ * When next()/last() returns:
  * <ul>
- * <li>ROOT - The initial state, not in a list or map, call next() or getObj().
- * <li>BEGIN_LIST - Call getList() to decode the entire list, or call next again to get
+ * <li>ROOT - The root state, not in a list or obj, call next() to start iterating
+ * or getList(), getObj() or getValue() to decode the entire document.
+ * <li>BEGIN_LIST - Call getList() to decode the entire list, or call next() again to get
  * the first element of the list (or END_LIST if empty).
- * <li>BEGIN_MAP - Call getMap() to decode the entire map, or call next again to get
- * the first key of the map (or END_MAP if empty).
+ * <li>BEGIN_OBJ - Call getObj() to decode the entire object, or call next again to get
+ * the first key of the object (or END_OBJ if empty).
  * <li>END_INPUT - Parsing is finished, close the reader.
- * <li>END_LIST - The current list is complete, call next again.
- * <li>END_MAP - The current map is complete, call next again.
- * <li>KEY - Call getString() to get the next key, then call
- * next to determine its value.
- * <li>BOOLEAN,DOUBLE,INT,LONG,NULL,STRING - Call the corresponding getter.
+ * <li>END_LIST - The current list is complete.
+ * <li>END_OBJ - The current object is complete.
+ * <li>Everything else - Call the corresponding getter.
  * </ul>
  * <p>
- * Be aware that if the underlying encoding (such as JSON) doesn't provide a mechanism to
- * differentiate between data types (such as numbers), values might
- * not decode as the same type they were encoded.
+ * Be aware that numbers may not decode to the same type they were encoded from.
  *
  * @author Aaron Hansen
  */
-public interface Areader extends Aconstants {
+public interface Areader extends Closeable {
 
-    // Constants
-    // ---------
-
-    // Public Methods
-    // --------------
+    public void close();
 
     /**
-     * Close the input.
+     * Returns the value when last() == DECIMAL.
      */
-    public void close();
+    public BigDecimal getBigDecimal();
+
+    /**
+     * Returns the value when last() == BIGINT.
+     */
+    public BigInteger getBigInt();
+
+    /**
+     * Returns the value when last() == BINARY.
+     */
+    public byte[] getBinary();
 
     /**
      * Returns the value when last() == BOOLEAN.
@@ -65,6 +56,11 @@ public interface Areader extends Aconstants {
      * Returns the value when last() == DOUBLE.
      */
     public double getDouble();
+
+    /**
+     * Returns the value when last() == FLOAT.
+     */
+    public float getFloat();
 
     /**
      * Returns the value when last() == INT.
@@ -83,13 +79,8 @@ public interface Areader extends Aconstants {
     public long getLong();
 
     /**
-     * This should only be called when last() == BEGIN_MAP and it will decode the
-     * entire map.  Call next rather than this method get the map in pieces.
-     */
-    public Amap getMap();
-
-    /**
-     * Returns the Aobj when last() == raw type, KEY or ROOT.
+     * This should only be called when last() == BEGIN_OBJ and it will decode the
+     * entire object.  Call next rather than this method get the object in pieces.
      */
     public Aobj getObj();
 
@@ -97,6 +88,11 @@ public interface Areader extends Aconstants {
      * Returns the value when last() == STRING or KEY.
      */
     public String getString();
+
+    /**
+     * Returns the Avalue when last() == raw type, KEY or ROOT.
+     */
+    public Avalue getValue();
 
     /**
      * The last value returned from next(). At the beginning of a document, before
@@ -121,14 +117,17 @@ public interface Areader extends Aconstants {
      */
     public enum Token {
         BEGIN_LIST,
-        BEGIN_MAP,
+        BEGIN_OBJ,
+        BIGINT,
+        BINARY,
         BOOLEAN,
+        DECIMAL,
         DOUBLE,
         END_INPUT,
         END_LIST,
-        END_MAP,
+        END_OBJ,
+        FLOAT,
         INT,
-        KEY,
         LONG,
         NULL,
         ROOT,

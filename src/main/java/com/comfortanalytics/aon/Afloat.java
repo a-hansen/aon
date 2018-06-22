@@ -4,23 +4,23 @@ import java.math.BigDecimal;
 import java.math.BigInteger;
 
 /**
- * Long value.
+ * Float value.
  *
  * @author Aaron Hansen
  */
-public class Along extends Avalue {
+public class Afloat extends Avalue {
 
     ///////////////////////////////////////////////////////////////////////////
     // Fields
     ///////////////////////////////////////////////////////////////////////////
 
-    private long value;
+    private float value;
 
     ///////////////////////////////////////////////////////////////////////////
     // Constructors
     ///////////////////////////////////////////////////////////////////////////
 
-    private Along(long val) {
+    private Afloat(float val) {
         value = val;
     }
 
@@ -30,7 +30,7 @@ public class Along extends Avalue {
 
     @Override
     public Atype aonType() {
-        return Atype.LONG;
+        return Atype.FLOAT;
     }
 
     @Override
@@ -58,11 +58,11 @@ public class Along extends Avalue {
 
     @Override
     public int hashCode() {
-        return (int) (value ^ (value >>> 32));
+        return Float.floatToIntBits(value);
     }
 
     @Override
-    public boolean isLong() {
+    public boolean isFloat() {
         return true;
     }
 
@@ -78,7 +78,7 @@ public class Along extends Avalue {
 
     @Override
     public BigInteger toBigInt() {
-        return BigInteger.valueOf(value);
+        return BigInteger.valueOf((long) value);
     }
 
     @Override
@@ -103,7 +103,7 @@ public class Along extends Avalue {
 
     @Override
     public long toLong() {
-        return value;
+        return (long) value;
     }
 
     @Override
@@ -119,14 +119,14 @@ public class Along extends Avalue {
     /**
      * Attempts to reuse some common values before creating a new instance.
      */
-    public static Along valueOf(long arg) {
-        Along ret = null;
+    public static Afloat valueOf(float arg) {
+        Afloat ret = null;
         int i = (int) arg;
         if (arg == i) {
-            ret = LongCache.get(i);
+            ret = FltCache.get(i);
         }
         if (ret == null) {
-            ret = new Along(arg);
+            ret = new Afloat(arg);
         }
         return ret;
     }
@@ -135,25 +135,23 @@ public class Along extends Avalue {
     // Inner Classes
     ///////////////////////////////////////////////////////////////////////////
 
-    private static class LongCache {
+    private static class FltCache {
 
-        private static final Along NEG_ONE = new Along(-1);
-        private static final Along[] cache = new Along[101];
+        private static final int MAX = 100;
+        private static final Afloat NEG_ONE = new Afloat(-1);
+        private static final Afloat[] cache = new Afloat[MAX + 1];
 
-        public static Along get(long l) {
-            if ((l < 0) || (l > 100)) {
-                if (l == -1) {
-                    return NEG_ONE;
-                }
+        public static Afloat get(int i) {
+            if (i == -1) {
+                return NEG_ONE;
+            }
+            if ((i < 0) || (i > MAX)) {
                 return null;
             }
-            return cache[(int) l];
-        }
-
-        static {
-            for (int i = 101; --i >= 0; ) {
-                cache[i] = new Along(i);
+            if (cache[i] == null) {
+                cache[i] = new Afloat(i);
             }
+            return cache[i];
         }
     }
 

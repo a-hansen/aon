@@ -1,264 +1,577 @@
-/* ISC License
- *
- * Copyright 2017 by Comfort Analytics, LLC.
- *
- * Permission to use, copy, modify, and/or distribute this software for any purpose with
- * or without fee is hereby granted, provided that the above copyright notice and this
- * permission notice appear in all copies.
- *
- * THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES WITH REGARD
- * TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS. IN
- * NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY SPECIAL, DIRECT, INDIRECT, OR
- * CONSEQUENTIAL DAMAGES OR ANY DAMAGES WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR
- * PROFITS, WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION,
- * ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
- */
-
 package com.comfortanalytics.aon;
 
+import com.comfortanalytics.aon.Aobj.Member;
+import java.io.PrintWriter;
+import java.io.StringWriter;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
+
 /**
- * Base representation for all Aon data types.  Use Alist and Amap to create data
- * structures.
+ * String keyed collection of values that preserves the order of addition.  To traverse
+ * members in order, use the iterator, or getFirstMember() and use it's next() method.
  * <p>
- * Be aware that when encoding/decoding, if the underlying format (such as JSON)
- * doesn't provide a mechanism to differentiate between data types (such as numbers),
- * values might not decode as the same type they were encoded.
- * </p>
+ * This is not thread safe.
  *
  * @author Aaron Hansen
  */
-public abstract class Aobj {
+public class Aobj extends Agroup implements Iterable<Member> {
 
-    // Constants
-    // ---------
+    ///////////////////////////////////////////////////////////////////////////
+    // Instance Fields
+    ///////////////////////////////////////////////////////////////////////////
 
-    // Fields
-    // ------
+    private Member first;
+    private Member last;
+    private Map<String, Member> object = new HashMap<String, Member>();
 
-    // Constructors
-    // ------------
-
+    ///////////////////////////////////////////////////////////////////////////
     // Methods
-    // -------
+    ///////////////////////////////////////////////////////////////////////////
+
+    @Override
+    public Atype aonType() {
+        return Atype.OBJECT;
+    }
+
+    @Override
+    public Aobj clear() {
+        first = null;
+        last = null;
+        object.clear();
+        return this;
+    }
+
+    @Override
+    public Avalue copy() {
+        Aobj ret = new Aobj();
+        Member e = getFirst();
+        while (e != null) {
+            ret.put(e.getKey(), e.getValue().copy());
+            e = e.next();
+        }
+        return ret;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (o == null) {
+            return false;
+        }
+        if (o == this) {
+            return true;
+        }
+        if (o instanceof Aobj) {
+            Aobj arg = (Aobj) o;
+            if (size() != arg.size()) {
+                return false;
+            }
+            return hashCode() == arg.hashCode();
+        }
+        return false;
+    }
 
     /**
-     * For switch statements.
+     * Returns the value for the given key or null.
      */
-    public abstract Atype aonType();
+    public Avalue get(String key) {
+        Member e = object.get(key);
+        if (e == null) {
+            return null;
+        }
+        return e.getValue();
+    }
 
     /**
-     * If an object is mutable (list or map) then this should clone it,
-     * immutable objects can simply return themselves.
+     * Optional getter, returns the provided default if the value objectped to the key is
+     * null or not convertible.
      */
-    public Aobj copy() {
+    public boolean get(String key, boolean def) {
+        Avalue ret = get(key);
+        if ((ret == null) || ret.isNull()) {
+            return def;
+        }
+        try {
+            return ret.toBoolean();
+        } catch (Exception x) {
+        }
+        return def;
+    }
+
+    /**
+     * Optional getter, returns the provided default if the value objectped to the key is
+     * null.
+     */
+    public double get(String key, double def) {
+        Avalue ret = get(key);
+        if ((ret == null) || ret.isNull()) {
+            return def;
+        }
+        try {
+            return ret.toDouble();
+        } catch (Exception x) {
+        }
+        return def;
+    }
+
+    /**
+     * Optional getter, returns the provided default if the value objectped to the key is
+     * null.
+     */
+    public float get(String key, float def) {
+        Avalue ret = get(key);
+        if ((ret == null) || ret.isNull()) {
+            return def;
+        }
+        try {
+            return ret.toFloat();
+        } catch (Exception x) {
+        }
+        return def;
+    }
+
+    /**
+     * Optional getter, returns the provided default if the value objectped to the key is
+     * null or not convertible.
+     */
+    public int get(String key, int def) {
+        Avalue ret = get(key);
+        if ((ret == null) || ret.isNull()) {
+            return def;
+        }
+        try {
+            return ret.toInt();
+        } catch (Exception x) {
+        }
+        return def;
+    }
+
+    /**
+     * Optional getter, returns the provided default if the value objectped to the key is
+     * null or not convertible.
+     */
+    public long get(String key, long def) {
+        Avalue ret = get(key);
+        if ((ret == null) || ret.isNull()) {
+            return def;
+        }
+        try {
+            return ret.toLong();
+        } catch (Exception x) {
+        }
+        return def;
+    }
+
+    /**
+     * Optional getter, returns the provided default if the value objectped to the key is
+     * null.
+     */
+    public String get(String key, String def) {
+        Avalue ret = get(key);
+        if ((ret == null) || ret.isNull()) {
+            return def;
+        }
+        return ret.toString();
+    }
+
+    /**
+     * Returns the value, null or throws a ClassCastException.
+     */
+    public Abinary getBinary(String key) {
+        return get(key).toBinary();
+    }
+
+    /**
+     * Returns the value, null or throws a ClassCastException.
+     */
+    public boolean getBoolean(String key) {
+        return get(key).toBoolean();
+    }
+
+    /**
+     * Returns the value, null or throws a ClassCastException.
+     */
+    public double getDouble(String key) {
+        return get(key).toDouble();
+    }
+
+    /**
+     * Use this to traverse the children in order.
+     */
+    public Member getFirst() {
+        return first;
+    }
+
+    /**
+     * Returns the value, null or throws a ClassCastException.
+     */
+    public float getFloat(String key) {
+        return get(key).toFloat();
+    }
+
+    /**
+     * Returns the value, null or throws a ClassCastException.
+     */
+    public int getInt(String key) {
+        return get(key).toInt();
+    }
+
+    public Member getLast() {
+        return last;
+    }
+
+    /**
+     * Returns the value, null or throws a ClassCastException.
+     */
+    public Alist getList(String key) {
+        Avalue obj = get(key);
+        if (obj == null) {
+            return null;
+        }
+        return obj.toList();
+    }
+
+    /**
+     * Returns the value, null or throws a ClassCastException.
+     */
+    public long getLong(String key) {
+        return get(key).toLong();
+    }
+
+    /**
+     * Returns the value, null or throws a ClassCastException.
+     */
+    public Aobj getObj(String key) {
+        Avalue o = get(key);
+        if (o == null) {
+            return null;
+        }
+        return o.toObj();
+    }
+
+    /**
+     * Returns the String value for the given key, or null.
+     */
+    public String getString(String key) {
+        Avalue o = get(key);
+        if (o == null) {
+            return null;
+        }
+        return o.toString();
+    }
+
+    @Override
+    public int hashCode() {
+        int hashCode = 1;
+        Member e = getFirst();
+        while (e != null) {
+            hashCode = 31 * hashCode + e.hashCode();
+            e = e.next();
+        }
+        return hashCode;
+    }
+
+    /**
+     * Returns true if the key isn't in the object, or it's value is null.
+     */
+    public boolean isNull(String key) {
+        Avalue o = get(key);
+        if (o == null) {
+            return true;
+        }
+        return o.aonType() == Atype.NULL;
+    }
+
+    /**
+     * True.
+     */
+    @Override
+    public boolean isObj() {
+        return true;
+    }
+
+    @Override
+    public Iterator<Member> iterator() {
+        return new Iterator<Member>() {
+            private Member next = getFirst();
+            private Member prev;
+
+            @Override
+            public boolean hasNext() {
+                return next != null;
+            }
+
+            @Override
+            public Member next() {
+                prev = next;
+                next = next.next();
+                return prev;
+            }
+
+            @Override
+            public void remove() {
+                Aobj.this.remove(prev.key);
+            }
+        };
+    }
+
+    /**
+     * Puts a new list for given key and returns it.
+     */
+    public Alist newList(String key) {
+        Alist ret = new Alist();
+        put(key, ret);
+        return ret;
+    }
+
+    /**
+     * Creates and puts a new object for given key and returns it.
+     */
+    public Aobj newObj(String key) {
+        Aobj ret = new Aobj();
+        put(key, ret);
+        return ret;
+    }
+
+    /**
+     * Adds or replaces the value for the given key and returns this.
+     *
+     * @param key Must not be null.
+     * @param val Can be null, and can not be an already parented group.
+     * @return this
+     */
+    public Aobj put(String key, Avalue val) {
+        if (val == null) {
+            val = Anull.NULL;
+        }
+        Member e = object.get(key);
+        if (e != null) {
+            Avalue curr = e.getValue();
+            if (curr != val) {
+                if (val.isGroup()) {
+                    val.toGroup().setParent(this);
+                }
+                if (curr.isGroup()) {
+                    curr.toGroup().setParent(null);
+                }
+                e.setValue(val);
+            }
+        } else {
+            if (val.isGroup()) {
+                val.toGroup().setParent(this);
+            }
+            e = new Member(key, val);
+            object.put(key, e);
+            if (first == null) {
+                first = e;
+                last = e;
+            } else {
+                last.setNext(e);
+                last = e;
+            }
+        }
         return this;
     }
 
     /**
-     * Whether or not the object represents a boolean.
+     * Primitive setter, returns this.
      */
-    public boolean isBoolean() {
-        return false;
+    public Aobj put(String key, boolean val) {
+        put(key, Abool.valueOf(val));
+        return this;
     }
 
     /**
-     * Whether or not the object represents a double.
+     * Primitive setter, returns this.
      */
-    public boolean isDouble() {
-        return false;
+    public Aobj put(String key, double val) {
+        put(key, Adouble.valueOf(val));
+        return this;
     }
 
     /**
-     * Whether or not the object represents an int.
+     * Primitive setter, returns this.
      */
-    public boolean isInt() {
-        return false;
+    public Aobj put(String key, int val) {
+        put(key, Aint.valueOf(val));
+        return this;
     }
 
     /**
-     * Whether or not the object represents a list or map.
+     * Primitive setter, returns this.
      */
-    public boolean isGroup() {
-        return false;
+    public Aobj put(String key, long val) {
+        put(key, Along.valueOf(val));
+        return this;
     }
 
     /**
-     * Whether or not the object represents a list.
+     * Primitive setter, returns this.
      */
-    public boolean isList() {
-        return false;
-    }
-
-    /**
-     * Whether or not the object represents a long.  Be careful, longs can deserialize
-     * as ints.
-     */
-    public boolean isLong() {
-        return false;
-    }
-
-    /**
-     * Whether or not the object represents a amp.
-     */
-    public boolean isMap() {
-        return false;
-    }
-
-    /**
-     * Whether or not the object represents null.
-     */
-    public boolean isNull() {
-        return false;
-    }
-
-    /**
-     * Whether or not the object represents a number.
-     */
-    public boolean isNumber() {
-        return false;
-    }
-
-    /**
-     * Whether or not the object represents a string.
-     */
-    public boolean isString() {
-        return false;
-    }
-
-    /**
-     * Creates an Aobj representation of the primitive.
-     */
-    public static Aobj make(boolean arg) {
-        return Abool.make(arg);
-    }
-
-    /**
-     * Creates an Aobj representation of the primitive.
-     */
-    public static Aobj make(double arg) {
-        return Adbl.make(arg);
-    }
-
-    /**
-     * Creates an Aobj representation of the primitive.
-     */
-    public static Aobj make(int arg) {
-        return Aint.make(arg);
-    }
-
-    /**
-     * Creates an Aobj representation of the primitive.
-     */
-    public static Aobj make(long arg) {
-        return Along.make(arg);
-    }
-
-    /**
-     * Creates an Aobj representation of the primitive.
-     */
-    public static Aobj make(String arg) {
-        if (arg == null) {
-            return makeNull();
+    public Aobj put(String key, String val) {
+        if (val == null) {
+            put(key, Anull.NULL);
+        } else {
+            put(key, Astr.valueOf(val));
         }
-        return Astr.make(arg);
+        return this;
     }
 
     /**
-     * Creates an Aobj representation of null.
+     * Puts a String representing the stack trace into the object.
      */
-    public static Aobj makeNull() {
-        return Anull.NULL;
+    public Aobj put(String key, Throwable val) {
+        StringWriter str = new StringWriter();
+        PrintWriter out = new PrintWriter(str);
+        val.printStackTrace(out);
+        out.flush();
+        put(key, str.toString());
+        try {
+            out.close();
+        } catch (Exception x) {
+        }
+        try {
+            str.close();
+        } catch (Exception x) {
+        }
+        return this;
     }
 
     /**
-     * Attempts to return a boolean value.  Numerics will return false for 0 and true for
-     * anything else.  Strings should return true for "true" or "1" and false for
-     * "false" or "0".  Anything else will throws a ClassCastException.
+     * Puts a null value for given key and returns this.
+     */
+    public Aobj putNull(String key) {
+        return put(key, Anull.NULL);
+    }
+
+    /**
+     * Removes the key-value pair and returns the removed value.
      *
-     * @throws ClassCastException If not convertible.
+     * @return Possibly null.
      */
-    public boolean toBoolean() {
-        throw new ClassCastException(getClass().getName() + " not boolean");
+    public Avalue remove(String key) {
+        Member e = object.remove(key);
+        if (e == null) {
+            return null;
+        }
+        if (size() == 0) {
+            first = null;
+            last = null;
+        } else if (e == first) {
+            first = first.next();
+        } else {
+            Member prev = getPrev(key);
+            prev.setNext(e.next());
+            if (e == last) {
+                last = prev;
+            }
+        }
+        Avalue ret = e.getValue();
+        if (ret.isGroup()) {
+            ret.toGroup().setParent(null);
+        }
+        return ret;
     }
 
-    /**
-     * Attempts to return a double value.  Numerics of other types will cast the results.
-     * Booleans will return 0 for false and 1 for true.
-     * Strings will attempt to parse the numeric which may result in a parse
-     * exception.  Anything else will throw a ClassCastException.
-     *
-     * @throws ClassCastException If not convertible.
-     */
-    public double toDouble() {
-        throw new ClassCastException(getClass().getName() + " not double");
+    public Avalue removeFirst() {
+        if (first != null) {
+            return remove(first.getKey());
+        }
+        return null;
     }
 
-    /**
-     * Attempts to return a float value.  Numerics of other types will cast the results.
-     * Booleans will return 0 for false and 1 for true.
-     * Strings will attempt to parse the numeric which may result in a parse
-     * exception.  Anything else will throw a ClassCastException.
-     *
-     * @throws ClassCastException If not convertible.
-     */
-    public float toFloat() {
-        throw new ClassCastException(getClass().getName() + " not float");
+    public Avalue removeLast() {
+        if (last != null) {
+            return remove(last.getKey());
+        }
+        return null;
     }
 
-    /**
-     * Lists and maps return themselves, everything else results in an exception.
-     *
-     * @throws ClassCastException If not convertible.
-     */
-    public Agroup toGroup() {
-        throw new ClassCastException(getClass().getName() + " not list");
+    @Override
+    public int size() {
+        return object.size();
     }
 
-    /**
-     * Attempts to return an int value.  Numerics of other types will cast the results.
-     * Booleans will return 0 for false and 1 for true.
-     * Strings will attempt to parse the numeric which may result in a parse
-     * exception.  Anything else will throw a ClassCastException.
-     *
-     * @throws ClassCastException If not convertible.
-     */
-    public int toInt() {
-        throw new ClassCastException(getClass().getName() + " not int");
+    @Override
+    public Aobj toObj() {
+        return this;
     }
 
-    /**
-     * Lists return themselves, everything else results in an exception.
-     *
-     * @throws ClassCastException If not convertible.
-     */
-    public Alist toList() {
-        throw new ClassCastException(getClass().getName() + " not list");
+    ///////////////////////////////////////////////////////////////////////////
+    // Package / Private Methods
+    ///////////////////////////////////////////////////////////////////////////
+
+    private Member getPrev(String key) {
+        Member prev = null;
+        Member entry = getFirst();
+        while (entry != null) {
+            if (entry.getKey().equals(key)) {
+                return prev;
+            }
+            prev = entry;
+            entry = entry.next();
+        }
+        return prev;
     }
 
-    /**
-     * Attempts to return a long value.  Numerics of other types will cast the results.
-     * Booleans will return 0 for false and 1 for true.
-     * Strings will attempt to parse the numeric which may result in a parse
-     * exception.  Anything else will throw a ClassCastException.
-     *
-     * @throws ClassCastException If not convertible.
-     */
-    public long toLong() {
-        throw new ClassCastException(getClass().getName() + " not long");
-    }
-
-    /**
-     * Maps return themselves, everything else results in an exception.
-     *
-     * @throws ClassCastException If not convertible.
-     */
-    public Amap toMap() {
-        throw new ClassCastException(getClass().getName() + " not map");
-    }
-
-
+    ///////////////////////////////////////////////////////////////////////////
     // Inner Classes
-    // -------------
+    ///////////////////////////////////////////////////////////////////////////
 
+    /**
+     * Object member which provides access to the next member in the object.
+     */
+    public static class Member {
+
+        private String key;
+        private Member next;
+        private Avalue val;
+
+        Member(String key, Avalue val) {
+            this.key = key;
+            this.val = val;
+        }
+
+        @Override
+        public boolean equals(Object obj) {
+            if (obj == this) {
+                return true;
+            }
+            if (obj instanceof Member) {
+                Member e = (Member) obj;
+                if (!e.getKey().equals(key)) {
+                    return false;
+                }
+                return e.getValue().equals(val);
+            }
+            return false;
+        }
+
+        public String getKey() {
+            return key;
+        }
+
+        public Avalue getValue() {
+            return val;
+        }
+
+        @Override
+        public int hashCode() {
+            return key.hashCode() ^ val.hashCode();
+        }
+
+        public Member next() {
+            return next;
+        }
+
+        void setNext(Member entry) {
+            next = entry;
+        }
+
+        void setValue(Avalue val) {
+            this.val = val;
+        }
+
+    }
 
 }

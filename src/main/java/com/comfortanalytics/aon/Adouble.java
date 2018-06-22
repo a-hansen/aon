@@ -4,23 +4,23 @@ import java.math.BigDecimal;
 import java.math.BigInteger;
 
 /**
- * Long value.
+ * IEEE 754 floating-point "double format" bit layout.
  *
  * @author Aaron Hansen
  */
-public class Along extends Avalue {
+public class Adouble extends Avalue {
 
     ///////////////////////////////////////////////////////////////////////////
-    // Fields
+    // Instance Fields
     ///////////////////////////////////////////////////////////////////////////
 
-    private long value;
+    private double value;
 
     ///////////////////////////////////////////////////////////////////////////
     // Constructors
     ///////////////////////////////////////////////////////////////////////////
 
-    private Along(long val) {
+    private Adouble(double val) {
         value = val;
     }
 
@@ -30,7 +30,7 @@ public class Along extends Avalue {
 
     @Override
     public Atype aonType() {
-        return Atype.LONG;
+        return Atype.DOUBLE;
     }
 
     @Override
@@ -58,11 +58,12 @@ public class Along extends Avalue {
 
     @Override
     public int hashCode() {
-        return (int) (value ^ (value >>> 32));
+        long v = Double.doubleToLongBits(value);
+        return (int) (v ^ (v >>> 32));
     }
 
     @Override
-    public boolean isLong() {
+    public boolean isDouble() {
         return true;
     }
 
@@ -78,7 +79,7 @@ public class Along extends Avalue {
 
     @Override
     public BigInteger toBigInt() {
-        return BigInteger.valueOf(value);
+        return BigInteger.valueOf((long) value);
     }
 
     @Override
@@ -93,7 +94,7 @@ public class Along extends Avalue {
 
     @Override
     public float toFloat() {
-        return value;
+        return (float) value;
     }
 
     @Override
@@ -103,7 +104,7 @@ public class Along extends Avalue {
 
     @Override
     public long toLong() {
-        return value;
+        return (long) value;
     }
 
     @Override
@@ -119,14 +120,14 @@ public class Along extends Avalue {
     /**
      * Attempts to reuse some common values before creating a new instance.
      */
-    public static Along valueOf(long arg) {
-        Along ret = null;
+    public static Adouble valueOf(double arg) {
+        Adouble ret = null;
         int i = (int) arg;
         if (arg == i) {
-            ret = LongCache.get(i);
+            ret = DblCache.get(i);
         }
         if (ret == null) {
-            ret = new Along(arg);
+            ret = new Adouble(arg);
         }
         return ret;
     }
@@ -135,26 +136,25 @@ public class Along extends Avalue {
     // Inner Classes
     ///////////////////////////////////////////////////////////////////////////
 
-    private static class LongCache {
+    private static class DblCache {
 
-        private static final Along NEG_ONE = new Along(-1);
-        private static final Along[] cache = new Along[101];
+        private static final int MAX = 100;
+        private static final Adouble NEG_ONE = new Adouble(-1);
+        private static final Adouble[] cache = new Adouble[MAX + 1];
 
-        public static Along get(long l) {
-            if ((l < 0) || (l > 100)) {
-                if (l == -1) {
-                    return NEG_ONE;
-                }
+        public static Adouble get(int i) {
+            if (i == -1) {
+                return NEG_ONE;
+            }
+            if ((i < 0) || (i > MAX)) {
                 return null;
             }
-            return cache[(int) l];
+            if (cache[i] == null) {
+                cache[i] = new Adouble(i);
+            }
+            return cache[i];
         }
 
-        static {
-            for (int i = 101; --i >= 0; ) {
-                cache[i] = new Along(i);
-            }
-        }
     }
 
 }
