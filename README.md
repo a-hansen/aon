@@ -401,30 +401,30 @@ Type Cheat Sheet
 |list     | [ _or_ ]
 |null     | Z
 |object   | { _or_ }
-|
+| | | | |
 |bigdec8  | g        | uint8  | Length bytes     | UTF8
 |bigdec16 | G        | uint16 | Length bytes     | UTF8
 |bigdec32 | h        | int32  | Length bytes     | UTF8
-|
+| | | | |
 |bigint8  | n        | uint8  | Length bytes     | Signed
 |bigint16 | N        | uint16 | Length bytes     | Signed
 |bigint32 | o        | int32  | Length bytes     | Signed, len must be a positive signed int
-|
+| | | | |
 |bin8     | b        | uint8  | Length bytes     |
 |bin16    | B        | uint16 | Length bytes     |
 |bin32    | c        | int32  | Length bytes     | Length must be a positive signed int
-|
+| | | | |
 |int5     | 0xC0     |        |                  | 32 bit value = (prefix & 0x1F) \| 0xFFFFFFE0
 |int8     | i        |        | 1 signed byte    |
 |int16    | I        |        | 2 signed bytes   |
 |int32    | j        |        | 4 signed bytes   |
 |int64    | J        |        | 8 signed bytes   |
-|
+| | | | |
 |str5     | 0xA0     |        | Prefix bytes     | Data len = prefix & 0x1F
 |str8     | s        | uint8  | Length bytes     | UTF8
 |str16    | S        | uint16 | Length bytes     | UTF8
 |str32    | r        | int32  | Length bytes     | UTF8, len must be postitive signed int
-|
+| | | | |
 |uint5    | 0xE0     |        |                  | Value = prefix & 0x1F
 |uint8    | u        |        | 1 unsigned byte  |
 |uint16   | U        |        | 2 unsigned bytes |
