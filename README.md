@@ -4,7 +4,7 @@ Aon
 * Version: 5.0.0
 * JDK 1.6+
 * [ISC License](https://en.wikipedia.org/wiki/ISC_license)
-* [Javadoc](https://a-hansen.github.io/aon/)
+* [Javadoc](https://a-hansen.github.io/aon/javadoc)
 
 Overview
 --------
