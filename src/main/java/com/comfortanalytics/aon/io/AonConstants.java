@@ -23,7 +23,7 @@ public interface AonConstants {
     char DEC16 = 'G';
     char DEC32 = 'h';
 
-    int I5 = 0xA0;
+    int I5 = 0xC0;
     char I8 = 'i';
     char I16 = 'I';
     char I32 = 'j';
@@ -39,7 +39,7 @@ public interface AonConstants {
     int MAX_U5 = 0x1F;
     int MAX_U8 = 0xFF;
     int MAX_U16 = 0xFFFF;
-    long MAX_U32 = 0x00000000FFFFFFFFl;
+    long MAX_U32 = 0xFFFFFFFFl;
 
     int MIN_I5 = 0xFFFFFFE0;
     int MIN_I8 = Byte.MIN_VALUE;
@@ -49,7 +49,7 @@ public interface AonConstants {
     char OBJ_END = '}';
     char OBJ_START = '{';
 
-    int S5 = 0xC0;
+    int S5 = 0xA0;
     char S8 = 's';
     char S16 = 'S';
     char S32 = 'r';

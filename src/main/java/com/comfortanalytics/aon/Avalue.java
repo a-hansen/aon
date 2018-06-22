@@ -8,10 +8,9 @@ import java.math.BigInteger;
  * Base representation for all Aon data types.  Use Alist and Aobj to create data
  * structures.
  * <p>
- * Be aware that when encoding/decoding, if the underlying format (such as JSON)
- * doesn't provide a mechanism to differentiate between data types (such as numbers),
- * values might not decode as the same type they were encoded.
- * </p>
+ * Be aware that when encoding/decoding, if the underlying format doesn't provide a mechanism
+ * to differentiate between data types (such as numbers), values may not decode to the same type
+ * they were encoded.
  *
  * @author Aaron Hansen
  */

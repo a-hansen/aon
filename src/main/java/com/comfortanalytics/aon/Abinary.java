@@ -5,7 +5,8 @@ import java.io.OutputStream;
 import java.util.Arrays;
 
 /**
- * Byte array value.
+ * Byte array value.  If the an encoding format doesn't support binary, this encodes to a
+ * base 64 string.
  *
  * @author Aaron Hansen
  */

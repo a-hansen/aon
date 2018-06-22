@@ -4,7 +4,7 @@ import java.math.BigDecimal;
 import java.math.BigInteger;
 
 /**
- * Double value.
+ * IEEE 754 floating-point "double format" bit layout.
  *
  * @author Aaron Hansen
  */

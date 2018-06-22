@@ -6,7 +6,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 
 /**
- * Indexed collection of values implemented.  This is not thread safe.
+ * Indexed collection of values.  Not thread safe.
  *
  * @author Aaron Hansen
  */
@@ -278,6 +278,8 @@ public class Alist extends Agroup implements Iterable<Avalue> {
 
     /**
      * Returns the item at index 0 or null.
+     *
+     * @return Null if empty.
      */
     public Avalue getFirst() {
         if (isEmpty()) {
@@ -301,7 +303,7 @@ public class Alist extends Agroup implements Iterable<Avalue> {
     }
 
     /**
-     * Returns the item at the highest index.
+     * Returns the item at the highest index or null.
      *
      * @return Null if empty.
      */

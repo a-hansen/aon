@@ -4,7 +4,7 @@ import java.math.BigDecimal;
 import java.math.BigInteger;
 
 /**
- * BigInteger value.
+ * For integers that exceed the min and max values of 64 signed bits.
  *
  * @author Aaron Hansen
  */

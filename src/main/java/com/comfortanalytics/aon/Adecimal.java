@@ -4,7 +4,8 @@ import java.math.BigDecimal;
 import java.math.BigInteger;
 
 /**
- * BigDecimal value.
+ * Decimal values that exceed the min and max value of double (IEEE 754 floating-point
+ * "double format" bit layout).
  *
  * @author Aaron Hansen
  */

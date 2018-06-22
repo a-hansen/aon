@@ -26,9 +26,14 @@ Order matters when displaying object members on user interfaces such
 as property sheets.
 
 #### Stream Friendly
-Some binary formats encode object and array lengths at the start of
-the structure.  This makes it too difficult, for example, to write
-48K of query results before terminating a message.
+Some formats encode object and array lengths at the start of the
+structure.  It can make parsing more efficient, but streaming very
+difficult.
+
+#### Java Friendly
+All data bytes are supported by Java.  For example, it isn't
+possible to have a string or byte array whose length is specified as
+an unsigned 32 bit int.
 
 Comparing Formats
 -----------------
@@ -48,9 +53,9 @@ Comparing Formats
 { i 0x04 name s i 0x03 aon i 0x04 born I 0x01 0x33 0xEE 0x7A i 0x04 cool T }
 ```
 
-**Aon** (26 bytes)
+**Aon** (27 bytes)
 ```
-{ 0xC4 name 0xC3 aon 0xC4 born j 0x01 0x33 0xEE 0x7A cool T }
+{ 0xA4 name 0xA3 aon 0xA4 born j 0x01 0x33 0xEE 0x7A 0xA4 cool T }
 ```
 
 Format
@@ -132,15 +137,15 @@ single byte can be used for both the type and the value.  If the
 signed int is in the range 0 to 31, use unsigned-int5.
 ```
 <Signed-Int> ::= <signed-int5> | <signed-int8> | <signed-int16> | <signed-int32> | <signed-int64>
-<signed-int5>  ::= 0xA0
+<signed-int5>  ::= 0xC0
 <signed-int8>  ::= "i" int8
 <signed-int16> ::= "I" int16
 <signed-int32> ::= "j" int32
 <signed-int64> ::= "J" int64
 ```
-* Signed-int5 can be identified with the bitmask 0xA0.  The value is
+* Signed-int5 can be identified with the bitmask 0xC0.  The value is
 stored in the 5 lowest order bits, without a sign bit.
-* To encode: (value & 0x1F) | 0xA0
+* To encode: (value & 0x1F) | 0xC0
 * To decode (into 32 bit int): (read() & 0x1F) | 0xFFFFFFE0
 
 #### String
@@ -149,14 +154,14 @@ the length is 31 bytes or less, a single byte can be used for both the
 type and the length.
 ```
 <String> ::= <str5> | <str8> | <str16> | <str32>
-<str5>  ::= 0xC0 UTF8
+<str5>  ::= 0xA0 UTF8
 <str8>  ::= "s" uint8-length UTF8
 <str16> ::= "S" uint16-length UTF8
 <str32> ::= "r" int32-length UTF8
 ```
-* Str5 can be identified with the bitmask 0xC0.  The value is
+* Str5 can be identified with the bitmask 0xA0.  The value is
 stored in the 5 lowest order bits.
-* To encode: value | 0xC0
+* To encode: value | 0xA0
 * To decode: read() & 0x1F
 * The length can be 0 for an empty string with no data field.
 * The str32 length must be a positive signed int.
@@ -311,7 +316,8 @@ public void encode(Aobj map) throws IOException {
 }
 ```
 
-Streaming IO is supported as well.  The following two methods produce the same result.
+Streaming IO is supported as well.  The following two methods produce
+the same result.
 
 ```java
 import com.comfortanalytics.aon.*;
@@ -387,8 +393,8 @@ gradlew benchmark
 Type Cheat Sheet
 ----------------
 
-|Type     |Prefix    |Length     |Data      |
-|---------|----------|-----------|----------|
+|Type     |Prefix    |Length     |Data      |Comment|
+|---------|----------|-----------|----------|-------|
 |boolean  | T _or_ F
 |double   | D
 |float    | d
@@ -396,33 +402,33 @@ Type Cheat Sheet
 |null     | Z
 |object   | { _or_ }
 |
-|bigdec8  | g        | uint8         | UTF8
-|bigdec16 | G        | uint16        | UTF8
-|bigdec32 | h        | int32         | UTF8
+|bigdec8  | g        | uint8  | Length bytes     | UTF8
+|bigdec16 | G        | uint16 | Length bytes     | UTF8
+|bigdec32 | h        | int32  | Length bytes     | UTF8
 |
-|bigint8  | n        | uint8         | Length bytes
-|bigint16 | N        | uint16        | Length bytes
-|bigint32 | o        | int32         | Length bytes
+|bigint8  | n        | uint8  | Length bytes     | Signed
+|bigint16 | N        | uint16 | Length bytes     | Signed
+|bigint32 | o        | int32  | Length bytes     | Signed, len must be a positive signed int
 |
-|bin8     | b        | uint8         | Length bytes
-|bin16    | B        | uint16        | Length bytes
-|bin32    | c        | int32         | Length bytes
+|bin8     | b        | uint8  | Length bytes     |
+|bin16    | B        | uint16 | Length bytes     |
+|bin32    | c        | int32  | Length bytes     | Length must be a positive signed int
 |
-|int5     | 0xA0     |               | (Prefix & 0x1F) \| 0xFFFFFFE0 (32 bits)
-|int8     | i        |               | 1 signed yte
-|int16    | I        |               | 2 signed bytes
-|int32    | j        |               | 4 signed bytes
-|int64    | J        |               | 8 signed bytes
+|int5     | 0xC0     |        |                  | 32 bit value = (prefix & 0x1F) \| 0xFFFFFFE0
+|int8     | i        |        | 1 signed byte    |
+|int16    | I        |        | 2 signed bytes   |
+|int32    | j        |        | 4 signed bytes   |
+|int64    | J        |        | 8 signed bytes   |
 |
-|str5     | 0xC0     | Prefix & 0x1F | UTF8
-|str8     | s        | uint8         | UTF8
-|str16    | S        | uint16        | UTF8
-|str32    | r        | int32         | UTF8
+|str5     | 0xA0     |        | Prefix bytes     | Data len = prefix & 0x1F
+|str8     | s        | uint8  | Length bytes     | UTF8
+|str16    | S        | uint16 | Length bytes     | UTF8
+|str32    | r        | int32  | Length bytes     | UTF8, len must be postitive signed int
 |
-|uint5    | 0xE0     |               | Prefix & 0x1F
-|uint8    | u        |               | 1 unsigned byte
-|uint16   | U        |               | 2 unsigned bytes
-|uint32   | v        |               | 4 unsigned bytes
+|uint5    | 0xE0     |        |                  | Value = prefix & 0x1F
+|uint8    | u        |        | 1 unsigned byte  |
+|uint16   | U        |        | 2 unsigned bytes |
+|uint32   | v        |        | 4 unsigned bytes |
 
 History
 -------
