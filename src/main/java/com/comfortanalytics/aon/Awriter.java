@@ -11,14 +11,13 @@ import java.math.BigInteger;
  * To simply encode an Aobj or Alist, use the value(Aobj) method.  For example:
  * <ul><li>new JsonWriter(out).value(myObj).close(); </li> </ul>
  * <p>
- * Otherwise, you can stream data struct without using any Aobj instances:
+ * Otherwise, you can stream data struct without using any Avalue instances:
  * <ul>
  * <li>out.newMap().key("a").value(1).key("b").value(2).key("c").value(3).endMap();</li>
  * </ul>
  * <p>
- * Be aware that if the underlying encoding (such as JSON) doesn't provide a mechanism to
- * differentiate between data types (such as numbers), values might not decode as the
- * same type they were encoded.
+ * Be aware that if the underlying encoding doesn't provide a mechanism to * differentiate between
+ * data types (such as numbers), values might not decode as the same type they were encoded.
  *
  * @author Aaron Hansen
  */
