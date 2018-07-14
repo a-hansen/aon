@@ -13,15 +13,15 @@ repositories {
 }
 
 dependencies {
-    testCompile 'com.fasterxml.jackson.core:jackson-core:+'
-    testCompile 'com.fasterxml.jackson.core:jackson-databind:+'
-    testCompile 'com.google.code.gson:gson:+'
-    testCompile 'com.googlecode.json-simple:json-simple:+'
-    testCompile 'com.owlike:genson:+'
-    testCompile 'net.sf.flexjson:flexjson:+'
-    testCompile 'org.openjdk.jmh:jmh-core:+'
-    testCompile 'org.openjdk.jmh:jmh-generator-annprocess:+'
-    testCompile 'junit:junit:+'
+    testImplementation 'com.fasterxml.jackson.core:jackson-core:+'
+    testImplementation 'com.fasterxml.jackson.core:jackson-databind:+'
+    testImplementation 'com.google.code.gson:gson:+'
+    testImplementation 'com.googlecode.json-simple:json-simple:+'
+    testImplementation 'com.owlike:genson:+'
+    testImplementation 'net.sf.flexjson:flexjson:+'
+    testImplementation 'org.openjdk.jmh:jmh-core:+'
+    testImplementation 'org.openjdk.jmh:jmh-generator-annprocess:+'
+    testImplementation 'junit:junit:+'
 }
 
 test {
@@ -37,3 +37,23 @@ task benchmark(type: Test) {
         includeTestsMatching "com.comfortanalytics.aon.AonBenchmark"
     }
 }
+
+task wrapper(type: Wrapper) {
+    gradleVersion = '4.8.1'
+}
+
+task sourcesJar(type: Jar, dependsOn: classes) {
+    classifier = 'sources'
+    from sourceSets.main.allSource
+}
+
+task javadocJar(type: Jar, dependsOn: javadoc) {
+    classifier = 'javadoc'
+    from javadoc.destinationDir
+}
+
+artifacts {
+    archives sourcesJar
+    archives javadocJar
+}
+

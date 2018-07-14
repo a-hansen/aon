@@ -1,17 +1,22 @@
 Aon
 ===
-
-* Version: 5.0.0
+[![](https://jitpack.io/v/a-hansen/alog.svg)](https://jitpack.io/#a-hansen/aon/+)
 * JDK 1.6+
 * [ISC License](https://en.wikipedia.org/wiki/ISC_license)
-* [Javadoc](https://a-hansen.github.io/aon/javadoc)
+* [Javadoc](https://jitpack.io/com/github/a-hansen/aon/v5.0.0/javadoc/)
 
 Overview
 --------
 
-Aon is another object notation like JSON except is it more compact,
-has more data types, and preserves the order of object members.  To be
-stream friendly, Aon doesn't encode object or list lengths.
+Aon is two things:
+
+* Another object notation like JSON.
+* A streaming parser generator for the JSON and Aon formats.
+* An [API](#java-library) like JSONObject for dealing with data in memory.
+
+The Aon format is like JSON except is it more compact, has more data
+types, and preserves the order of object members.  To be stream
+friendly, Aon doesn't encode object or list lengths.
 
 #### Compact
 Uses a binary encoding that borrows techniques from
@@ -43,11 +48,6 @@ Comparing Formats
 {"name":"aon","born":20180602,"cool":true}
 ```
 
-**MsgPack** (26 bytes)
-```
-0x83 0xA4 name 0xA3 aon 0xA4 born 0xCE 0x01 0x33 0xEE 0x7A 0xA4 cool 0xC3
-```
-
 **UBJSON** (32 bytes)
 ```
 { i 0x04 name s i 0x03 aon i 0x04 born I 0x01 0x33 0xEE 0x7A i 0x04 cool T }
@@ -56,6 +56,11 @@ Comparing Formats
 **Aon** (27 bytes)
 ```
 { 0xA4 name 0xA3 aon 0xA4 born j 0x01 0x33 0xEE 0x7A 0xA4 cool T }
+```
+
+**MsgPack** (26 bytes)
+```
+0x83 0xA4 name 0xA3 aon 0xA4 born 0xCE 0x01 0x33 0xEE 0x7A 0xA4 cool 0xC3
 ```
 
 Format
@@ -288,14 +293,10 @@ public Aobj decode() throws IOException {
     try (AonReader reader = Aon.reader(new File("data.aon"))) {
         return reader.getObj();
     }
-
-    //or Aon.read(new File("data.aon"))
 }
 
 public void encode(Aobj obj) throws IOException {
     Aon.writer(new File("data.aon")).value(obj).close();
-
-    //or Aon.write(obj, new File("data.aon"))
 }
 ```
 

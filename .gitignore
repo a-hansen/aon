@@ -1,5 +1,5 @@
 .gradle
 .idea
-build
-TODO.txt
 *.aon
+*.iml
+build
