@@ -2,15 +2,14 @@ Aon
 ===
 [![](https://jitpack.io/v/a-hansen/aon.svg)](https://jitpack.io/#a-hansen/aon)
 * JDK 1.6+
-* [ISC License](https://en.wikipedia.org/wiki/ISC_license)
 * [Javadoc](https://jitpack.io/com/github/a-hansen/aon/v5.0.0/javadoc/)
 
 Overview
 --------
 
-Aon is two things:
+Aon is:
 
-* Another object notation like JSON.
+* Another binary JSON-like object notation.
 * A streaming parser generator for the JSON and Aon formats.
 * An [API](#java-library) like JSONObject for dealing with data in memory.
 
