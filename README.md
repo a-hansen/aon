@@ -1,6 +1,6 @@
 Aon
 ===
-[![](https://jitpack.io/v/a-hansen/alog.svg)](https://jitpack.io/#a-hansen/aon/+)
+[![](https://jitpack.io/v/a-hansen/alog.svg)](https://jitpack.io/#a-hansen/aon)
 * JDK 1.6+
 * [ISC License](https://en.wikipedia.org/wiki/ISC_license)
 * [Javadoc](https://jitpack.io/com/github/a-hansen/aon/v5.0.0/javadoc/)
