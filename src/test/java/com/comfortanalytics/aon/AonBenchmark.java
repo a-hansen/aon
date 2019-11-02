@@ -20,7 +20,6 @@ import java.io.Writer;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 import org.json.simple.JSONValue;
-import org.junit.Test;
 import org.openjdk.jmh.annotations.Benchmark;
 import org.openjdk.jmh.annotations.Mode;
 import org.openjdk.jmh.annotations.Scope;
@@ -30,6 +29,7 @@ import org.openjdk.jmh.runner.Runner;
 import org.openjdk.jmh.runner.options.Options;
 import org.openjdk.jmh.runner.options.OptionsBuilder;
 import org.openjdk.jmh.runner.options.TimeValue;
+import org.testng.annotations.Test;
 
 /**
  * Benchmarks how much time applications spend submitting log records to various async
@@ -92,38 +92,6 @@ public class AonBenchmark {
         System.out.println("JSON large doc size: " + jsonLarge.length);
     }
 
-    private static void decodeAon(byte[] arg) {
-        try {
-            AonReader reader = new AonReader(new ByteArrayInputStream(arg));
-            reader.getValue();
-            reader.close();
-        } catch (Exception io) {
-            throw new RuntimeException(io);
-        }
-    }
-
-    private static void decodeAonJson(byte[] arg) {
-        try {
-            JsonReader reader = new JsonReader(new ByteArrayInputStream(arg));
-            reader.getValue();
-            reader.close();
-        } catch (Exception io) {
-            throw new RuntimeException(io);
-        }
-    }
-
-    private static void encodeAon(Aobj obj, OutputStream out) {
-        new AonWriter(out).value(obj).close();
-    }
-
-    private static void encodeAonJson(Aobj obj, OutputStream out) {
-        new JsonWriter(out).value(obj).close();
-    }
-
-    ///////////////////////////////////////////////////////////////////////////
-    // Package / Private Methods
-    ///////////////////////////////////////////////////////////////////////////
-
     static Aobj makeLargeObj() {
         Aobj primitiveObj = new Aobj()
                 .put("boolean", true)
@@ -173,6 +141,38 @@ public class AonBenchmark {
                         .add(100001)
                         .add(100001l)
                         .add("abcdefghij\r\njklmnopqrs\u0000\u0001\u0002tuvwxyz\r\n"));
+    }
+
+    private static void decodeAon(byte[] arg) {
+        try {
+            AonReader reader = new AonReader(new ByteArrayInputStream(arg));
+            reader.getValue();
+            reader.close();
+        } catch (Exception io) {
+            throw new RuntimeException(io);
+        }
+    }
+
+    private static void decodeAonJson(byte[] arg) {
+        try {
+            JsonReader reader = new JsonReader(new ByteArrayInputStream(arg));
+            reader.getValue();
+            reader.close();
+        } catch (Exception io) {
+            throw new RuntimeException(io);
+        }
+    }
+
+    ///////////////////////////////////////////////////////////////////////////
+    // Package / Private Methods
+    ///////////////////////////////////////////////////////////////////////////
+
+    private static void encodeAon(Aobj obj, OutputStream out) {
+        new AonWriter(out).value(obj).close();
+    }
+
+    private static void encodeAonJson(Aobj obj, OutputStream out) {
+        new JsonWriter(out).value(obj).close();
     }
 
     ///////////////////////////////////////////////////////////////////////////

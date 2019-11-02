@@ -8,8 +8,9 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
 import java.io.OutputStream;
-import org.junit.Assert;
-import org.junit.Test;
+import java.io.StringReader;
+import org.testng.Assert;
+import org.testng.annotations.Test;
 
 /**
  * @author Aaron Hansen
@@ -20,6 +21,21 @@ public class Atest {
     // Instance Field
     ///////////////////////////////////////////////////////////////////////////
 
+    private static final String test = "[\n"
+            + "  {\n"
+            + "    \"proto_index\": null,\n"
+            + "    \"room\": 1,\n"
+            + "    \"dew_point\": 28.3,\n"
+            + "    \"battery\": 37,\n"
+            + "    \"name\": \"Partition Sensor\",\n"
+            + "    \"external_temp_1\": null,\n"
+            + "    \"external_temp_2\": null,\n"
+            + "    \"humidity\": 19,\n"
+            + "    \"error_flags\": 0,\n"
+            + "    \"id\": 587202561,\n"
+            + "    \"temperature\": 73\n"
+            + "  }\n"
+            + "]";
     private boolean aonFormat = true;
 
     ///////////////////////////////////////////////////////////////////////////
@@ -28,10 +44,11 @@ public class Atest {
 
     @Test
     public void test() {
-        aonFormat = true;
-        allTests();
-        aonFormat = false;
-        allTests();
+        //aonFormat = true;
+        //allTests();
+        //aonFormat = false;
+        //allTests();
+        Aon.jsonReader(new StringReader(test)).getList();
     }
 
     ///////////////////////////////////////////////////////////////////////////

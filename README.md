@@ -2,7 +2,7 @@ Aon
 ===
 [![](https://jitpack.io/v/a-hansen/aon.svg)](https://jitpack.io/#a-hansen/aon)
 * JDK 1.6+
-* [Javadoc](https://jitpack.io/com/github/a-hansen/aon/v5.0.0/javadoc/)
+* [Javadoc](https://jitpack.io/com/github/a-hansen/aon/master-SNAPSHOT/javadoc/
 
 Overview
 --------
@@ -38,6 +38,36 @@ difficult.
 All data bytes are supported by Java.  For example, it isn't
 possible to have a string or byte array whose length is specified as
 an unsigned 32 bit int.
+
+Dependency Management
+---------------------
+
+Maven
+```xml
+<repositories>
+    <repository>
+      <id>jcenter</id>
+      <url>https://jcenter.bintray.com/</url>
+    </repository>
+</repositories>
+
+<dependency>
+  <groupId>com.comfortanalytics</groupId>
+  <artifactId>aon</artifactId>
+  <version>n.n.n</version>
+  <type>pom</type>
+</dependency>
+```
+
+Gradle
+```groovy
+repositories {
+    jcenter()
+}
+dependencies {
+    implementation 'com.comfortanalytics:aon:+'
+}
+```
 
 Comparing Formats
 -----------------
@@ -384,11 +414,7 @@ JSON small doc size: 261
 JSON large doc size: 159198
 ```
 
-The benchmark is a Gradle task and can be run as follows:
-
-```
-gradlew benchmark
-```
+The benchmark in the tests and must be run manually.
 
 Type Cheat Sheet
 ----------------
@@ -432,6 +458,11 @@ Type Cheat Sheet
 
 History
 -------
+_5.0.1_
+  - Fix reading numbers.
+  - TestNG
+  - jcenter
+  
 _5.0.0_
   - New native Aon encoding format, major rewrite.
 

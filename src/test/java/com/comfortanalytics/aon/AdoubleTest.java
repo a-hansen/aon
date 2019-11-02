@@ -1,8 +1,8 @@
 package com.comfortanalytics.aon;
 
 import java.util.Random;
-import org.junit.Assert;
-import org.junit.Test;
+import org.testng.Assert;
+import org.testng.annotations.Test;
 
 /**
  * @author Aaron Hansen

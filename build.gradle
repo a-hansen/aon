@@ -1,15 +1,21 @@
-apply plugin: 'java'
-apply plugin: 'maven'
+plugins {
+    id 'java'
+    id 'com.jfrog.bintray' version '1.8.4' apply false
+}
 
-group 'aon'
-version '5.0.0'
+version = '5.0.1'
+group = 'com.comfortanalytics'
+description = "Another Object Notation"
 
-sourceCompatibility = 1.6
-targetCompatibility = 1.6
+sourceCompatibility = JavaVersion.VERSION_1_8
+targetCompatibility = JavaVersion.VERSION_1_8
 
 repositories {
     mavenLocal()
-    mavenCentral()
+    jcenter()
+    maven {
+        url "https://plugins.gradle.org/m2/"
+    }
 }
 
 dependencies {
@@ -21,39 +27,17 @@ dependencies {
     testImplementation 'net.sf.flexjson:flexjson:+'
     testImplementation 'org.openjdk.jmh:jmh-core:+'
     testImplementation 'org.openjdk.jmh:jmh-generator-annprocess:+'
-    testImplementation 'junit:junit:+'
+    testImplementation 'org.testng:testng:+'
 }
 
 test {
+    useTestNG()
     exclude '**/*Benchmark*'
 }
 
-task benchmark(type: Test) {
-    testLogging.showStandardStreams = true
-    outputs.upToDateWhen {
-        false
-    }
-    filter {
-        includeTestsMatching "com.comfortanalytics.aon.AonBenchmark"
-    }
+wrapper {
+    gradleVersion = '5.6.2'
 }
 
-task wrapper(type: Wrapper) {
-    gradleVersion = '4.8.1'
-}
-
-task sourcesJar(type: Jar, dependsOn: classes) {
-    classifier = 'sources'
-    from sourceSets.main.allSource
-}
-
-task javadocJar(type: Jar, dependsOn: javadoc) {
-    classifier = 'javadoc'
-    from javadoc.destinationDir
-}
-
-artifacts {
-    archives sourcesJar
-    archives javadocJar
-}
+apply from: 'bintray.gradle'
 

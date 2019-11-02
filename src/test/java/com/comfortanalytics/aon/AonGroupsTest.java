@@ -1,13 +1,13 @@
 package com.comfortanalytics.aon;
 
 import com.comfortanalytics.aon.Aobj.Member;
-import org.junit.Assert;
-import org.junit.Test;
+import org.testng.Assert;
+import org.testng.annotations.Test;
 
 /**
  * @author Aaron Hansen
  */
-public class AonIntsTest {
+public class AonGroupsTest {
 
     ///////////////////////////////////////////////////////////////////////////
     // Public Methods

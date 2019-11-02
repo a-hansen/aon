@@ -555,6 +555,10 @@ public class Aobj extends Agroup implements Iterable<Member> {
             return val;
         }
 
+        void setValue(Avalue val) {
+            this.val = val;
+        }
+
         @Override
         public int hashCode() {
             return key.hashCode() ^ val.hashCode();
@@ -566,10 +570,6 @@ public class Aobj extends Agroup implements Iterable<Member> {
 
         void setNext(Member entry) {
             next = entry;
-        }
-
-        void setValue(Avalue val) {
-            this.val = val;
         }
 
     }

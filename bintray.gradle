@@ -1,0 +1,104 @@
+apply plugin: "com.jfrog.bintray"
+apply plugin: 'maven-publish'
+
+task sourcesJar(type: Jar) {
+    //archiveClassifier.set('sources')
+    classifier = 'sources'
+    from sourceSets.main.allJava
+}
+
+task javadocJar(type: Jar) {
+    //archiveClassifier.set('javadoc')
+    classifier = 'javadoc'
+    from javadoc.destinationDir
+}
+
+def myOrg = 'a-hansen'
+def myRepo = 'com.comfortanalytics'
+def myPackage = 'aon'
+def developerId = 'a-hansen'
+def developerName = 'Aaron Hansen'
+def developerOrgUrl = 'http://www.comfortanalytics.com'
+def developerEmail = 'developerId@_comfortanalytics_.com'
+def licenseName = 'ISC'
+def licenseUrl = 'http://opensource.org/licenses/ISC'
+
+def myGithubRepo = myOrg + '/' + myPackage
+def myProjectUrl = 'https://github.com/' + myGithubRepo
+def myVcsUrl = myProjectUrl
+def myScmUrl = 'scm:git:' + myProjectUrl + '.git'
+def myIssuesUrl = myProjectUrl + '/issues'
+def myReleaseNotesUrl = myProjectUrl + '/releases'
+
+bintray {
+    user = project.properties.bintrayUser
+    key = project.properties.bintrayApiKey
+    publications = ['MyPublication']
+    dryRun = false
+    publish = true
+    override = true
+    pkg {
+        repo = myRepo
+        name = myPackage
+        //userOrg = myOrg
+        licenses = [licenseName]
+        desc = project.description
+        vcsUrl = myVcsUrl
+        websiteUrl = myProjectUrl
+        issueTrackerUrl = myIssuesUrl
+        githubRepo = myGithubRepo
+        githubReleaseNotesFile = myReleaseNotesUrl
+        version {
+            name = project.version
+            desc = project.description
+            released = new Date()
+            vcsTag = project.version
+            gpg {
+                sign = true
+            }
+        }
+    }
+    publications = ['MyPublication']
+}
+
+// Create the pom configuration:
+def pomConfig = {
+    licenses {
+        license {
+            name licenseName
+            url licenseUrl
+            distribution 'repo'
+        }
+    }
+    developers {
+        developer {
+            id developerId
+            name developerName
+            email developerEmail
+            organization myOrg
+            organizationUrl developerOrgUrl
+        }
+    }
+    scm {
+        url myScmUrl
+    }
+}
+
+// Create the publication with the pom configuration:
+publishing.publications {
+    MyPublication(MavenPublication) {
+        from components.java
+        artifact sourcesJar
+        artifact javadocJar
+        groupId project.group
+        artifactId project.name
+        version project.version
+        pom.withXml {
+            def root = asNode()
+            root.appendNode('description', project.description)
+            root.appendNode('name', project.name)
+            root.appendNode('url', myProjectUrl)
+            root.children().last() + pomConfig
+        }
+    }
+}

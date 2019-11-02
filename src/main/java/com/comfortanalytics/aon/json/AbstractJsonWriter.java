@@ -94,6 +94,10 @@ public abstract class AbstractJsonWriter extends AbstractWriter implements Appen
 
     @Override
     protected void write(int arg) throws IOException {
+        if (arg < 0) {
+            append('-');
+            arg = -arg;
+        }
         if (arg < 10) {
             append((char) (arg + '0'));
         } else if (arg < 100) {
