@@ -3,3 +3,5 @@
 *.aon
 *.iml
 build
+/gradle.properties
+out

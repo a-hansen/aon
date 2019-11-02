@@ -179,6 +179,7 @@ public class JsonReader extends AbstractReader {
                     ch = readChar();
                     break;
                 default:
+                    charsPos--;
                     more = false;
                     break;
             }

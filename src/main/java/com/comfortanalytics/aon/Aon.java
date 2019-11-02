@@ -124,6 +124,34 @@ public class Aon {
         }
     }
 
+    public static Agroup readJson(File file, Charset charset) {
+        JsonReader in = null;
+        try {
+            in = jsonReader(file, charset);
+            return in.getValue().toGroup();
+        } finally {
+            if (in != null) {
+                in.close();
+            }
+        }
+    }
+
+    public static Agroup readJson(InputStream in, boolean close) {
+        JsonReader reader = null;
+        try {
+            reader = jsonReader(in);
+            return reader.getValue().toGroup();
+        } finally {
+            if (close) {
+                try {
+                    in.close();
+                } catch (Exception x) {
+                    throw new RuntimeException(x);
+                }
+            }
+        }
+    }
+
     public static AonReader reader(File in) {
         return new AonReader(in);
     }
