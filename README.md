@@ -2,7 +2,7 @@ Aon
 ===
 [![](https://jitpack.io/v/a-hansen/aon.svg)](https://jitpack.io/#a-hansen/aon)
 * JDK 1.6+
-* [Javadoc](https://jitpack.io/com/github/a-hansen/aon/master-SNAPSHOT/javadoc/
+* [Javadoc](https://jitpack.io/com/github/a-hansen/aon/master-SNAPSHOT/javadoc/)
 
 Overview
 --------
