@@ -20,21 +20,22 @@ import java.nio.charset.Charset;
  * @author Aaron Hansen
  * @see com.comfortanalytics.aon.Awriter
  */
+@SuppressWarnings("unused")
 public class JsonWriter extends AbstractJsonWriter {
 
     ///////////////////////////////////////////////////////////////////////////
     // Class Fields
     ///////////////////////////////////////////////////////////////////////////
 
-    private static final int BUF_SIZE = 512;
+    private static final int BUF_SIZE = 1024;
 
     ///////////////////////////////////////////////////////////////////////////
     // Instance Fields
     ///////////////////////////////////////////////////////////////////////////
 
-    private char[] buf = new char[BUF_SIZE];
+    private final char[] buf = new char[BUF_SIZE];
     private int buflen = 0;
-    private Writer out;
+    private final Writer out;
 
     ///////////////////////////////////////////////////////////////////////////
     // Constructors

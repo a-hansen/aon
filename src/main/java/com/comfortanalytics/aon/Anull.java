@@ -5,10 +5,11 @@ package com.comfortanalytics.aon;
  *
  * @author Aaron Hansen
  */
-public class Anull extends Avalue {
+@SuppressWarnings("unused")
+public class Anull extends Aprimitive {
 
     ///////////////////////////////////////////////////////////////////////////
-    // Constants
+    // Class Fields
     ///////////////////////////////////////////////////////////////////////////
 
     public static final Anull NULL = new Anull();

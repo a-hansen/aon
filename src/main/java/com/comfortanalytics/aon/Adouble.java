@@ -8,13 +8,20 @@ import java.math.BigInteger;
  *
  * @author Aaron Hansen
  */
-public class Adouble extends Avalue {
+@SuppressWarnings("unused")
+public class Adouble extends Aprimitive {
+
+    ///////////////////////////////////////////////////////////////////////////
+    // Class Fields
+    ///////////////////////////////////////////////////////////////////////////
+
+    public static final Adouble ZERO = DblCache.get(0);
 
     ///////////////////////////////////////////////////////////////////////////
     // Instance Fields
     ///////////////////////////////////////////////////////////////////////////
 
-    private double value;
+    private final double value;
 
     ///////////////////////////////////////////////////////////////////////////
     // Constructors
@@ -35,13 +42,12 @@ public class Adouble extends Avalue {
 
     @Override
     public boolean equals(Object o) {
-        if (!(o instanceof Avalue)) {
+        if (!(o instanceof Aprimitive)) {
             return false;
         }
-        Avalue obj = (Avalue) o;
+        Aprimitive obj = (Aprimitive) o;
         switch (obj.aonType()) {
             case DECIMAL:
-                return obj.equals(this);
             case BIGINT:
                 return obj.equals(this);
             case DOUBLE:

@@ -9,6 +9,7 @@ import java.math.BigInteger;
 /**
  * @author Aaron Hansen
  */
+@SuppressWarnings("UnusedReturnValue")
 public abstract class AbstractJsonWriter extends AbstractWriter implements Appendable, Closeable {
 
     ///////////////////////////////////////////////////////////////////////////
@@ -46,6 +47,7 @@ public abstract class AbstractJsonWriter extends AbstractWriter implements Appen
      *
      * @return This
      */
+    @SuppressWarnings("unused")
     public AbstractJsonWriter setPrettyPrint(boolean arg) {
         prettyPrint = arg;
         return this;
@@ -66,7 +68,7 @@ public abstract class AbstractJsonWriter extends AbstractWriter implements Appen
     }
 
     @Override
-    protected void write(boolean arg) throws IOException {
+    protected void write(boolean arg) {
         if (arg) {
             append(C_TRUE, 0, 4);
         } else {
@@ -219,7 +221,7 @@ public abstract class AbstractJsonWriter extends AbstractWriter implements Appen
     }
 
     @Override
-    protected void writeNull() throws IOException {
+    protected void writeNull() {
         append(C_NULL, 0, 4);
     }
 

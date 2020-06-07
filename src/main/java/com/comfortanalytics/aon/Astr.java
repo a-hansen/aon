@@ -8,7 +8,8 @@ import java.math.BigInteger;
  *
  * @author Aaron Hansen
  */
-public class Astr extends Avalue {
+@SuppressWarnings("unused")
+public class Astr extends Aprimitive {
 
     ///////////////////////////////////////////////////////////////////////////
     // Class Fields
@@ -20,7 +21,7 @@ public class Astr extends Avalue {
     // Instance Fields
     ///////////////////////////////////////////////////////////////////////////
 
-    private String value;
+    private final String value;
 
     ///////////////////////////////////////////////////////////////////////////
     // Constructors
@@ -47,10 +48,10 @@ public class Astr extends Avalue {
         if (o == this) {
             return true;
         }
-        if (!(o instanceof Avalue)) {
+        if (!(o instanceof Aprimitive)) {
             return false;
         }
-        Avalue obj = (Avalue) o;
+        Aprimitive obj = (Aprimitive) o;
         if (obj.aonType() != Atype.STRING) {
             return false;
         }

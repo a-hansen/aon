@@ -16,7 +16,7 @@ public class AstrTest {
     public void test() {
         Astr val = Astr.valueOf("abc");
         validate(val);
-        Assert.assertTrue(Astr.valueOf("") == Astr.valueOf(""));
+        Assert.assertSame(Astr.valueOf(""), Astr.valueOf(""));
         validateEqual(val, Astr.valueOf("abc"));
         Astr val2 = Astr.valueOf("def");
         validate(val2);
@@ -50,8 +50,8 @@ public class AstrTest {
 
     private void validateUnequal(Astr first, Astr second) {
         Assert.assertEquals(first.aonType(), second.aonType());
-        Assert.assertFalse(first.equals(second));
-        Assert.assertFalse(first.hashCode() == second.hashCode());
+        Assert.assertNotEquals(second, first);
+        Assert.assertNotEquals(second.hashCode(), first.hashCode());
     }
 
 }

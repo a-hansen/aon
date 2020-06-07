@@ -7,7 +7,8 @@ import com.comfortanalytics.aon.json.JsonAppender;
  *
  * @author Aaron Hansen
  */
-public abstract class Agroup extends Avalue {
+@SuppressWarnings({"UnusedReturnValue", "unused"})
+public abstract class Agroup extends Aprimitive {
 
     ///////////////////////////////////////////////////////////////////////////
     // Fields
@@ -32,26 +33,6 @@ public abstract class Agroup extends Avalue {
     }
 
     /**
-     * Sets the parent and returns this for un-parented groups, otherwise throws an
-     * IllegalStateException.
-     *
-     * @param arg The new parent.
-     * @return This
-     * @throws IllegalStateException If already parented.
-     */
-    Agroup setParent(Agroup arg) {
-        if (arg == null) {
-            this.parent = null;
-            return this;
-        }
-        if (this.parent != null) {
-            throw new IllegalStateException("Already parented");
-        }
-        this.parent = arg;
-        return this;
-    }
-
-    /**
      * Returns true when size() == 0.
      */
     public boolean isEmpty() {
@@ -73,10 +54,6 @@ public abstract class Agroup extends Avalue {
         return this;
     }
 
-    ///////////////////////////////////////////////////////////////////////////
-    // Package / Private Methods
-    ///////////////////////////////////////////////////////////////////////////
-
     /**
      * Json encodes the graph, be careful.
      */
@@ -85,6 +62,30 @@ public abstract class Agroup extends Avalue {
         StringBuilder buf = new StringBuilder();
         new JsonAppender(buf).value(this).close();
         return buf.toString();
+    }
+
+    ///////////////////////////////////////////////////////////////////////////
+    // Package / Private Methods
+    ///////////////////////////////////////////////////////////////////////////
+
+    /**
+     * Sets the parent and returns this for un-parented groups, otherwise throws an
+     * IllegalStateException.
+     *
+     * @param arg The new parent.
+     * @return This
+     * @throws IllegalStateException If already parented.
+     */
+    Agroup setParent(Agroup arg) {
+        if (arg == null) {
+            this.parent = null;
+            return this;
+        }
+        if (this.parent != null) {
+            throw new IllegalStateException("Already parented");
+        }
+        this.parent = arg;
+        return this;
     }
 
 }

@@ -39,7 +39,7 @@ public interface AonConstants {
     int MAX_U5 = 0x1F;
     int MAX_U8 = 0xFF;
     int MAX_U16 = 0xFFFF;
-    long MAX_U32 = 0xFFFFFFFFl;
+    long MAX_U32 = 0xFFFFFFFFL;
 
     int MIN_I5 = 0xFFFFFFE0;
     int MIN_I8 = Byte.MIN_VALUE;

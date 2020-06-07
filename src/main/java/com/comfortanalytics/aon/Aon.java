@@ -10,20 +10,24 @@ import java.io.File;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.Reader;
+import java.io.StringReader;
+import java.io.Writer;
 import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 
 /**
  * Static conveniences.
  *
  * @author Aaron Hansen
  */
+@SuppressWarnings({"ThrowFromFinallyBlock", "unused"})
 public class Aon {
 
     ///////////////////////////////////////////////////////////////////////////
     // Class Fields
     ///////////////////////////////////////////////////////////////////////////
 
-    public static final Charset UTF8 = Charset.forName("UTF-8");
+    public static final Charset UTF8 = StandardCharsets.UTF_8;
 
     ///////////////////////////////////////////////////////////////////////////
     // Public Methods
@@ -94,18 +98,16 @@ public class Aon {
         return new JsonWriter(out, charset);
     }
 
+    public static JsonWriter jsonWriter(Writer out) {
+        return new JsonWriter(out);
+    }
+
     /**
      * Decodes an Aon encoded list or object.
      */
     public static Agroup read(File in) {
-        Areader reader = null;
-        try {
-            reader = reader(in);
+        try (Areader reader = reader(in)) {
             return reader.getValue().toGroup();
-        } finally {
-            if (reader != null) {
-                reader.close();
-            }
         }
     }
 
@@ -125,19 +127,13 @@ public class Aon {
     }
 
     public static Agroup readJson(File file, Charset charset) {
-        JsonReader in = null;
-        try {
-            in = jsonReader(file, charset);
+        try (JsonReader in = jsonReader(file, charset)) {
             return in.getValue().toGroup();
-        } finally {
-            if (in != null) {
-                in.close();
-            }
         }
     }
 
     public static Agroup readJson(InputStream in, boolean close) {
-        JsonReader reader = null;
+        JsonReader reader;
         try {
             reader = jsonReader(in);
             return reader.getValue().toGroup();
@@ -152,6 +148,27 @@ public class Aon {
         }
     }
 
+    public static Agroup readJson(Reader in, boolean close) {
+        JsonReader reader;
+        try {
+            reader = jsonReader(in);
+            return reader.getValue().toGroup();
+        } finally {
+            if (close) {
+                try {
+                    in.close();
+                } catch (Exception x) {
+                    throw new RuntimeException(x);
+                }
+            }
+        }
+
+    }
+
+    public static Agroup readJson(String str) {
+        return readJson(new StringReader(str), true);
+    }
+
     public static AonReader reader(File in) {
         return new AonReader(in);
     }
@@ -164,14 +181,8 @@ public class Aon {
      * Encodes using the Aon format.
      */
     public static void write(Agroup val, File out) {
-        Awriter writer = null;
-        try {
-            writer = writer(out);
+        try (Awriter writer = writer(out)) {
             writer.value(val);
-        } finally {
-            if (writer != null) {
-                writer.close();
-            }
         }
     }
 

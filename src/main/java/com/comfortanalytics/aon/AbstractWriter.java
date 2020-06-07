@@ -41,6 +41,7 @@ public abstract class AbstractWriter implements Awriter {
     // Public Methods
     ///////////////////////////////////////////////////////////////////////////
 
+    @Override
     public AbstractWriter beginList() {
         try {
             switch (last) {
@@ -65,6 +66,7 @@ public abstract class AbstractWriter implements Awriter {
         return this;
     }
 
+    @Override
     public AbstractWriter beginObj() {
         try {
             switch (last) {
@@ -89,6 +91,7 @@ public abstract class AbstractWriter implements Awriter {
         return this;
     }
 
+    @Override
     public AbstractWriter endList() {
         try {
             if (depth == 0) {
@@ -110,6 +113,7 @@ public abstract class AbstractWriter implements Awriter {
         return this;
     }
 
+    @Override
     public AbstractWriter endObj() {
         try {
             if (depth == 0) {
@@ -131,6 +135,7 @@ public abstract class AbstractWriter implements Awriter {
         return this;
     }
 
+    @Override
     public AbstractWriter key(CharSequence arg) {
         try {
             switch (last) {
@@ -155,13 +160,15 @@ public abstract class AbstractWriter implements Awriter {
         return this;
     }
 
+    @Override
     public AbstractWriter reset() {
         depth = 0;
         last = LAST_INIT;
         return this;
     }
 
-    public AbstractWriter value(Avalue arg) {
+    @Override
+    public AbstractWriter value(AIvalue arg) {
         if (arg == null) {
             return value((String) null);
         }
@@ -189,7 +196,7 @@ public abstract class AbstractWriter implements Awriter {
                 break;
             case LIST:
                 beginList();
-                for (Avalue val : arg.toList()) {
+                for (AIvalue val : arg.toList()) {
                     value(val);
                 }
                 endList();
@@ -217,6 +224,7 @@ public abstract class AbstractWriter implements Awriter {
         return this;
     }
 
+    @Override
     public AbstractWriter value(BigDecimal arg) {
         try {
             switch (last) {
@@ -244,6 +252,7 @@ public abstract class AbstractWriter implements Awriter {
         return this;
     }
 
+    @Override
     public AbstractWriter value(BigInteger arg) {
         try {
             switch (last) {
@@ -271,6 +280,7 @@ public abstract class AbstractWriter implements Awriter {
         return this;
     }
 
+    @Override
     public AbstractWriter value(boolean arg) {
         try {
             switch (last) {
@@ -298,6 +308,7 @@ public abstract class AbstractWriter implements Awriter {
         return this;
     }
 
+    @Override
     public AbstractWriter value(byte[] arg) {
         try {
             switch (last) {
@@ -325,6 +336,7 @@ public abstract class AbstractWriter implements Awriter {
         return this;
     }
 
+    @Override
     public AbstractWriter value(double arg) {
         try {
             switch (last) {
@@ -352,6 +364,7 @@ public abstract class AbstractWriter implements Awriter {
         return this;
     }
 
+    @Override
     public AbstractWriter value(float arg) {
         try {
             switch (last) {
@@ -379,6 +392,7 @@ public abstract class AbstractWriter implements Awriter {
         return this;
     }
 
+    @Override
     public AbstractWriter value(int arg) {
         try {
             switch (last) {
@@ -406,6 +420,7 @@ public abstract class AbstractWriter implements Awriter {
         return this;
     }
 
+    @Override
     public AbstractWriter value(long arg) {
         try {
             switch (last) {
@@ -433,6 +448,7 @@ public abstract class AbstractWriter implements Awriter {
         return this;
     }
 
+    @Override
     public AbstractWriter value(String arg) {
         try {
             switch (last) {

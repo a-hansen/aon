@@ -39,7 +39,7 @@ public class AonGroupsTest {
     }
 
     @Test
-    public void testObj() throws Exception {
+    public void testObj() {
         Aobj obj = new Aobj();
         obj.put("0", Long.MIN_VALUE);
         obj.put("1", Integer.MIN_VALUE);

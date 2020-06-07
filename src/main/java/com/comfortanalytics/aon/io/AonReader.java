@@ -16,6 +16,7 @@ import java.math.BigInteger;
  *
  * @author Aaron Hansen
  */
+@SuppressWarnings({"ResultOfMethodCallIgnored", "unused"})
 public class AonReader extends AbstractReader implements AonConstants {
 
     ///////////////////////////////////////////////////////////////////////////
@@ -23,7 +24,7 @@ public class AonReader extends AbstractReader implements AonConstants {
     ///////////////////////////////////////////////////////////////////////////
 
     private byte[] buffer;
-    private InputStream in;
+    private final InputStream in;
 
     ///////////////////////////////////////////////////////////////////////////
     // Constructors

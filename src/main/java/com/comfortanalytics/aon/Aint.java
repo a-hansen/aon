@@ -8,13 +8,20 @@ import java.math.BigInteger;
  *
  * @author Aaron Hansen
  */
-public class Aint extends Avalue {
+@SuppressWarnings("unused")
+public class Aint extends Aprimitive {
+
+    ///////////////////////////////////////////////////////////////////////////
+    // Class Fields
+    ///////////////////////////////////////////////////////////////////////////
+
+    public static final Aint ZERO = IntCache.get(0);
 
     ///////////////////////////////////////////////////////////////////////////
     // Instance Fields
     ///////////////////////////////////////////////////////////////////////////
 
-    private int value;
+    private final int value;
 
     ///////////////////////////////////////////////////////////////////////////
     // Constructors
@@ -35,21 +42,19 @@ public class Aint extends Avalue {
 
     @Override
     public boolean equals(Object o) {
-        if (!(o instanceof Avalue)) {
+        if (!(o instanceof AIvalue)) {
             return false;
         }
-        Avalue obj = (Avalue) o;
+        AIvalue obj = (AIvalue) o;
         switch (obj.aonType()) {
             case DECIMAL:
-                return obj.equals(this);
             case BIGINT:
-                return obj.equals(this);
+            case INT:
+                return obj.toInt() == value;
             case DOUBLE:
                 return obj.toDouble() == value;
             case FLOAT:
                 return obj.toFloat() == value;
-            case INT:
-                return obj.toInt() == value;
             case LONG:
                 return obj.toLong() == value;
         }
@@ -111,9 +116,28 @@ public class Aint extends Avalue {
         return value;
     }
 
+    /**
+     * Returns Along
+     */
+    @Override
+    public Aprimitive toPrimitive() {
+        return Along.valueOf(value);
+    }
+
     @Override
     public String toString() {
         return String.valueOf(value);
+    }
+
+    /**
+     * Will convert numbers, otherwise returns null.
+     */
+    @Override
+    public Aint valueOf(Aprimitive value) {
+        if (value.isNumber()) {
+            return valueOf(value.toNumber().intValue());
+        }
+        return null;
     }
 
     /**

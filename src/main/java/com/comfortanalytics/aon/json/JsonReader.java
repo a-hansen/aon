@@ -11,6 +11,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
 import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 
 /**
  * Json implementation of Areader.  The same instance can be re-used with the
@@ -19,6 +20,7 @@ import java.nio.charset.Charset;
  * @author Aaron Hansen
  * @see Areader
  */
+@SuppressWarnings("unused")
 public class JsonReader extends AbstractReader {
 
     ///////////////////////////////////////////////////////////////////////////
@@ -29,17 +31,18 @@ public class JsonReader extends AbstractReader {
     private static final int[] rue = new int[]{'r', 'u', 'e'};
     private static final int[] ull = new int[]{'u', 'l', 'l'};
 
-    private static final Charset UTF8 = Charset.forName("UTF-8");
+    private static final int BUF_SIZE = 1024;
+    private static final Charset UTF8 = StandardCharsets.UTF_8;
 
     ///////////////////////////////////////////////////////////////////////////
     // Instance Fields
     ///////////////////////////////////////////////////////////////////////////
 
-    private StringBuilder buf = new StringBuilder(512);
-    private char[] chars = new char[512];
+    private final StringBuilder buf = new StringBuilder(BUF_SIZE);
+    private final char[] chars = new char[BUF_SIZE];
     private int charsLen = 0;
     private int charsPos = 0;
-    private Reader in;
+    private final Reader in;
 
     ///////////////////////////////////////////////////////////////////////////
     // Constructors
@@ -275,10 +278,10 @@ public class JsonReader extends AbstractReader {
 
     private void validateNextChars(int[] chars) throws IOException {
         int ch;
-        for (int i = 0, len = chars.length; i < len; i++) {
+        for (int aChar : chars) {
             ch = readChar();
-            if (ch != chars[i]) {
-                throw new IllegalStateException("Expecting " + chars[i] + ", but got " + ch);
+            if (ch != aChar) {
+                throw new IllegalStateException("Expecting " + aChar + ", but got " + ch);
             }
         }
     }

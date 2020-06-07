@@ -2,19 +2,27 @@ package com.comfortanalytics.aon;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
+import java.math.MathContext;
 
 /**
  * Float value.
  *
  * @author Aaron Hansen
  */
-public class Afloat extends Avalue {
+@SuppressWarnings({"CatchMayIgnoreException", "unused"})
+public class Afloat implements AIvalue {
 
     ///////////////////////////////////////////////////////////////////////////
-    // Fields
+    // Class Fields
     ///////////////////////////////////////////////////////////////////////////
 
-    private float value;
+    public static final Afloat ZERO = FltCache.get(0);
+
+    ///////////////////////////////////////////////////////////////////////////
+    // Instance Fields
+    ///////////////////////////////////////////////////////////////////////////
+
+    private final float value;
 
     ///////////////////////////////////////////////////////////////////////////
     // Constructors
@@ -35,25 +43,30 @@ public class Afloat extends Avalue {
 
     @Override
     public boolean equals(Object o) {
-        if (!(o instanceof Avalue)) {
+        if (!(o instanceof AIvalue)) {
             return false;
         }
-        Avalue obj = (Avalue) o;
+        AIvalue obj = (AIvalue) o;
         switch (obj.aonType()) {
             case DECIMAL:
-                return obj.equals(this);
             case BIGINT:
-                return obj.equals(this);
-            case DOUBLE:
-                return obj.toDouble() == value;
             case FLOAT:
                 return obj.toFloat() == value;
+            case DOUBLE:
+                return obj.toDouble() == value;
             case INT:
                 return obj.toInt() == value;
             case LONG:
                 return obj.toLong() == value;
         }
         return false;
+    }
+
+    /**
+     * Converts the float to a double such that the String value of both would be equal.
+     */
+    public static double formatDouble(float value) {
+        return new BigDecimal(value, MathContext.DECIMAL32).doubleValue();
     }
 
     @Override
@@ -111,9 +124,36 @@ public class Afloat extends Avalue {
         return value;
     }
 
+    /**
+     * Returns Adouble
+     */
+    @Override
+    public Aprimitive toPrimitive() {
+        return Adouble.valueOf(value);
+    }
+
     @Override
     public String toString() {
         return String.valueOf(value);
+    }
+
+    /**
+     * Will convert numbers, otherwise returns null.
+     */
+    @Override
+    public Afloat valueOf(Aprimitive value) {
+        try {
+            switch (value.aonType()) {
+                case DOUBLE:
+                    return valueOf((float) value.toDouble());
+                case INT:
+                    return valueOf(value.toInt());
+                case LONG:
+                    return valueOf(value.toLong());
+            }
+        } catch (Exception x) {
+        }
+        return null;
     }
 
     /**

@@ -28,94 +28,96 @@ import java.math.BigInteger;
  *
  * @author Aaron Hansen
  */
+@SuppressWarnings("unused")
 public interface Areader extends Closeable {
 
-    public void close();
+    @Override
+    void close();
 
     /**
      * Returns the value when last() == DECIMAL.
      */
-    public BigDecimal getBigDecimal();
+    BigDecimal getBigDecimal();
 
     /**
      * Returns the value when last() == BIGINT.
      */
-    public BigInteger getBigInt();
+    BigInteger getBigInt();
 
     /**
      * Returns the value when last() == BINARY.
      */
-    public byte[] getBinary();
+    byte[] getBinary();
 
     /**
      * Returns the value when last() == BOOLEAN.
      */
-    public boolean getBoolean();
+    boolean getBoolean();
 
     /**
      * Returns the value when last() == DOUBLE.
      */
-    public double getDouble();
+    double getDouble();
 
     /**
      * Returns the value when last() == FLOAT.
      */
-    public float getFloat();
+    float getFloat();
 
     /**
      * Returns the value when last() == INT.
      */
-    public int getInt();
+    int getInt();
 
     /**
      * This should only be called when last() == BEGIN_LIST and it will decode the
      * entire list.  Call next rather than this method to get the list in pieces.
      */
-    public Alist getList();
+    Alist getList();
 
     /**
      * Returns the value when last() == LONG.
      */
-    public long getLong();
+    long getLong();
 
     /**
      * This should only be called when last() == BEGIN_OBJ and it will decode the
      * entire object.  Call next rather than this method get the object in pieces.
      */
-    public Aobj getObj();
+    Aobj getObj();
 
     /**
      * Returns the value when last() == STRING or KEY.
      */
-    public String getString();
+    String getString();
 
     /**
      * Returns the Avalue when last() == raw type, KEY or ROOT.
      */
-    public Avalue getValue();
+    AIvalue getValue();
 
     /**
      * The last value returned from next(). At the beginning of a document, before
      * next has been called, this will return ROOT.
      */
-    public Token last();
+    Token last();
 
     /**
      * Advances the reader to the next item and returns the token representing it's
      * current state.
      */
-    public Token next();
+    Token next();
 
     /**
      * Sets last() == ROOT.
      */
-    public Areader reset();
+    Areader reset();
 
     /**
      * Represents the state of the reader, and determines which getter should be
      * called next.
      */
-    public enum Token {
+    enum Token {
         BEGIN_LIST,
         BEGIN_OBJ,
         BIGINT,

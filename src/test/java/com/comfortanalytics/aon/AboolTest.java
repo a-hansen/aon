@@ -16,7 +16,7 @@ public class AboolTest {
     public void test() {
         Abool val = Abool.valueOf(true);
         validate(val);
-        Assert.assertTrue(val == Abool.valueOf(true));
+        Assert.assertSame(val, Abool.valueOf(true));
         validateEqual(val, Abool.valueOf(val.toBoolean()));
         Abool val2 = Abool.valueOf(false);
         validate(val2);
@@ -53,8 +53,8 @@ public class AboolTest {
 
     private void validateUnequal(Abool first, Abool second) {
         Assert.assertEquals(first.aonType(), second.aonType());
-        Assert.assertFalse(first.equals(second));
-        Assert.assertFalse(first.hashCode() == second.hashCode());
+        Assert.assertNotEquals(second, first);
+        Assert.assertNotEquals(second.hashCode(), first.hashCode());
     }
 
 }

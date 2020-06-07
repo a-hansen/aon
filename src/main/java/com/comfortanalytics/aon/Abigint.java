@@ -8,13 +8,20 @@ import java.math.BigInteger;
  *
  * @author Aaron Hansen
  */
-public class Abigint extends Avalue {
+@SuppressWarnings({"CatchMayIgnoreException", "unused"})
+public class Abigint implements AIvalue {
+
+    ///////////////////////////////////////////////////////////////////////////
+    // Class Fields
+    ///////////////////////////////////////////////////////////////////////////
+
+    public static final Abigint ZERO = new Abigint(BigInteger.ZERO);
 
     ///////////////////////////////////////////////////////////////////////////
     // Instance Fields
     ///////////////////////////////////////////////////////////////////////////
 
-    private BigInteger value;
+    private final BigInteger value;
 
     ///////////////////////////////////////////////////////////////////////////
     // Constructors
@@ -35,14 +42,10 @@ public class Abigint extends Avalue {
 
     @Override
     public boolean equals(Object o) {
-        if (!(o instanceof Avalue)) {
+        if (!(o instanceof AIvalue)) {
             return false;
         }
-        Avalue obj = (Avalue) o;
-        if (obj.isNumber()) {
-            return value.equals(obj.toBigInt());
-        }
-        return false;
+        return value.equals(((AIvalue) o).toBigInt());
     }
 
     @Override
@@ -100,12 +103,59 @@ public class Abigint extends Avalue {
         return value;
     }
 
+    /**
+     * Attempts to return Along, but if out of bounds returns Astr.
+     */
+    @Override
+    public Aprimitive toPrimitive() {
+        if (value.compareTo(BigInteger.valueOf(Long.MAX_VALUE)) > 0) {
+            return Astr.valueOf(toString());
+        }
+        if (value.compareTo(BigInteger.valueOf(Long.MIN_VALUE)) < 0) {
+            return Astr.valueOf(toString());
+        }
+        return Along.valueOf(value.longValue());
+    }
+
     @Override
     public String toString() {
         return String.valueOf(value);
     }
 
+    /**
+     * Will convert attempt to convert numbers and strings, otherwise returns null.
+     */
+    @Override
+    public Abigint valueOf(Aprimitive value) {
+        try {
+            switch (value.aonType()) {
+                case DOUBLE:
+                    double d = value.toDouble();
+                    if (d % 1 == 0) {
+                        return valueOf(BigInteger.valueOf(value.toLong()));
+                    }
+                    return null;
+                case FLOAT:
+                    float f = value.toFloat();
+                    if (f % 1 == 0) {
+                        return valueOf(BigInteger.valueOf(value.toLong()));
+                    }
+                    return null;
+                case INT:
+                case LONG:
+                    return valueOf(BigInteger.valueOf(value.toLong()));
+                case STRING:
+                    return valueOf(new BigInteger(value.toString()));
+            }
+        } catch (Exception x) {
+        }
+        return null;
+    }
+
     public static Abigint valueOf(BigInteger arg) {
+        if (arg.equals(BigInteger.ZERO)) {
+            return ZERO;
+        }
         return new Abigint(arg);
     }
 

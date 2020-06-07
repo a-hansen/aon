@@ -10,7 +10,8 @@ import java.util.Arrays;
  *
  * @author Aaron Hansen
  */
-public class Abinary extends Avalue {
+@SuppressWarnings("unused")
+public class Abinary implements AIvalue {
 
     ///////////////////////////////////////////////////////////////////////////
     // Class Fields
@@ -42,6 +43,10 @@ public class Abinary extends Avalue {
     @Override
     public Atype aonType() {
         return Atype.BINARY;
+    }
+
+    public void copyInto(byte[] buf, int off) {
+        System.arraycopy(value, 0, buf, off, value.length);
     }
 
     @Override
@@ -86,8 +91,24 @@ public class Abinary extends Avalue {
     }
 
     @Override
+    public Aprimitive toPrimitive() {
+        return Astr.valueOf(toString());
+    }
+
+    @Override
     public String toString() {
+        if (value.length == 0) {
+            return "";
+        }
         return AonBase64.encode(value);
+    }
+
+    /**
+     * Decodes a base64 string.
+     */
+    @Override
+    public Abinary valueOf(Aprimitive value) {
+        return valueOf(value.toString());
     }
 
     /**
@@ -102,6 +123,19 @@ public class Abinary extends Avalue {
             return EMPTY;
         }
         return new Abinary(arg);
+    }
+
+    /**
+     * Attempts to decode a base64 string.
+     */
+    public static Abinary valueOf(String str) {
+        if (str == null) {
+            return null;
+        }
+        if (str.isEmpty()) {
+            return EMPTY;
+        }
+        return valueOf(AonBase64.decode(str));
     }
 
     /**

@@ -13,14 +13,15 @@ public class AlongTest {
     // Public Methods
     ///////////////////////////////////////////////////////////////////////////
 
+    @SuppressWarnings("unused")
     @Test
     public void test() {
         Random random = new Random(System.currentTimeMillis());
         Along val = Along.valueOf(Long.MAX_VALUE);
         validate(val);
-        Assert.assertTrue(Along.valueOf(10) == Along.valueOf(10));
+        Assert.assertSame(Along.valueOf(10), Along.valueOf(10));
         validateEqual(val, Along.valueOf(val.toLong()));
-        Along val2 = Along.valueOf(5000000000l);
+        Along val2 = Along.valueOf(5000000000L);
         validate(val2);
         validateEqual(val2, Along.valueOf(val2.toLong()));
         validateUnequal(val, val2);
@@ -52,8 +53,8 @@ public class AlongTest {
 
     private void validateUnequal(Along first, Along second) {
         Assert.assertEquals(first.aonType(), second.aonType());
-        Assert.assertFalse(first.equals(second));
-        Assert.assertFalse(first.hashCode() == second.hashCode());
+        Assert.assertNotEquals(second, first);
+        Assert.assertNotEquals(second.hashCode(), first.hashCode());
     }
 
 }

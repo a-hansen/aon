@@ -9,7 +9,8 @@ import java.math.BigInteger;
  *
  * @author Aaron Hansen
  */
-public class Abool extends Avalue {
+@SuppressWarnings("unused")
+public class Abool extends Aprimitive {
 
     ///////////////////////////////////////////////////////////////////////////
     // Class Fields
@@ -22,7 +23,7 @@ public class Abool extends Avalue {
     // Instance Fields
     ///////////////////////////////////////////////////////////////////////////
 
-    private boolean value;
+    private final boolean value;
 
     ///////////////////////////////////////////////////////////////////////////
     // Constructors

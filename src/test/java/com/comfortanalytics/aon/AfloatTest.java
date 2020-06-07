@@ -13,12 +13,13 @@ public class AfloatTest {
     // Public Methods
     ///////////////////////////////////////////////////////////////////////////
 
+    @SuppressWarnings("ConstantConditions")
     @Test
     public void test() {
         Random random = new Random(System.currentTimeMillis());
         Afloat val = Afloat.valueOf(10);
         validate(val);
-        Assert.assertTrue(val == Afloat.valueOf(10));
+        Assert.assertSame(val, Afloat.valueOf(10));
         validateEqual(val, Afloat.valueOf(val.toFloat()));
         Afloat val2 = Afloat.valueOf(random.nextFloat());
         validate(val2);
@@ -27,9 +28,9 @@ public class AfloatTest {
         Alist list = new Alist().add(val);
         byte[] bytes = Aon.encode(list);
         list = Aon.decode(bytes).toList();
-        validate((Afloat) list.get(0));
-        validateEqual((Afloat) list.get(0), val);
-        validateUnequal((Afloat) list.get(0), val2);
+        validate(Afloat.ZERO.valueOf(list.get(0).toPrimitive()));
+        validateEqual(Afloat.ZERO.valueOf(list.get(0).toPrimitive()), val);
+        validateUnequal(Afloat.ZERO.valueOf(list.get(0).toPrimitive()), val2);
     }
 
     ///////////////////////////////////////////////////////////////////////////
@@ -52,8 +53,8 @@ public class AfloatTest {
 
     private void validateUnequal(Afloat first, Afloat second) {
         Assert.assertEquals(first.aonType(), second.aonType());
-        Assert.assertFalse(first.equals(second));
-        Assert.assertFalse(first.hashCode() == second.hashCode());
+        Assert.assertNotEquals(second, first);
+        Assert.assertNotEquals(second.hashCode(), first.hashCode());
     }
 
 }

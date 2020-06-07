@@ -25,9 +25,9 @@ public class AbinaryTest {
         Alist list = new Alist().add(val);
         byte[] bytes = Aon.encode(list);
         list = Aon.decode(bytes).toList();
-        validate((Abinary) list.get(0));
-        validateEqual((Abinary) list.get(0), val);
-        validateUnequal((Abinary) list.get(0), val2);
+        validate(Abinary.EMPTY.valueOf(list.get(0).toPrimitive()));
+        validateEqual(Abinary.EMPTY.valueOf(list.get(0).toPrimitive()), val);
+        validateUnequal(Abinary.EMPTY.valueOf(list.get(0).toPrimitive()), val2);
     }
 
     ///////////////////////////////////////////////////////////////////////////
@@ -59,8 +59,8 @@ public class AbinaryTest {
 
     private void validateUnequal(Abinary first, Abinary second) {
         Assert.assertEquals(first.aonType(), second.aonType());
-        Assert.assertFalse(first.equals(second));
-        Assert.assertFalse(first.hashCode() == second.hashCode());
+        Assert.assertNotEquals(second, first);
+        Assert.assertNotEquals(second.hashCode(), first.hashCode());
     }
 
 }

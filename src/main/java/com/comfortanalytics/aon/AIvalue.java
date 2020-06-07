@@ -1,98 +1,89 @@
 package com.comfortanalytics.aon;
 
-import com.comfortanalytics.aon.json.JsonAppender;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 
 /**
- * Base representation for all Aon data types.  Use Alist and Aobj to create data
- * structures.
- * <p>
- * Be aware that when encoding/decoding, if the underlying format doesn't provide a mechanism
- * to differentiate between data types (such as numbers), values may not decode to the same type
- * they were encoded.
+ * Marker interface for all Aon data types.
  *
  * @author Aaron Hansen
  */
-public abstract class Avalue implements Cloneable {
+@SuppressWarnings("unused")
+public interface AIvalue {
 
     /**
-     * For switch statements.
+     * The value type for the value returned by toValue.
      */
-    public abstract Atype aonType();
-
-    public Avalue clone() {
-        return copy();
-    }
+    Atype aonType();
 
     /**
      * If an object is mutable (list or object) then this should clone it,
      * immutable objects can simply return themselves.
      */
-    public Avalue copy() {
+    default AIvalue copy() {
         return this;
     }
 
     /**
      * Whether or not the object represents a BigDecimal.
      */
-    public boolean isBigDecimal() {
+    default boolean isBigDecimal() {
         return false;
     }
 
     /**
      * Whether or not the object represents a BigDecimal.
      */
-    public boolean isBigInteger() {
+    default boolean isBigInteger() {
         return false;
     }
 
     /**
      * Whether or not the object represents a byte[].
      */
-    public boolean isBinary() {
+    default boolean isBinary() {
         return false;
     }
 
     /**
      * Whether or not the object represents a boolean.
      */
-    public boolean isBoolean() {
+    default boolean isBoolean() {
         return false;
     }
 
     /**
      * Whether or not the object represents a double.
      */
-    public boolean isDouble() {
+    default boolean isDouble() {
         return false;
     }
 
     /**
      * Whether or not the object represents a double.
      */
-    public boolean isFloat() {
+    default boolean isFloat() {
         return false;
     }
 
     /**
      * Whether or not the object represents a list or object.
      */
-    public boolean isGroup() {
+    default boolean isGroup() {
         return false;
     }
 
     /**
      * Whether or not the object represents an int.
      */
-    public boolean isInt() {
+    default boolean isInt() {
         return false;
     }
 
     /**
      * Whether or not the object represents a list.
      */
-    public boolean isList() {
+    default boolean isList() {
         return false;
     }
 
@@ -100,35 +91,42 @@ public abstract class Avalue implements Cloneable {
      * Whether or not the object represents a long.  Be careful, longs can deserialize
      * as ints.
      */
-    public boolean isLong() {
+    default boolean isLong() {
         return false;
     }
 
     /**
      * Whether or not the object represents null.
      */
-    public boolean isNull() {
+    default boolean isNull() {
         return false;
     }
 
     /**
      * Whether or not the object represents a number.
      */
-    public boolean isNumber() {
+    default boolean isNumber() {
         return false;
     }
 
     /**
      * Whether or not the object represents an object.
      */
-    public boolean isObj() {
+    default boolean isObj() {
+        return false;
+    }
+
+    /**
+     * The primitives are JSON compatible data types.
+     */
+    default boolean isPrimitive() {
         return false;
     }
 
     /**
      * Whether or not the object represents a string.
      */
-    public boolean isString() {
+    default boolean isString() {
         return false;
     }
 
@@ -137,7 +135,7 @@ public abstract class Avalue implements Cloneable {
      *
      * @throws ClassCastException If not convertible.
      */
-    public BigDecimal toBigDecimal() {
+    default BigDecimal toBigDecimal() {
         throw new ClassCastException(getClass().getName() + " not big decimal");
     }
 
@@ -146,7 +144,7 @@ public abstract class Avalue implements Cloneable {
      *
      * @throws ClassCastException If not convertible.
      */
-    public BigInteger toBigInt() {
+    default BigInteger toBigInt() {
         throw new ClassCastException(getClass().getName() + " not big int");
     }
 
@@ -155,7 +153,7 @@ public abstract class Avalue implements Cloneable {
      *
      * @throws ClassCastException If not convertible.
      */
-    public Abinary toBinary() {
+    default Abinary toBinary() {
         throw new ClassCastException(getClass().getName() + " not binary");
     }
 
@@ -166,7 +164,7 @@ public abstract class Avalue implements Cloneable {
      *
      * @throws ClassCastException If not convertible.
      */
-    public boolean toBoolean() {
+    default boolean toBoolean() {
         throw new ClassCastException(getClass().getName() + " not boolean");
     }
 
@@ -178,7 +176,7 @@ public abstract class Avalue implements Cloneable {
      *
      * @throws ClassCastException If not convertible.
      */
-    public double toDouble() {
+    default double toDouble() {
         throw new ClassCastException(getClass().getName() + " not double");
     }
 
@@ -190,7 +188,7 @@ public abstract class Avalue implements Cloneable {
      *
      * @throws ClassCastException If not convertible.
      */
-    public float toFloat() {
+    default float toFloat() {
         throw new ClassCastException(getClass().getName() + " not float");
     }
 
@@ -199,7 +197,7 @@ public abstract class Avalue implements Cloneable {
      *
      * @throws ClassCastException If not convertible.
      */
-    public Agroup toGroup() {
+    default Agroup toGroup() {
         throw new ClassCastException(getClass().getName() + " not list");
     }
 
@@ -211,7 +209,7 @@ public abstract class Avalue implements Cloneable {
      *
      * @throws ClassCastException If not convertible.
      */
-    public int toInt() {
+    default int toInt() {
         throw new ClassCastException(getClass().getName() + " not int");
     }
 
@@ -220,7 +218,7 @@ public abstract class Avalue implements Cloneable {
      *
      * @throws ClassCastException If not convertible.
      */
-    public Alist toList() {
+    default Alist toList() {
         throw new ClassCastException(getClass().getName() + " not list");
     }
 
@@ -232,7 +230,7 @@ public abstract class Avalue implements Cloneable {
      *
      * @throws ClassCastException If not convertible.
      */
-    public long toLong() {
+    default long toLong() {
         throw new ClassCastException(getClass().getName() + " not long");
     }
 
@@ -243,7 +241,7 @@ public abstract class Avalue implements Cloneable {
      *
      * @throws ClassCastException If not convertible.
      */
-    public Number toNumber() {
+    default Number toNumber() {
         throw new ClassCastException(getClass().getName() + " not number");
     }
 
@@ -252,16 +250,22 @@ public abstract class Avalue implements Cloneable {
      *
      * @throws ClassCastException If not convertible.
      */
-    public Aobj toObj() {
+    default Aobj toObj() {
         throw new ClassCastException(getClass().getName() + " not object");
     }
 
     /**
-     * Appends the JSON encoding to the given buffer and returns the buffer.
+     * AIvalues that are not Aprimitives must be able to convert themselves.
      */
-    public Appendable toString(Appendable buf) {
-        new JsonAppender(buf).value(this);
-        return buf;
+    Aprimitive toPrimitive();
+
+    /**
+     * Convert the arg to the proper type.
+     *
+     * @return This by default.
+     */
+    default AIvalue valueOf(Aprimitive arg) {
+        return arg;
     }
 
 

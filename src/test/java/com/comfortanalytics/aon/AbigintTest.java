@@ -27,9 +27,9 @@ public class AbigintTest {
         Alist list = new Alist().add(val);
         byte[] bytes = Aon.encode(list);
         list = Aon.decode(bytes).toList();
-        validate((Abigint) list.get(0));
-        validateEqual((Abigint) list.get(0), val);
-        validateUnequal((Abigint) list.get(0), val2);
+        validate(Abigint.ZERO.valueOf(list.get(0).toPrimitive()));
+        validateEqual(Abigint.ZERO.valueOf(list.get(0).toPrimitive()), val);
+        validateUnequal(Abigint.ZERO.valueOf(list.get(0).toPrimitive()), val2);
     }
 
     ///////////////////////////////////////////////////////////////////////////
@@ -53,8 +53,8 @@ public class AbigintTest {
 
     private void validateUnequal(Abigint first, Abigint second) {
         Assert.assertEquals(first.aonType(), second.aonType());
-        Assert.assertFalse(first.equals(second));
-        Assert.assertFalse(first.hashCode() == second.hashCode());
+        Assert.assertNotEquals(second, first);
+        Assert.assertNotEquals(second.hashCode(), first.hashCode());
     }
 
 }

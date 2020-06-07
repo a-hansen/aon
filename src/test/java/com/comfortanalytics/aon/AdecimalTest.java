@@ -28,9 +28,9 @@ public class AdecimalTest {
         Alist list = new Alist().add(val);
         byte[] bytes = Aon.encode(list);
         list = Aon.decode(bytes).toList();
-        validate((Adecimal) list.get(0));
-        validateEqual((Adecimal) list.get(0), val);
-        validateUnequal((Adecimal) list.get(0), val2);
+        validate(Adecimal.ZERO.valueOf(list.get(0).toPrimitive()));
+        validateEqual(Adecimal.ZERO.valueOf(list.get(0).toPrimitive()), val);
+        validateUnequal(Adecimal.ZERO.valueOf(list.get(0).toPrimitive()), val2);
     }
 
     ///////////////////////////////////////////////////////////////////////////
@@ -54,8 +54,8 @@ public class AdecimalTest {
 
     private void validateUnequal(Adecimal first, Adecimal second) {
         Assert.assertEquals(first.aonType(), second.aonType());
-        Assert.assertFalse(first.equals(second));
-        Assert.assertFalse(first.hashCode() == second.hashCode());
+        Assert.assertNotEquals(second, first);
+        Assert.assertNotEquals(second.hashCode(), first.hashCode());
     }
 
 }

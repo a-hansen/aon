@@ -15,6 +15,7 @@ import java.util.Map;
  *
  * @author Aaron Hansen
  */
+@SuppressWarnings({"CatchMayIgnoreException", "unused"})
 public class Aobj extends Agroup implements Iterable<Member> {
 
     ///////////////////////////////////////////////////////////////////////////
@@ -23,7 +24,7 @@ public class Aobj extends Agroup implements Iterable<Member> {
 
     private Member first;
     private Member last;
-    private Map<String, Member> object = new HashMap<String, Member>();
+    private final Map<String, Member> object = new HashMap<>();
 
     ///////////////////////////////////////////////////////////////////////////
     // Methods
@@ -43,7 +44,7 @@ public class Aobj extends Agroup implements Iterable<Member> {
     }
 
     @Override
-    public Avalue copy() {
+    public Aobj copy() {
         Aobj ret = new Aobj();
         Member e = getFirst();
         while (e != null) {
@@ -74,7 +75,7 @@ public class Aobj extends Agroup implements Iterable<Member> {
     /**
      * Returns the value for the given key or null.
      */
-    public Avalue get(String key) {
+    public AIvalue get(String key) {
         Member e = object.get(key);
         if (e == null) {
             return null;
@@ -87,7 +88,7 @@ public class Aobj extends Agroup implements Iterable<Member> {
      * null or not convertible.
      */
     public boolean get(String key, boolean def) {
-        Avalue ret = get(key);
+        AIvalue ret = get(key);
         if ((ret == null) || ret.isNull()) {
             return def;
         }
@@ -103,7 +104,7 @@ public class Aobj extends Agroup implements Iterable<Member> {
      * null.
      */
     public double get(String key, double def) {
-        Avalue ret = get(key);
+        AIvalue ret = get(key);
         if ((ret == null) || ret.isNull()) {
             return def;
         }
@@ -119,7 +120,7 @@ public class Aobj extends Agroup implements Iterable<Member> {
      * null.
      */
     public float get(String key, float def) {
-        Avalue ret = get(key);
+        AIvalue ret = get(key);
         if ((ret == null) || ret.isNull()) {
             return def;
         }
@@ -135,7 +136,7 @@ public class Aobj extends Agroup implements Iterable<Member> {
      * null or not convertible.
      */
     public int get(String key, int def) {
-        Avalue ret = get(key);
+        AIvalue ret = get(key);
         if ((ret == null) || ret.isNull()) {
             return def;
         }
@@ -151,7 +152,7 @@ public class Aobj extends Agroup implements Iterable<Member> {
      * null or not convertible.
      */
     public long get(String key, long def) {
-        Avalue ret = get(key);
+        AIvalue ret = get(key);
         if ((ret == null) || ret.isNull()) {
             return def;
         }
@@ -167,7 +168,7 @@ public class Aobj extends Agroup implements Iterable<Member> {
      * null.
      */
     public String get(String key, String def) {
-        Avalue ret = get(key);
+        AIvalue ret = get(key);
         if ((ret == null) || ret.isNull()) {
             return def;
         }
@@ -224,7 +225,7 @@ public class Aobj extends Agroup implements Iterable<Member> {
      * Returns the value, null or throws a ClassCastException.
      */
     public Alist getList(String key) {
-        Avalue obj = get(key);
+        AIvalue obj = get(key);
         if (obj == null) {
             return null;
         }
@@ -242,7 +243,7 @@ public class Aobj extends Agroup implements Iterable<Member> {
      * Returns the value, null or throws a ClassCastException.
      */
     public Aobj getObj(String key) {
-        Avalue o = get(key);
+        AIvalue o = get(key);
         if (o == null) {
             return null;
         }
@@ -253,7 +254,7 @@ public class Aobj extends Agroup implements Iterable<Member> {
      * Returns the String value for the given key, or null.
      */
     public String getString(String key) {
-        Avalue o = get(key);
+        AIvalue o = get(key);
         if (o == null) {
             return null;
         }
@@ -275,7 +276,7 @@ public class Aobj extends Agroup implements Iterable<Member> {
      * Returns true if the key isn't in the object, or it's value is null.
      */
     public boolean isNull(String key) {
-        Avalue o = get(key);
+        AIvalue o = get(key);
         if (o == null) {
             return true;
         }
@@ -340,13 +341,13 @@ public class Aobj extends Agroup implements Iterable<Member> {
      * @param val Can be null, and can not be an already parented group.
      * @return this
      */
-    public Aobj put(String key, Avalue val) {
+    public Aobj put(String key, AIvalue val) {
         if (val == null) {
             val = Anull.NULL;
         }
         Member e = object.get(key);
         if (e != null) {
-            Avalue curr = e.getValue();
+            AIvalue curr = e.getValue();
             if (curr != val) {
                 if (val.isGroup()) {
                     val.toGroup().setParent(this);
@@ -354,21 +355,20 @@ public class Aobj extends Agroup implements Iterable<Member> {
                 if (curr.isGroup()) {
                     curr.toGroup().setParent(null);
                 }
-                e.setValue(val);
+                e.setValue(val.toPrimitive());
             }
         } else {
             if (val.isGroup()) {
                 val.toGroup().setParent(this);
             }
-            e = new Member(key, val);
+            e = new Member(key, val.toPrimitive());
             object.put(key, e);
             if (first == null) {
                 first = e;
-                last = e;
             } else {
                 last.setNext(e);
-                last = e;
             }
+            last = e;
         }
         return this;
     }
@@ -449,7 +449,7 @@ public class Aobj extends Agroup implements Iterable<Member> {
      *
      * @return Possibly null.
      */
-    public Avalue remove(String key) {
+    public AIvalue remove(String key) {
         Member e = object.remove(key);
         if (e == null) {
             return null;
@@ -466,21 +466,21 @@ public class Aobj extends Agroup implements Iterable<Member> {
                 last = prev;
             }
         }
-        Avalue ret = e.getValue();
+        AIvalue ret = e.getValue();
         if (ret.isGroup()) {
             ret.toGroup().setParent(null);
         }
         return ret;
     }
 
-    public Avalue removeFirst() {
+    public AIvalue removeFirst() {
         if (first != null) {
             return remove(first.getKey());
         }
         return null;
     }
 
-    public Avalue removeLast() {
+    public AIvalue removeLast() {
         if (last != null) {
             return remove(last.getKey());
         }
@@ -523,11 +523,11 @@ public class Aobj extends Agroup implements Iterable<Member> {
      */
     public static class Member {
 
-        private String key;
+        private final String key;
         private Member next;
-        private Avalue val;
+        private AIvalue val;
 
-        Member(String key, Avalue val) {
+        Member(String key, AIvalue val) {
             this.key = key;
             this.val = val;
         }
@@ -551,12 +551,8 @@ public class Aobj extends Agroup implements Iterable<Member> {
             return key;
         }
 
-        public Avalue getValue() {
+        public AIvalue getValue() {
             return val;
-        }
-
-        void setValue(Avalue val) {
-            this.val = val;
         }
 
         @Override
@@ -570,6 +566,10 @@ public class Aobj extends Agroup implements Iterable<Member> {
 
         void setNext(Member entry) {
             next = entry;
+        }
+
+        void setValue(AIvalue val) {
+            this.val = val;
         }
 
     }

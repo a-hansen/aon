@@ -8,13 +8,20 @@ import java.math.BigInteger;
  *
  * @author Aaron Hansen
  */
-public class Along extends Avalue {
+@SuppressWarnings("unused")
+public class Along extends Aprimitive {
 
     ///////////////////////////////////////////////////////////////////////////
-    // Fields
+    // Class Fields
     ///////////////////////////////////////////////////////////////////////////
 
-    private long value;
+    public static final Along ZERO = LongCache.get(0);
+
+    ///////////////////////////////////////////////////////////////////////////
+    // Instance Fields
+    ///////////////////////////////////////////////////////////////////////////
+
+    private final long value;
 
     ///////////////////////////////////////////////////////////////////////////
     // Constructors
@@ -35,13 +42,12 @@ public class Along extends Avalue {
 
     @Override
     public boolean equals(Object o) {
-        if (!(o instanceof Avalue)) {
+        if (!(o instanceof Aprimitive)) {
             return false;
         }
-        Avalue obj = (Avalue) o;
+        Aprimitive obj = (Aprimitive) o;
         switch (obj.aonType()) {
             case DECIMAL:
-                return obj.equals(this);
             case BIGINT:
                 return obj.equals(this);
             case DOUBLE:

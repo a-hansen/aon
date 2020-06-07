@@ -9,6 +9,7 @@ import java.math.BigInteger;
  * @author Aaron Hansen
  * @see #next()
  */
+@SuppressWarnings("unused")
 public abstract class AbstractReader implements Areader {
 
     ///////////////////////////////////////////////////////////////////////////
@@ -78,10 +79,13 @@ public abstract class AbstractReader implements Areader {
 
     @Override
     public byte[] getBinary() {
-        if (last != Token.BINARY) {
-            throw new IllegalStateException("Not binary");
+        if (last == Token.BINARY) {
+            return valBinary;
         }
-        return valBinary;
+        if (last == Token.STRING) {
+            return AonBase64.decode(valString);
+        }
+        throw new IllegalStateException("Not binary");
     }
 
     @Override
@@ -98,9 +102,9 @@ public abstract class AbstractReader implements Areader {
             case DOUBLE:
                 break;
             case FLOAT:
-                return (double) valFloat;
+                return valFloat;
             case INT:
-                return (double) valInt;
+                return valInt;
             case LONG:
                 return (double) valLong;
             default:
@@ -222,7 +226,7 @@ public abstract class AbstractReader implements Areader {
             case FLOAT:
                 return (long) valFloat;
             case INT:
-                return (long) valInt;
+                return valInt;
             case LONG:
                 break;
             default:
@@ -240,7 +244,7 @@ public abstract class AbstractReader implements Areader {
             throw new IllegalStateException("Not a object");
         }
         Aobj ret = new Aobj();
-        String key = null;
+        String key;
         while (true) {
             switch (next()) {
                 case STRING:
@@ -310,7 +314,7 @@ public abstract class AbstractReader implements Areader {
     }
 
     @Override
-    public Avalue getValue() {
+    public AIvalue getValue() {
         if (last == Token.ROOT) {
             next();
         }

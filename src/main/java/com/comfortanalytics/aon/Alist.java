@@ -10,13 +10,14 @@ import java.util.Iterator;
  *
  * @author Aaron Hansen
  */
-public class Alist extends Agroup implements Iterable<Avalue> {
+@SuppressWarnings({"UnusedReturnValue", "CatchMayIgnoreException", "unused"})
+public class Alist extends Agroup implements Iterable<AIvalue> {
 
     ///////////////////////////////////////////////////////////////////////////
     // Fields
     ///////////////////////////////////////////////////////////////////////////
 
-    private ArrayList<Avalue> values = new ArrayList<Avalue>();
+    private final ArrayList<AIvalue> values = new ArrayList<>();
 
     ///////////////////////////////////////////////////////////////////////////
     // Public Methods
@@ -28,14 +29,14 @@ public class Alist extends Agroup implements Iterable<Avalue> {
      * @param val Can be null, and can not be an already parented group.
      * @return this
      */
-    public Alist add(Avalue val) {
+    public Alist add(AIvalue val) {
         if (val == null) {
             return addNull();
         }
         if (val.isGroup()) {
             val.toGroup().setParent(this);
         }
-        values.add(val);
+        values.add(val.toPrimitive());
         return this;
     }
 
@@ -129,7 +130,7 @@ public class Alist extends Agroup implements Iterable<Avalue> {
 
     @Override
     public Agroup clear() {
-        for (Avalue val : values) {
+        for (AIvalue val : values) {
             if (val.isGroup()) {
                 val.toGroup().setParent(null);
             }
@@ -139,9 +140,9 @@ public class Alist extends Agroup implements Iterable<Avalue> {
     }
 
     @Override
-    public Avalue copy() {
+    public AIvalue copy() {
         Alist ret = new Alist();
-        for (Avalue val : values) {
+        for (AIvalue val : values) {
             ret.add(val.copy());
         }
         return ret;
@@ -168,7 +169,7 @@ public class Alist extends Agroup implements Iterable<Avalue> {
     /**
      * Value at the given index or throws an IndexOutOfBounds exception.
      */
-    public Avalue get(int idx) {
+    public AIvalue get(int idx) {
         return values.get(idx);
     }
 
@@ -179,7 +180,7 @@ public class Alist extends Agroup implements Iterable<Avalue> {
         if (idx >= size()) {
             return def;
         }
-        Avalue ret = get(idx);
+        AIvalue ret = get(idx);
         if ((ret == null) || ret.isNull()) {
             return def;
         }
@@ -197,7 +198,7 @@ public class Alist extends Agroup implements Iterable<Avalue> {
         if (idx >= size()) {
             return def;
         }
-        Avalue ret = get(idx);
+        AIvalue ret = get(idx);
         if ((ret == null) || ret.isNull()) {
             return def;
         }
@@ -215,7 +216,7 @@ public class Alist extends Agroup implements Iterable<Avalue> {
         if (idx >= size()) {
             return def;
         }
-        Avalue ret = get(idx);
+        AIvalue ret = get(idx);
         if ((ret == null) || ret.isNull()) {
             return def;
         }
@@ -233,7 +234,7 @@ public class Alist extends Agroup implements Iterable<Avalue> {
         if (idx >= size()) {
             return def;
         }
-        Avalue ret = get(idx);
+        AIvalue ret = get(idx);
         if ((ret == null) || ret.isNull()) {
             return def;
         }
@@ -251,7 +252,7 @@ public class Alist extends Agroup implements Iterable<Avalue> {
         if (idx >= size()) {
             return def;
         }
-        Avalue ret = get(idx);
+        AIvalue ret = get(idx);
         if ((ret == null) || ret.isNull()) {
             return def;
         }
@@ -281,7 +282,7 @@ public class Alist extends Agroup implements Iterable<Avalue> {
      *
      * @return Null if empty.
      */
-    public Avalue getFirst() {
+    public AIvalue getFirst() {
         if (isEmpty()) {
             return null;
         }
@@ -307,7 +308,7 @@ public class Alist extends Agroup implements Iterable<Avalue> {
      *
      * @return Null if empty.
      */
-    public Avalue getLast() {
+    public AIvalue getLast() {
         if (values.isEmpty()) {
             return null;
         }
@@ -342,7 +343,7 @@ public class Alist extends Agroup implements Iterable<Avalue> {
     @Override
     public int hashCode() {
         int hashCode = 1;
-        for (Avalue val : values) {
+        for (AIvalue val : values) {
             hashCode = 31 * hashCode + val.hashCode();
         }
         return hashCode;
@@ -353,9 +354,10 @@ public class Alist extends Agroup implements Iterable<Avalue> {
      *
      * @return -1 if not found.
      */
-    public int indexOf(Avalue obj) {
+    @SuppressWarnings("ConstantConditions")
+    public int indexOf(AIvalue obj) {
         boolean isNull = ((obj == null) || obj.isNull());
-        Avalue tmp;
+        AIvalue tmp;
         int len = size();
         for (int i = 0; i < len; i++) {
             tmp = get(i);
@@ -392,7 +394,7 @@ public class Alist extends Agroup implements Iterable<Avalue> {
     }
 
     @Override
-    public Iterator<Avalue> iterator() {
+    public Iterator<AIvalue> iterator() {
         return values.iterator();
     }
 
@@ -401,9 +403,10 @@ public class Alist extends Agroup implements Iterable<Avalue> {
      *
      * @return -1 if not found.
      */
-    public int lastIndexOf(Avalue obj) {
+    @SuppressWarnings("ConstantConditions")
+    public int lastIndexOf(AIvalue obj) {
         boolean isNull = ((obj == null) || obj.isNull());
-        Avalue tmp;
+        AIvalue tmp;
         int len = size();
         for (int i = len; --i >= 0; ) {
             tmp = get(i);
@@ -443,15 +446,15 @@ public class Alist extends Agroup implements Iterable<Avalue> {
      *
      * @param val Can be null.
      */
-    public Alist put(int idx, Avalue val) {
-        Avalue old = get(idx);
+    public Alist put(int idx, AIvalue val) {
+        AIvalue old = get(idx);
         if (old.isGroup()) {
             old.toGroup().setParent(null);
         }
         if (val.isGroup()) {
             val.toGroup().setParent(this);
         }
-        values.set(idx, val);
+        values.set(idx, val.toPrimitive());
         return this;
     }
 
@@ -532,8 +535,8 @@ public class Alist extends Agroup implements Iterable<Avalue> {
      *
      * @return The value removed.
      */
-    public Avalue remove(int idx) {
-        Avalue ret = values.remove(idx);
+    public AIvalue remove(int idx) {
+        AIvalue ret = values.remove(idx);
         if (ret.isGroup()) {
             ret.toGroup().setParent(null);
         }
@@ -545,7 +548,7 @@ public class Alist extends Agroup implements Iterable<Avalue> {
      *
      * @return The value removed.
      */
-    public Avalue removeFirst() {
+    public AIvalue removeFirst() {
         return remove(0);
     }
 
@@ -554,7 +557,7 @@ public class Alist extends Agroup implements Iterable<Avalue> {
      *
      * @return The value removed.
      */
-    public Avalue removeLast() {
+    public AIvalue removeLast() {
         return remove(size() - 1);
     }
 

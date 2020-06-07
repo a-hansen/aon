@@ -37,6 +37,7 @@ import org.testng.annotations.Test;
  *
  * @author Aaron Hansen
  */
+@SuppressWarnings("unused")
 public class AonBenchmark {
 
     ///////////////////////////////////////////////////////////////////////////
@@ -50,8 +51,8 @@ public class AonBenchmark {
     private static byte[] aonSmall;
     private static byte[] jsonLarge;
     private static byte[] jsonSmall;
-    private static NullOutputStream nullOutputStream = new NullOutputStream();
-    private static NullWriter nullWriter = new NullWriter();
+    private static final NullOutputStream nullOutputStream = new NullOutputStream();
+    private static final NullWriter nullWriter = new NullWriter();
 
     ///////////////////////////////////////////////////////////////////////////
     // Public Methods
@@ -77,7 +78,7 @@ public class AonBenchmark {
         new Runner(opt).run();
         aobjSmall = makeSmallObj();
         aobjLarge = makeLargeObj();
-        ByteArrayOutputStream out = null;
+        ByteArrayOutputStream out;
         encodeAon(aobjSmall, out = new ByteArrayOutputStream());
         aonSmall = out.toByteArray();
         encodeAon(aobjLarge, out = new ByteArrayOutputStream());
@@ -98,16 +99,16 @@ public class AonBenchmark {
                 .put("double", 100.001d)
                 .put("float", 100.001f)
                 .put("int", 100001)
-                .put("long", 100001l)
+                .put("long", 100001L)
                 .put("string", "abcdefghij\r\njklmnopqrs\u0000\u0001\u0002tuvwxyz\r\n");
         Alist primitiveList = new Alist()
                 .add(true)
                 .add(100.001d)
                 .add(100.001f)
                 .add(100001)
-                .add(100001l)
+                .add(100001L)
                 .add("abcdefghij\r\njklmnopqrs\u0000\u0001\u0002tuvwxyz\r\n");
-        Aobj complexObj = (Aobj) primitiveObj.copy();
+        Aobj complexObj = primitiveObj.copy();
         complexObj.put("list", primitiveList.copy())
                   .put("object", primitiveObj.copy());
         Alist complexList = (Alist) primitiveList.copy();
@@ -132,14 +133,14 @@ public class AonBenchmark {
                 .put("double", 100.001d)
                 .put("float", 100.001f)
                 .put("int", 100001)
-                .put("long", 100001l)
+                .put("long", 100001L)
                 .put("string", "abcdefghij\r\njklmnopqrs\u0000\u0001\u0002tuvwxyz\r\n")
                 .put("list", new Alist()
                         .add(true)
                         .add(100.001d)
                         .add(100.001f)
                         .add(100001)
-                        .add(100001l)
+                        .add(100001L)
                         .add("abcdefghij\r\njklmnopqrs\u0000\u0001\u0002tuvwxyz\r\n"));
     }
 
@@ -179,12 +180,13 @@ public class AonBenchmark {
     // Inner Classes
     ///////////////////////////////////////////////////////////////////////////
 
+    @SuppressWarnings({"EmptyMethod", "rawtypes", "deprecation"})
     @State(Scope.Benchmark)
     public static class DecodeLargeDoc {
 
-        private JSONDeserializer flexjson = new JSONDeserializer();
-        private Genson genson = new Genson();
-        private ObjectMapper jackson = new ObjectMapper();
+        private final JSONDeserializer flexjson = new JSONDeserializer();
+        private final Genson genson = new Genson();
+        private final ObjectMapper jackson = new ObjectMapper();
 
         @Benchmark
         public void Aon() {
@@ -236,12 +238,13 @@ public class AonBenchmark {
 
     }
 
+    @SuppressWarnings({"rawtypes", "EmptyMethod", "deprecation"})
     @State(Scope.Benchmark)
     public static class DecodeSmallDoc {
 
-        private JSONDeserializer flexjson = new JSONDeserializer();
-        private Genson genson = new Genson();
-        private ObjectMapper jackson = new ObjectMapper();
+        private final JSONDeserializer flexjson = new JSONDeserializer();
+        private final Genson genson = new Genson();
+        private final ObjectMapper jackson = new ObjectMapper();
 
         @Benchmark
         public void Aon() {
@@ -293,16 +296,17 @@ public class AonBenchmark {
 
     }
 
+    @SuppressWarnings({"EmptyMethod", "deprecation", "rawtypes"})
     @State(Scope.Benchmark)
     public static class EncodeLargeDoc {
 
-        private JSONSerializer flexjson = new JSONSerializer();
+        private final JSONSerializer flexjson = new JSONSerializer();
         private Object flexjsonObj;
-        private Genson genson = new Genson();
+        private final Genson genson = new Genson();
         private Object gensonObj;
-        private Gson gson = new Gson();
+        private final Gson gson = new Gson();
         private JsonElement gsonObj;
-        private ObjectMapper jackson = new ObjectMapper();
+        private final ObjectMapper jackson = new ObjectMapper();
         private Object jacksonObj;
         private Object jsonSimpleObj;
 
@@ -372,16 +376,17 @@ public class AonBenchmark {
         }
     }
 
+    @SuppressWarnings({"rawtypes", "deprecation"})
     @State(Scope.Benchmark)
     public static class EncodeSmallDoc {
 
-        private JSONSerializer flexjson = new JSONSerializer();
+        private final JSONSerializer flexjson = new JSONSerializer();
         private Object flexjsonObj;
-        private Genson genson = new Genson();
+        private final Genson genson = new Genson();
         private Object gensonObj;
-        private Gson gson = new Gson();
+        private final Gson gson = new Gson();
         private Object gsonObj;
-        private ObjectMapper jackson = new ObjectMapper();
+        private final ObjectMapper jackson = new ObjectMapper();
         private Object jacksonObj;
         private Object jsonSimpleObj;
 

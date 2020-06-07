@@ -9,13 +9,20 @@ import java.math.BigInteger;
  *
  * @author Aaron Hansen
  */
-public class Adecimal extends Avalue {
+@SuppressWarnings({"CatchMayIgnoreException", "unused"})
+public class Adecimal implements AIvalue {
+
+    ///////////////////////////////////////////////////////////////////////////
+    // Class Fields
+    ///////////////////////////////////////////////////////////////////////////
+
+    public static final Adecimal ZERO = new Adecimal(BigDecimal.ZERO);
 
     ///////////////////////////////////////////////////////////////////////////
     // Instance Fields
     ///////////////////////////////////////////////////////////////////////////
 
-    private BigDecimal value;
+    private final BigDecimal value;
 
     ///////////////////////////////////////////////////////////////////////////
     // Constructors
@@ -36,14 +43,10 @@ public class Adecimal extends Avalue {
 
     @Override
     public boolean equals(Object o) {
-        if (!(o instanceof Avalue)) {
+        if (!(o instanceof AIvalue)) {
             return false;
         }
-        Avalue obj = (Avalue) o;
-        if (obj.isNumber()) {
-            return value.equals(obj.toBigDecimal());
-        }
-        return false;
+        return value.equals(((AIvalue) o).toBigDecimal());
     }
 
     @Override
@@ -101,12 +104,46 @@ public class Adecimal extends Avalue {
         return value;
     }
 
+    /**
+     * Returns Astr
+     */
+    @Override
+    public Aprimitive toPrimitive() {
+        return Astr.valueOf(toString());
+    }
+
     @Override
     public String toString() {
         return String.valueOf(value);
     }
 
+    /**
+     * Will convert numbers and strings, otherwise returns null.
+     */
+    @Override
+    public Adecimal valueOf(Aprimitive value) {
+        try {
+            switch (value.aonType()) {
+                case DOUBLE:
+                    return valueOf(BigDecimal.valueOf(value.toDouble()));
+                case FLOAT:
+                    return valueOf(BigDecimal.valueOf(value.toFloat()));
+                case INT:
+                    return valueOf(BigDecimal.valueOf(value.toInt()));
+                case LONG:
+                    return valueOf(BigDecimal.valueOf(value.toLong()));
+                case STRING:
+                    return valueOf(new BigDecimal(value.toString()));
+            }
+        } catch (Exception x) {
+        }
+        return null;
+    }
+
     public static Adecimal valueOf(BigDecimal arg) {
+        if (arg.equals(BigDecimal.ZERO)) {
+            return ZERO;
+        }
         return new Adecimal(arg);
     }
 

@@ -13,12 +13,13 @@ public class AintTest {
     // Public Methods
     ///////////////////////////////////////////////////////////////////////////
 
+    @SuppressWarnings("ConstantConditions")
     @Test
     public void test() {
         Random random = new Random(System.currentTimeMillis());
         Aint val = Aint.valueOf(10);
         validate(val);
-        Assert.assertTrue(val == Aint.valueOf(10));
+        Assert.assertSame(val, Aint.valueOf(10));
         validateEqual(val, Aint.valueOf(val.toInt()));
         Aint val2 = Aint.valueOf(random.nextInt());
         validate(val2);
@@ -27,9 +28,9 @@ public class AintTest {
         Alist list = new Alist().add(val);
         byte[] bytes = Aon.encode(list);
         list = Aon.decode(bytes).toList();
-        validate((Aint) list.get(0));
-        validateEqual((Aint) list.get(0), val);
-        validateUnequal((Aint) list.get(0), val2);
+        validate(Aint.ZERO.valueOf(list.get(0).toPrimitive()));
+        validateEqual(Aint.ZERO.valueOf(list.get(0).toPrimitive()), val);
+        validateUnequal(Aint.ZERO.valueOf(list.get(0).toPrimitive()), val2);
     }
 
     ///////////////////////////////////////////////////////////////////////////
@@ -52,8 +53,8 @@ public class AintTest {
 
     private void validateUnequal(Aint first, Aint second) {
         Assert.assertEquals(first.aonType(), second.aonType());
-        Assert.assertFalse(first.equals(second));
-        Assert.assertFalse(first.hashCode() == second.hashCode());
+        Assert.assertNotEquals(second, first);
+        Assert.assertNotEquals(second.hashCode(), first.hashCode());
     }
 
 }

@@ -18,7 +18,7 @@ public class AdoubleTest {
         Random random = new Random(System.currentTimeMillis());
         Adouble val = Adouble.valueOf(10);
         validate(val);
-        Assert.assertTrue(val == Adouble.valueOf(10));
+        Assert.assertSame(val, Adouble.valueOf(10));
         validateEqual(val, Adouble.valueOf(val.toDouble()));
         Adouble val2 = Adouble.valueOf(random.nextDouble());
         validate(val2);
@@ -52,8 +52,8 @@ public class AdoubleTest {
 
     private void validateUnequal(Adouble first, Adouble second) {
         Assert.assertEquals(first.aonType(), second.aonType());
-        Assert.assertFalse(first.equals(second));
-        Assert.assertFalse(first.hashCode() == second.hashCode());
+        Assert.assertNotEquals(second, first);
+        Assert.assertNotEquals(second.hashCode(), first.hashCode());
     }
 
 }
