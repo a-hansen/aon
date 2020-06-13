@@ -19,6 +19,8 @@ repositories {
 }
 
 dependencies {
+    compileOnly 'com.github.spotbugs:spotbugs-annotations:+'
+    testCompileOnly 'com.github.spotbugs:spotbugs-annotations:+'
     testImplementation 'com.fasterxml.jackson.core:jackson-core:+'
     testImplementation 'com.fasterxml.jackson.core:jackson-databind:+'
     testImplementation 'com.google.code.gson:gson:+'

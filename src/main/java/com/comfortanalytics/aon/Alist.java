@@ -4,13 +4,16 @@ import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Iterator;
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
 /**
- * Indexed collection of values.  Not thread safe.
+ * Indexed collection of values.  Adding null will result in Anull.NULL being added.
+ * Not thread safe.
  *
  * @author Aaron Hansen
  */
-@SuppressWarnings({"UnusedReturnValue", "CatchMayIgnoreException", "unused"})
+@SuppressWarnings({"UnusedReturnValue", "unused"})
 public class Alist extends Agroup implements Iterable<AIvalue> {
 
     ///////////////////////////////////////////////////////////////////////////
@@ -26,119 +29,112 @@ public class Alist extends Agroup implements Iterable<AIvalue> {
     /**
      * Adds the value and returns this.
      *
-     * @param val Can be null, and can not be an already parented group.
+     * @param val Can be null, which will then add Anull.NULL.
      * @return this
      */
-    public Alist add(AIvalue val) {
+    @Nonnull
+    public Alist add(@Nullable AIvalue val) {
         if (val == null) {
-            return addNull();
+            val = Anull.NULL;
         }
-        if (val.isGroup()) {
-            val.toGroup().setParent(this);
-        }
-        values.add(val.toPrimitive());
+        values.add(val);
         return this;
     }
 
     /**
-     * Appends the arg and returns this.
+     * @return this
      */
-    public Alist add(BigDecimal val) {
-        add(Adecimal.valueOf(val));
-        return this;
+    @Nonnull
+    public Alist add(@Nullable BigDecimal val) {
+        return add(Adecimal.valueOf(val));
     }
 
     /**
-     * Appends the arg and returns this.
+     * @return this
      */
-    public Alist add(BigInteger val) {
-        add(Abigint.valueOf(val));
-        return this;
+    @Nonnull
+    public Alist add(@Nullable BigInteger val) {
+        return add(Abigint.valueOf(val));
     }
 
     /**
-     * Appends the primitive and returns this.
+     * @return this
      */
+    @Nonnull
     public Alist add(boolean val) {
-        add(Abool.valueOf(val));
-        return this;
+        return add(Abool.valueOf(val));
     }
 
     /**
-     * Appends the primitive and returns this.
+     * @return this
      */
+    @Nonnull
     public Alist add(byte[] val) {
-        add(Abinary.valueOf(val));
-        return this;
+        return add(Abinary.valueOf(val));
     }
 
     /**
-     * Appends the primitive and returns this.
+     * @return this
      */
+    @Nonnull
     public Alist add(double val) {
-        add(Adouble.valueOf(val));
-        return this;
+        return add(Adouble.valueOf(val));
     }
 
     /**
-     * Appends the primitive and returns this.
+     * @return this
      */
+    @Nonnull
     public Alist add(float val) {
-        add(Afloat.valueOf(val));
-        return this;
+        return add(Afloat.valueOf(val));
     }
 
     /**
-     * Appends the primitive and returns this.
+     * @return this
      */
+    @Nonnull
     public Alist add(int val) {
-        add(Aint.valueOf(val));
-        return this;
+        return add(Aint.valueOf(val));
     }
 
     /**
-     * Appends the primitive and returns this.
+     * @return this
      */
+    @Nonnull
     public Alist add(long val) {
-        add(Along.valueOf(val));
-        return this;
+        return add(Along.valueOf(val));
     }
 
     /**
-     * Appends the primitive and returns this.
+     * @return this
      */
-    public Alist add(String val) {
-        if (val == null) {
-            return addNull();
-        }
-        add(Astr.valueOf(val));
-        return this;
+    @Nonnull
+    public Alist add(@Nullable String val) {
+        return add(Astr.valueOf(val));
     }
 
     /**
-     * Appends null and returns this.
+     * Appends Anull.NULL and returns this.
      */
     public Alist addNull() {
         add(Anull.NULL);
         return this;
     }
 
+    @Nonnull
     @Override
     public Atype aonType() {
         return Atype.LIST;
     }
 
+    @Nonnull
     @Override
     public Agroup clear() {
-        for (AIvalue val : values) {
-            if (val.isGroup()) {
-                val.toGroup().setParent(null);
-            }
-        }
         values.clear();
         return this;
     }
 
+    @Nonnull
     @Override
     public AIvalue copy() {
         Alist ret = new Alist();
@@ -161,23 +157,26 @@ public class Alist extends Agroup implements Iterable<AIvalue> {
             if (size() != arg.size()) {
                 return false;
             }
-            return hashCode() == arg.hashCode();
+            return values.equals(arg.values);
         }
         return false;
     }
 
     /**
-     * Value at the given index or throws an IndexOutOfBounds exception.
+     * Returns the value being wrapped by the Aon data type at the given index, unless
+     * the value is Agroup.
+     *
+     * @see AIvalue#get()
      */
-    public AIvalue get(int idx) {
-        return values.get(idx);
+    public <T> T get(int idx) {
+        return (T) values.get(idx).get();
     }
 
     /**
-     * Optional getter.
+     * The value at the given index unless the index is out of bounds or the value is null.
      */
     public boolean get(int idx, boolean def) {
-        if (idx >= size()) {
+        if (isOutOfBounds(idx)) {
             return def;
         }
         AIvalue ret = get(idx);
@@ -186,16 +185,16 @@ public class Alist extends Agroup implements Iterable<AIvalue> {
         }
         try {
             return ret.toBoolean();
-        } catch (Exception x) {
+        } catch (Exception ignore) {
         }
         return def;
     }
 
     /**
-     * Optional getter.
+     * The value at the given index unless the index is out of bounds or the value is null.
      */
     public double get(int idx, double def) {
-        if (idx >= size()) {
+        if (isOutOfBounds(idx)) {
             return def;
         }
         AIvalue ret = get(idx);
@@ -204,16 +203,16 @@ public class Alist extends Agroup implements Iterable<AIvalue> {
         }
         try {
             return ret.toDouble();
-        } catch (Exception x) {
+        } catch (Exception ignore) {
         }
         return def;
     }
 
     /**
-     * Optional getter.
+     * The value at the given index unless the index is out of bounds or the value is null.
      */
     public int get(int idx, int def) {
-        if (idx >= size()) {
+        if (isOutOfBounds(idx)) {
             return def;
         }
         AIvalue ret = get(idx);
@@ -222,16 +221,16 @@ public class Alist extends Agroup implements Iterable<AIvalue> {
         }
         try {
             return ret.toInt();
-        } catch (Exception x) {
+        } catch (Exception ignore) {
         }
         return def;
     }
 
     /**
-     * Optional getter.
+     * The value at the given index unless the index is out of bounds or the value is null.
      */
     public long get(int idx, long def) {
-        if (idx >= size()) {
+        if (isOutOfBounds(idx)) {
             return def;
         }
         AIvalue ret = get(idx);
@@ -240,16 +239,16 @@ public class Alist extends Agroup implements Iterable<AIvalue> {
         }
         try {
             return ret.toLong();
-        } catch (Exception x) {
+        } catch (Exception ignore) {
         }
         return def;
     }
 
     /**
-     * Optional getter.
+     * The value at the given index unless the index is out of bounds or the value is null.
      */
     public String get(int idx, String def) {
-        if (idx >= size()) {
+        if (isOutOfBounds(idx)) {
             return def;
         }
         AIvalue ret = get(idx);
@@ -259,28 +258,10 @@ public class Alist extends Agroup implements Iterable<AIvalue> {
         return ret.toString();
     }
 
-    public Abinary getBinary(int idx) {
-        return get(idx).toBinary();
-    }
-
     /**
-     * Primitive getter.
-     */
-    public boolean getBoolean(int idx) {
-        return get(idx).toBoolean();
-    }
-
-    /**
-     * Primitive getter.
-     */
-    public double getDouble(int idx) {
-        return get(idx).toDouble();
-    }
-
-    /**
-     * Returns the item at index 0 or null.
+     * Returns the item at index 0 or null (not Anull.NULL).
      *
-     * @return Null if empty.
+     * @return Null (not Anull.NULL) if empty.
      */
     public AIvalue getFirst() {
         if (isEmpty()) {
@@ -290,23 +271,9 @@ public class Alist extends Agroup implements Iterable<AIvalue> {
     }
 
     /**
-     * Primitive getter.
-     */
-    public float getFloat(int idx) {
-        return get(idx).toFloat();
-    }
-
-    /**
-     * Primitive getter.
-     */
-    public int getInt(int idx) {
-        return get(idx).toInt();
-    }
-
-    /**
-     * Returns the item at the highest index or null.
+     * Returns the item at the highest index or null (not Anull.NULL).
      *
-     * @return Null if empty.
+     * @return Null (not Anull.NULL) if empty.
      */
     public AIvalue getLast() {
         if (values.isEmpty()) {
@@ -316,37 +283,15 @@ public class Alist extends Agroup implements Iterable<AIvalue> {
     }
 
     /**
-     * Primitive getter.
+     * Returns the AIvalue at the given index.
      */
-    public Alist getList(int idx) {
-        return get(idx).toList();
-    }
-
-    /**
-     * Primitive getter.
-     */
-    public long getLong(int idx) {
-        return get(idx).toLong();
-    }
-
-    public Aobj getObj(int idx) {
-        return get(idx).toObj();
-    }
-
-    /**
-     * Primitive getter.
-     */
-    public String getString(int idx) {
-        return get(idx).toString();
+    public <T extends AIvalue> T getValue(int idx) {
+        return (T) values.get(idx);
     }
 
     @Override
     public int hashCode() {
-        int hashCode = 1;
-        for (AIvalue val : values) {
-            hashCode = 31 * hashCode + val.hashCode();
-        }
-        return hashCode;
+        return values.hashCode();
     }
 
     /**
@@ -354,20 +299,9 @@ public class Alist extends Agroup implements Iterable<AIvalue> {
      *
      * @return -1 if not found.
      */
-    @SuppressWarnings("ConstantConditions")
     public int indexOf(AIvalue obj) {
-        boolean isNull = ((obj == null) || obj.isNull());
-        AIvalue tmp;
-        int len = size();
-        for (int i = 0; i < len; i++) {
-            tmp = get(i);
-            if (obj == tmp) {
-                return i;
-            }
-            if (isNull && tmp.isNull()) {
-                return i;
-            }
-            if (obj.equals(tmp)) {
+        for (int i = 0, len = size(); i < len; i++) {
+            if (obj.equals(get(i))) {
                 return i;
             }
         }
@@ -384,18 +318,33 @@ public class Alist extends Agroup implements Iterable<AIvalue> {
      * true if the index is out of bounds.
      */
     public boolean isNull(int idx) {
-        if (idx >= size()) {
+        if (isOutOfBounds(idx)) {
             return true;
         }
         if (idx < 0) {
             return true;
         }
-        return get(idx).isNull();
+        return getValue(idx).isNull();
     }
 
+    public boolean isOutOfBounds(int index) {
+        if (index < 0) {
+            return true;
+        }
+        return index > lastIndex();
+    }
+
+    @Nonnull
     @Override
     public Iterator<AIvalue> iterator() {
         return values.iterator();
+    }
+
+    /**
+     * The last index, or -1 if empty.
+     */
+    public int lastIndex() {
+        return size() - 1;
     }
 
     /**
@@ -403,20 +352,9 @@ public class Alist extends Agroup implements Iterable<AIvalue> {
      *
      * @return -1 if not found.
      */
-    @SuppressWarnings("ConstantConditions")
     public int lastIndexOf(AIvalue obj) {
-        boolean isNull = ((obj == null) || obj.isNull());
-        AIvalue tmp;
-        int len = size();
-        for (int i = len; --i >= 0; ) {
-            tmp = get(i);
-            if (obj == tmp) {
-                return i;
-            }
-            if (isNull && tmp.isNull()) {
-                return i;
-            }
-            if (obj.equals(tmp)) {
+        for (int i = size(); --i >= 0; ) {
+            if (obj.equals(get(i))) {
                 return i;
             }
         }
@@ -435,6 +373,7 @@ public class Alist extends Agroup implements Iterable<AIvalue> {
     /**
      * Creates a new Aobj, adds it to this list and returns it.
      */
+    @Nonnull
     public Aobj newObj() {
         Aobj obj = new Aobj();
         add(obj);
@@ -442,92 +381,87 @@ public class Alist extends Agroup implements Iterable<AIvalue> {
     }
 
     /**
-     * Replaces a value and returns this.
-     *
-     * @param val Can be null.
+     * @return this
      */
-    public Alist put(int idx, AIvalue val) {
-        AIvalue old = get(idx);
-        if (old.isGroup()) {
-            old.toGroup().setParent(null);
+    @Nonnull
+    public Alist put(int idx, @Nullable AIvalue val) {
+        if (val == null) {
+            val = Anull.NULL;
         }
-        if (val.isGroup()) {
-            val.toGroup().setParent(this);
-        }
-        values.set(idx, val.toPrimitive());
+        values.set(idx, val);
         return this;
     }
 
     /**
-     * Primitive setter, returns this.
+     * @return this
      */
-    public Alist put(int idx, BigDecimal val) {
-        put(idx, Adecimal.valueOf(val));
-        return this;
+    @Nonnull
+    public Alist put(int idx, @Nullable BigDecimal val) {
+        return put(idx, Adecimal.valueOf(val));
     }
 
     /**
-     * Primitive setter, returns this.
+     * @return this
      */
-    public Alist put(int idx, BigInteger val) {
-        put(idx, Abigint.valueOf(val));
-        return this;
+    @Nonnull
+    public Alist put(int idx, @Nullable BigInteger val) {
+        return put(idx, Abigint.valueOf(val));
     }
 
     /**
-     * Primitive setter, returns this.
+     * @return this
      */
+    @Nonnull
     public Alist put(int idx, boolean val) {
-        put(idx, Abool.valueOf(val));
-        return this;
+        return put(idx, Abool.valueOf(val));
     }
 
     /**
-     * Primitive setter, returns this.
+     * @return this
      */
-    public Alist put(int idx, byte[] val) {
-        put(idx, Abinary.valueOf(val));
-        return this;
+    @Nonnull
+    public Alist put(int idx, @Nullable byte[] val) {
+        return put(idx, Abinary.valueOf(val));
     }
 
     /**
-     * Primitive setter, returns this.
+     * @return this
      */
+    @Nonnull
     public Alist put(int idx, double val) {
-        put(idx, Adouble.valueOf(val));
-        return this;
+        return put(idx, Adouble.valueOf(val));
     }
 
     /**
-     * Primitive setter, returns this.
+     * @return this
      */
+    @Nonnull
     public Alist put(int idx, float val) {
-        put(idx, Afloat.valueOf(val));
-        return this;
+        return put(idx, Afloat.valueOf(val));
     }
 
     /**
-     * Primitive setter, returns this.
+     * @return this
      */
+    @Nonnull
     public Alist put(int idx, int val) {
-        put(idx, Aint.valueOf(val));
-        return this;
+        return put(idx, Aint.valueOf(val));
     }
 
     /**
-     * Primitive setter, returns this.
+     * @return this
      */
+    @Nonnull
     public Alist put(int idx, long val) {
-        put(idx, Along.valueOf(val));
-        return this;
+        return put(idx, Along.valueOf(val));
     }
 
     /**
-     * Primitive setter, returns this.
+     * @return this
      */
-    public Alist put(int idx, String val) {
-        put(idx, Astr.valueOf(val));
-        return this;
+    @Nonnull
+    public Alist put(int idx, @Nullable String val) {
+        return put(idx, Astr.valueOf(val));
     }
 
     /**
@@ -535,12 +469,9 @@ public class Alist extends Agroup implements Iterable<AIvalue> {
      *
      * @return The value removed.
      */
+    @Nullable
     public AIvalue remove(int idx) {
-        AIvalue ret = values.remove(idx);
-        if (ret.isGroup()) {
-            ret.toGroup().setParent(null);
-        }
-        return ret;
+        return values.remove(idx);
     }
 
     /**
@@ -548,7 +479,11 @@ public class Alist extends Agroup implements Iterable<AIvalue> {
      *
      * @return The value removed.
      */
+    @Nullable
     public AIvalue removeFirst() {
+        if (isEmpty()) {
+            return null;
+        }
         return remove(0);
     }
 
@@ -557,7 +492,11 @@ public class Alist extends Agroup implements Iterable<AIvalue> {
      *
      * @return The value removed.
      */
+    @Nullable
     public AIvalue removeLast() {
+        if (isEmpty()) {
+            return null;
+        }
         return remove(size() - 1);
     }
 
@@ -566,6 +505,7 @@ public class Alist extends Agroup implements Iterable<AIvalue> {
         return values.size();
     }
 
+    @Nonnull
     @Override
     public Alist toList() {
         return this;

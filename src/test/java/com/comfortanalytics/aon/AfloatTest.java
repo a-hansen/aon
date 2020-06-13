@@ -28,9 +28,9 @@ public class AfloatTest {
         Alist list = new Alist().add(val);
         byte[] bytes = Aon.encode(list);
         list = Aon.decode(bytes).toList();
-        validate(Afloat.ZERO.valueOf(list.get(0).toPrimitive()));
-        validateEqual(Afloat.ZERO.valueOf(list.get(0).toPrimitive()), val);
-        validateUnequal(Afloat.ZERO.valueOf(list.get(0).toPrimitive()), val2);
+        validate(Afloat.ZERO.valueOf(list.getValue(0).toPrimitive()));
+        validateEqual(Afloat.ZERO.valueOf(list.getValue(0).toPrimitive()), val);
+        validateUnequal(Afloat.ZERO.valueOf(list.getValue(0).toPrimitive()), val2);
     }
 
     ///////////////////////////////////////////////////////////////////////////

@@ -2,6 +2,7 @@ package com.comfortanalytics.aon;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
+import javax.annotation.Nonnull;
 
 /**
  * Integer value.
@@ -35,6 +36,7 @@ public class Aint extends Aprimitive {
     // Public Methods
     ///////////////////////////////////////////////////////////////////////////
 
+    @Nonnull
     @Override
     public Atype aonType() {
         return Atype.INT;
@@ -59,6 +61,12 @@ public class Aint extends Aprimitive {
                 return obj.toLong() == value;
         }
         return false;
+    }
+
+    @Nonnull
+    @Override
+    public Integer get() {
+        return value;
     }
 
     @Override
@@ -119,11 +127,13 @@ public class Aint extends Aprimitive {
     /**
      * Returns Along
      */
+    @Nonnull
     @Override
     public Aprimitive toPrimitive() {
         return Along.valueOf(value);
     }
 
+    @Nonnull
     @Override
     public String toString() {
         return String.valueOf(value);

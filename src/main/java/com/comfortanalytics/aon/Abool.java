@@ -3,6 +3,7 @@ package com.comfortanalytics.aon;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
+import javax.annotation.Nonnull;
 
 /**
  * Boolean value.
@@ -37,6 +38,7 @@ public class Abool extends Aprimitive {
     // Public Methods
     ///////////////////////////////////////////////////////////////////////////
 
+    @Nonnull
     @Override
     public Atype aonType() {
         return Atype.BOOLEAN;
@@ -45,6 +47,12 @@ public class Abool extends Aprimitive {
     @Override
     public boolean equals(Object arg) {
         return arg == this;
+    }
+
+    @Nonnull
+    @Override
+    public Boolean get() {
+        return value;
     }
 
     @Override
@@ -125,14 +133,12 @@ public class Abool extends Aprimitive {
         return toInt();
     }
 
+    @Nonnull
     @Override
     public String toString() {
         return String.valueOf(value);
     }
 
-    /**
-     * Will return either TRUE or FALSE.
-     */
     public static Abool valueOf(boolean arg) {
         if (arg) {
             return TRUE;

@@ -12,6 +12,8 @@ import java.io.OutputStream;
 import java.io.Reader;
 import java.io.StringReader;
 import java.io.Writer;
+import java.math.BigDecimal;
+import java.math.BigInteger;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 
@@ -20,7 +22,7 @@ import java.nio.charset.StandardCharsets;
  *
  * @author Aaron Hansen
  */
-@SuppressWarnings({"ThrowFromFinallyBlock", "unused"})
+@SuppressWarnings({"ThrowFromFinallyBlock", "unused", "unchecked"})
 public class Aon {
 
     ///////////////////////////////////////////////////////////////////////////
@@ -36,9 +38,9 @@ public class Aon {
     /**
      * Decodes an Aon encoded list or object.
      */
-    public static Agroup decode(byte[] arg) {
+    public static <T extends Agroup> T decode(byte[] arg) {
         ByteArrayInputStream in = new ByteArrayInputStream(arg);
-        return read(in, true);
+        return (T) read(in, true);
     }
 
     /**
@@ -48,6 +50,16 @@ public class Aon {
         ByteArrayOutputStream out = new ByteArrayOutputStream();
         write(arg, out, true);
         return out.toByteArray();
+    }
+
+    /**
+     * True if the value == null or isNull.
+     */
+    public static boolean isNull(AIvalue value) {
+        if (value == null) {
+            return true;
+        }
+        return value.isNull();
     }
 
     /**
@@ -105,20 +117,20 @@ public class Aon {
     /**
      * Decodes an Aon encoded list or object.
      */
-    public static Agroup read(File in) {
+    public static <T extends Agroup> T read(File in) {
         try (Areader reader = reader(in)) {
-            return reader.getValue().toGroup();
+            return (T) reader.getValue().toGroup();
         }
     }
 
     /**
      * Decodes an Aon encoded list or object and optionally closes the stream.
      */
-    public static Agroup read(InputStream in, boolean close) {
+    public static <T extends Agroup> T read(InputStream in, boolean close) {
         Areader reader = null;
         try {
             reader = reader(in);
-            return reader.getValue().toGroup();
+            return (T) reader.getValue().toGroup();
         } finally {
             if (close && (reader != null)) {
                 reader.close();
@@ -126,17 +138,20 @@ public class Aon {
         }
     }
 
-    public static Agroup readJson(File file, Charset charset) {
+    public static <T extends Agroup> T readJson(File file, Charset charset) {
         try (JsonReader in = jsonReader(file, charset)) {
-            return in.getValue().toGroup();
+            return (T) in.getValue().toGroup();
         }
     }
 
-    public static Agroup readJson(InputStream in, boolean close) {
+    /**
+     * Decodes an JSON encoded list or object and optionally closes the stream.
+     */
+    public static <T extends Agroup> T readJson(InputStream in, boolean close) {
         JsonReader reader;
         try {
             reader = jsonReader(in);
-            return reader.getValue().toGroup();
+            return (T) reader.getValue().toGroup();
         } finally {
             if (close) {
                 try {
@@ -148,11 +163,14 @@ public class Aon {
         }
     }
 
-    public static Agroup readJson(Reader in, boolean close) {
+    /**
+     * Decodes an JSON encoded list or object and optionally closes the stream.
+     */
+    public static <T extends Agroup> T readJson(Reader in, boolean close) {
         JsonReader reader;
         try {
             reader = jsonReader(in);
-            return reader.getValue().toGroup();
+            return (T) reader.getValue().toGroup();
         } finally {
             if (close) {
                 try {
@@ -165,8 +183,8 @@ public class Aon {
 
     }
 
-    public static Agroup readJson(String str) {
-        return readJson(new StringReader(str), true);
+    public static <T extends Agroup> T readJson(String str) {
+        return (T) readJson(new StringReader(str), true);
     }
 
     public static AonReader reader(File in) {
@@ -175,6 +193,38 @@ public class Aon {
 
     public static AonReader reader(InputStream in) {
         return new AonReader(in);
+    }
+
+    public static Adecimal valueOf(BigDecimal val) {
+        return Adecimal.valueOf(val);
+    }
+
+    public static Abigint valueOf(BigInteger val) {
+        return Abigint.valueOf(val);
+    }
+
+    public static Abool valueOf(boolean val) {
+        return Abool.valueOf(val);
+    }
+
+    public static Adouble valueOf(double val) {
+        return Adouble.valueOf(val);
+    }
+
+    public static Afloat valueOf(float val) {
+        return Afloat.valueOf(val);
+    }
+
+    public static Aint valueOf(int val) {
+        return Aint.valueOf(val);
+    }
+
+    public static Along valueOf(long val) {
+        return Along.valueOf(val);
+    }
+
+    public static Astr valueOf(String val) {
+        return Astr.valueOf(val);
     }
 
     /**

@@ -2,13 +2,14 @@ package com.comfortanalytics.aon;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
+import javax.annotation.Nonnull;
 
 /**
  * For integers that exceed the min and max values of 64 signed bits.
  *
  * @author Aaron Hansen
  */
-@SuppressWarnings({"CatchMayIgnoreException", "unused"})
+@SuppressWarnings({"unused"})
 public class Abigint implements AIvalue {
 
     ///////////////////////////////////////////////////////////////////////////
@@ -27,7 +28,7 @@ public class Abigint implements AIvalue {
     // Constructors
     ///////////////////////////////////////////////////////////////////////////
 
-    private Abigint(BigInteger val) {
+    private Abigint(@Nonnull BigInteger val) {
         value = val;
     }
 
@@ -35,6 +36,7 @@ public class Abigint implements AIvalue {
     // Public Methods
     ///////////////////////////////////////////////////////////////////////////
 
+    @Nonnull
     @Override
     public Atype aonType() {
         return Atype.BIGINT;
@@ -46,6 +48,12 @@ public class Abigint implements AIvalue {
             return false;
         }
         return value.equals(((AIvalue) o).toBigInt());
+    }
+
+    @Nonnull
+    @Override
+    public BigInteger get() {
+        return value;
     }
 
     @Override
@@ -106,6 +114,7 @@ public class Abigint implements AIvalue {
     /**
      * Attempts to return Along, but if out of bounds returns Astr.
      */
+    @Nonnull
     @Override
     public Aprimitive toPrimitive() {
         if (value.compareTo(BigInteger.valueOf(Long.MAX_VALUE)) > 0) {
@@ -117,6 +126,7 @@ public class Abigint implements AIvalue {
         return Along.valueOf(value.longValue());
     }
 
+    @Nonnull
     @Override
     public String toString() {
         return String.valueOf(value);
@@ -127,6 +137,9 @@ public class Abigint implements AIvalue {
      */
     @Override
     public Abigint valueOf(Aprimitive value) {
+        if (Aon.isNull(value)) {
+            return null;
+        }
         try {
             switch (value.aonType()) {
                 case DOUBLE:
@@ -147,12 +160,15 @@ public class Abigint implements AIvalue {
                 case STRING:
                     return valueOf(new BigInteger(value.toString()));
             }
-        } catch (Exception x) {
+        } catch (Exception ignore) {
         }
         return null;
     }
 
     public static Abigint valueOf(BigInteger arg) {
+        if (arg == null) {
+            return null;
+        }
         if (arg.equals(BigInteger.ZERO)) {
             return ZERO;
         }

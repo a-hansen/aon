@@ -34,7 +34,7 @@ public class AonGroupsTest {
         Assert.assertEquals(list, copy);
         Assert.assertEquals(list.hashCode(), copy.hashCode());
         for (int i = 0; i < list.size(); i++) {
-            Assert.assertEquals(list.get(i), copy.get(i));
+            Assert.assertEquals((Object) list.getValue(i), copy.getValue(i));
         }
     }
 

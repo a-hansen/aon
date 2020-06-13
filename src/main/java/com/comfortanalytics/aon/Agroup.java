@@ -1,6 +1,7 @@
 package com.comfortanalytics.aon;
 
 import com.comfortanalytics.aon.json.JsonAppender;
+import javax.annotation.Nonnull;
 
 /**
  * A collection of values such as Alist and Aobj.
@@ -10,27 +11,11 @@ import com.comfortanalytics.aon.json.JsonAppender;
 @SuppressWarnings({"UnusedReturnValue", "unused"})
 public abstract class Agroup extends Aprimitive {
 
-    ///////////////////////////////////////////////////////////////////////////
-    // Fields
-    ///////////////////////////////////////////////////////////////////////////
-
-    private Agroup parent;
-
-    ///////////////////////////////////////////////////////////////////////////
-    // Public Methods
-    ///////////////////////////////////////////////////////////////////////////
-
     /**
      * Removes all items and returns this.
      */
+    @Nonnull
     public abstract Agroup clear();
-
-    /**
-     * Returns the parent group or null.
-     */
-    public Agroup getParent() {
-        return parent;
-    }
 
     /**
      * Returns true when size() == 0.
@@ -49,6 +34,7 @@ public abstract class Agroup extends Aprimitive {
      */
     public abstract int size();
 
+    @Nonnull
     @Override
     public Agroup toGroup() {
         return this;
@@ -57,35 +43,12 @@ public abstract class Agroup extends Aprimitive {
     /**
      * Json encodes the graph, be careful.
      */
+    @Nonnull
     @Override
     public String toString() {
         StringBuilder buf = new StringBuilder();
         new JsonAppender(buf).value(this).close();
         return buf.toString();
-    }
-
-    ///////////////////////////////////////////////////////////////////////////
-    // Package / Private Methods
-    ///////////////////////////////////////////////////////////////////////////
-
-    /**
-     * Sets the parent and returns this for un-parented groups, otherwise throws an
-     * IllegalStateException.
-     *
-     * @param arg The new parent.
-     * @return This
-     * @throws IllegalStateException If already parented.
-     */
-    Agroup setParent(Agroup arg) {
-        if (arg == null) {
-            this.parent = null;
-            return this;
-        }
-        if (this.parent != null) {
-            throw new IllegalStateException("Already parented");
-        }
-        this.parent = arg;
-        return this;
     }
 
 }

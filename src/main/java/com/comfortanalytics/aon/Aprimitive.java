@@ -1,15 +1,14 @@
 package com.comfortanalytics.aon;
 
 import com.comfortanalytics.aon.json.JsonAppender;
+import javax.annotation.Nonnull;
 
 /**
- * Primitive data types that are JSON compatible.
- * Base representation for all Aon data types.  Use Alist and Aobj to create data
- * structures.
+ * Primitive data types are JSON compatible.
  * <p>
  * Be aware that when encoding/decoding, if the underlying format doesn't provide a mechanism
- * to differentiate between data types (such as numbers), values may not decode to the same type
- * they were encoded.
+ * to differentiate between data types (such as numbers in JSON), values may not decode to the
+ * same type they were encoded.
  *
  * @author Aaron Hansen
  */
@@ -24,6 +23,7 @@ public abstract class Aprimitive implements AIvalue, Cloneable {
     /**
      * Returns this.
      */
+    @Nonnull
     @Override
     public Aprimitive toPrimitive() {
         return this;

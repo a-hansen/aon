@@ -2,6 +2,7 @@ package com.comfortanalytics.aon;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
+import javax.annotation.Nonnull;
 
 /**
  * IEEE 754 floating-point "double format" bit layout.
@@ -35,6 +36,7 @@ public class Adouble extends Aprimitive {
     // Public Methods
     ///////////////////////////////////////////////////////////////////////////
 
+    @Nonnull
     @Override
     public Atype aonType() {
         return Atype.DOUBLE;
@@ -60,6 +62,12 @@ public class Adouble extends Aprimitive {
                 return obj.toLong() == value;
         }
         return false;
+    }
+
+    @Nonnull
+    @Override
+    public Double get() {
+        return value;
     }
 
     @Override
@@ -118,6 +126,7 @@ public class Adouble extends Aprimitive {
         return value;
     }
 
+    @Nonnull
     @Override
     public String toString() {
         return String.valueOf(value);

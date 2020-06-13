@@ -2,6 +2,8 @@ package com.comfortanalytics.aon;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
 /**
  * String value.
@@ -27,10 +29,7 @@ public class Astr extends Aprimitive {
     // Constructors
     ///////////////////////////////////////////////////////////////////////////
 
-    private Astr(String val) {
-        if (val == null) {
-            throw new NullPointerException("Null not allowed");
-        }
+    private Astr(@Nonnull String val) {
         value = val;
     }
 
@@ -38,6 +37,7 @@ public class Astr extends Aprimitive {
     // Public Methods
     ///////////////////////////////////////////////////////////////////////////
 
+    @Nonnull
     @Override
     public Atype aonType() {
         return Atype.STRING;
@@ -56,6 +56,12 @@ public class Astr extends Aprimitive {
             return false;
         }
         return value.equals(obj.toString());
+    }
+
+    @Nonnull
+    @Override
+    public String get() {
+        return value;
     }
 
     @Override
@@ -142,11 +148,13 @@ public class Astr extends Aprimitive {
         return toBigDecimal();
     }
 
+    @Nonnull
     @Override
     public String toString() {
         return value;
     }
 
+    @Nullable
     public static Astr valueOf(String arg) {
         if (arg == null) {
             return null;

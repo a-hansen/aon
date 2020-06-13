@@ -3,6 +3,7 @@ package com.comfortanalytics.aon;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.math.MathContext;
+import javax.annotation.Nonnull;
 
 /**
  * Float value.
@@ -36,6 +37,7 @@ public class Afloat implements AIvalue {
     // Public Methods
     ///////////////////////////////////////////////////////////////////////////
 
+    @Nonnull
     @Override
     public Atype aonType() {
         return Atype.FLOAT;
@@ -67,6 +69,12 @@ public class Afloat implements AIvalue {
      */
     public static double formatDouble(float value) {
         return new BigDecimal(value, MathContext.DECIMAL32).doubleValue();
+    }
+
+    @Nonnull
+    @Override
+    public Float get() {
+        return value;
     }
 
     @Override
@@ -127,11 +135,13 @@ public class Afloat implements AIvalue {
     /**
      * Returns Adouble
      */
+    @Nonnull
     @Override
     public Aprimitive toPrimitive() {
         return Adouble.valueOf(value);
     }
 
+    @Nonnull
     @Override
     public String toString() {
         return String.valueOf(value);

@@ -25,9 +25,9 @@ public class AboolTest {
         Alist list = new Alist().add(val);
         byte[] bytes = Aon.encode(list);
         list = Aon.decode(bytes).toList();
-        validate((Abool) list.get(0));
-        validateEqual((Abool) list.get(0), val);
-        validateUnequal((Abool) list.get(0), val2);
+        validate(list.getValue(0));
+        validateEqual(list.getValue(0), val);
+        validateUnequal(list.getValue(0), val2);
     }
 
     ///////////////////////////////////////////////////////////////////////////

@@ -25,9 +25,9 @@ public class AstrTest {
         Alist list = new Alist().add(val);
         byte[] bytes = Aon.encode(list);
         list = Aon.decode(bytes).toList();
-        validate((Astr) list.get(0));
-        validateEqual((Astr) list.get(0), val);
-        validateUnequal((Astr) list.get(0), val2);
+        validate(list.getValue(0));
+        validateEqual(list.getValue(0), val);
+        validateUnequal(list.getValue(0), val2);
     }
 
     ///////////////////////////////////////////////////////////////////////////

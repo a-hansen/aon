@@ -275,29 +275,29 @@ public class Atest {
         testPrimitiveList(list);
         object.put("object", primitiveObj());
         object.put("list", primitiveList());
-        Assert.assertTrue(object.get("object").isObj());
-        Assert.assertTrue(object.get("list").isList());
+        Assert.assertTrue(object.getValue("object").isObj());
+        Assert.assertTrue(object.getValue("list").isList());
         testObj(object);
         //encode and reconstitute
         ByteArrayOutputStream out = new ByteArrayOutputStream();
         newWriter(out).value(object).close();
         ByteArrayInputStream in = new ByteArrayInputStream(out.toByteArray());
         object = newReader(in).getObj();
-        Assert.assertTrue(object.get("object").isObj());
-        Assert.assertTrue(object.get("list").isList());
-        testPrimitiveObj(object.getObj("object"));
+        Assert.assertTrue(object.getValue("object").isObj());
+        Assert.assertTrue(object.getValue("list").isList());
+        testPrimitiveObj(object.getValue("object"));
         list.add(primitiveObj());
         list.add(primitiveList());
         testList(list);
-        Assert.assertTrue(list.get(8).isObj());
-        Assert.assertTrue(list.get(9).isList());
+        Assert.assertTrue(list.getValue(8).isObj());
+        Assert.assertTrue(list.getValue(9).isList());
         out = new ByteArrayOutputStream();
         newWriter(out).value(object).close();
         in = new ByteArrayInputStream(out.toByteArray());
         object = newReader(in).getValue().toObj();
-        Assert.assertTrue(object.get("object").isObj());
-        Assert.assertTrue(object.get("list").isList());
-        testPrimitiveList(list.get(9).toList());
+        Assert.assertTrue(object.getValue("object").isObj());
+        Assert.assertTrue(object.getValue("list").isList());
+        testPrimitiveList(list.getValue(9).toList());
     }
 
     private void testObj(Aobj object) {
@@ -345,31 +345,31 @@ public class Atest {
 
     private void testPrimitiveList(Alist list) {
         testList(list);
-        Assert.assertTrue(list.get(0).isBoolean());
-        Assert.assertTrue(list.get(1).isDouble());
-        Assert.assertTrue(list.get(2).isInt());
-        Assert.assertTrue(list.get(3).isNumber()); //Deserializes as an int
-        Assert.assertTrue(list.get(4).isString());
-        Assert.assertTrue(list.get(5).isNull());
-        Assert.assertEquals(list.get(6).toInt(), 5);
-        Assert.assertEquals(list.get(7).toString(), "abcde");
+        Assert.assertTrue(list.getValue(0).isBoolean());
+        Assert.assertTrue(list.getValue(1).isDouble());
+        Assert.assertTrue(list.getValue(2).isInt());
+        Assert.assertTrue(list.getValue(3).isNumber()); //Deserializes as an int
+        Assert.assertTrue(list.getValue(4).isString());
+        Assert.assertTrue(list.getValue(5).isNull());
+        Assert.assertEquals(list.getValue(6).toInt(), 5);
+        Assert.assertEquals(list.getValue(7).toString(), "abcde");
     }
 
     private void testPrimitiveObj(Aobj object) {
         testObj(object);
-        Assert.assertTrue(object.get("boolean").isBoolean());
-        Assert.assertTrue(object.get("double").isDouble());
-        Assert.assertTrue(object.get("int").isNumber());
-        Assert.assertTrue(object.get("long").isNumber());
-        Assert.assertTrue(object.get("string").isString());
-        Assert.assertTrue(object.get("null").isNull());
-        Assert.assertTrue(object.getBoolean("boolean"));
-        Assert.assertEquals(object.getDouble("double"), 105.001d);
-        Assert.assertEquals(object.getInt("int"), 100001);
-        Assert.assertEquals(object.getInt("long"), 123L);
-        Assert.assertEquals(object.getString("string"),
+        Assert.assertTrue(object.getValue("boolean").isBoolean());
+        Assert.assertTrue(object.getValue("double").isDouble());
+        Assert.assertTrue(object.getValue("int").isNumber());
+        Assert.assertTrue(object.getValue("long").isNumber());
+        Assert.assertTrue(object.getValue("string").isString());
+        Assert.assertTrue(object.getValue("null").isNull());
+        Assert.assertTrue(object.getValue("boolean").toBoolean());
+        Assert.assertEquals(object.getValue("double").toDouble(), 105.001d);
+        Assert.assertEquals(object.getValue("int").toInt(), 100001);
+        Assert.assertEquals(object.getValue("long").toLong(), 123L);
+        Assert.assertEquals(object.getValue("string").toString(),
                             "abcdefghij\r\njklmnopqrs\u0000\u0001\u0002tuvwxyz\r\n");
-        Assert.assertTrue(object.get("null").isNull());
+        Assert.assertTrue(object.getValue("null").isNull());
     }
 
 }

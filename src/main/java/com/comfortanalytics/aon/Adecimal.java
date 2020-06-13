@@ -2,6 +2,7 @@ package com.comfortanalytics.aon;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
+import javax.annotation.Nonnull;
 
 /**
  * Decimal values that exceed the min and max value of double (IEEE 754 floating-point
@@ -28,7 +29,7 @@ public class Adecimal implements AIvalue {
     // Constructors
     ///////////////////////////////////////////////////////////////////////////
 
-    private Adecimal(BigDecimal val) {
+    private Adecimal(@Nonnull BigDecimal val) {
         value = val;
     }
 
@@ -36,6 +37,7 @@ public class Adecimal implements AIvalue {
     // Public Methods
     ///////////////////////////////////////////////////////////////////////////
 
+    @Nonnull
     @Override
     public Atype aonType() {
         return Atype.DECIMAL;
@@ -47,6 +49,12 @@ public class Adecimal implements AIvalue {
             return false;
         }
         return value.equals(((AIvalue) o).toBigDecimal());
+    }
+
+    @Nonnull
+    @Override
+    public BigDecimal get() {
+        return value;
     }
 
     @Override
@@ -107,11 +115,13 @@ public class Adecimal implements AIvalue {
     /**
      * Returns Astr
      */
+    @Nonnull
     @Override
     public Aprimitive toPrimitive() {
         return Astr.valueOf(toString());
     }
 
+    @Nonnull
     @Override
     public String toString() {
         return String.valueOf(value);
@@ -122,6 +132,9 @@ public class Adecimal implements AIvalue {
      */
     @Override
     public Adecimal valueOf(Aprimitive value) {
+        if (Aon.isNull(value)) {
+            return null;
+        }
         try {
             switch (value.aonType()) {
                 case DOUBLE:
@@ -141,6 +154,9 @@ public class Adecimal implements AIvalue {
     }
 
     public static Adecimal valueOf(BigDecimal arg) {
+        if (arg == null) {
+            return null;
+        }
         if (arg.equals(BigDecimal.ZERO)) {
             return ZERO;
         }

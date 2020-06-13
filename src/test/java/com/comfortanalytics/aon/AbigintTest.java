@@ -27,9 +27,9 @@ public class AbigintTest {
         Alist list = new Alist().add(val);
         byte[] bytes = Aon.encode(list);
         list = Aon.decode(bytes).toList();
-        validate(Abigint.ZERO.valueOf(list.get(0).toPrimitive()));
-        validateEqual(Abigint.ZERO.valueOf(list.get(0).toPrimitive()), val);
-        validateUnequal(Abigint.ZERO.valueOf(list.get(0).toPrimitive()), val2);
+        validate(Abigint.ZERO.valueOf(list.getValue(0).toPrimitive()));
+        validateEqual(Abigint.ZERO.valueOf(list.getValue(0).toPrimitive()), val);
+        validateUnequal(Abigint.ZERO.valueOf(list.getValue(0).toPrimitive()), val2);
     }
 
     ///////////////////////////////////////////////////////////////////////////

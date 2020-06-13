@@ -1,7 +1,9 @@
 package com.comfortanalytics.aon;
 
+import javax.annotation.Nonnull;
+
 /**
- * There is a single Aobj representing null, the NULL constant in this class.
+ * There is a single object representing null, the NULL constant in this class.
  *
  * @author Aaron Hansen
  */
@@ -25,6 +27,7 @@ public class Anull extends Aprimitive {
     // Public Methods
     ///////////////////////////////////////////////////////////////////////////
 
+    @Nonnull
     @Override
     public Atype aonType() {
         return Atype.NULL;
@@ -38,6 +41,12 @@ public class Anull extends Aprimitive {
         return arg == this;
     }
 
+    @Nonnull
+    @Override
+    public Object get() {
+        return null;
+    }
+
     /**
      * True
      */
@@ -46,6 +55,7 @@ public class Anull extends Aprimitive {
         return true;
     }
 
+    @Nonnull
     @Override
     public String toString() {
         return "null";

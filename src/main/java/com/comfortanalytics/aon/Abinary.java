@@ -3,6 +3,7 @@ package com.comfortanalytics.aon;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.util.Arrays;
+import javax.annotation.Nonnull;
 
 /**
  * Byte array value.  If the an encoding format doesn't support binary, this encodes to a
@@ -23,16 +24,13 @@ public class Abinary implements AIvalue {
     // Instance Fields
     ///////////////////////////////////////////////////////////////////////////
 
-    byte[] value;
+    final byte[] value;
 
     ///////////////////////////////////////////////////////////////////////////
     // Constructors
     ///////////////////////////////////////////////////////////////////////////
 
-    private Abinary(byte[] val) {
-        if (val == null) {
-            throw new NullPointerException("Null not allowed");
-        }
+    private Abinary(@Nonnull byte[] val) {
         value = val;
     }
 
@@ -40,6 +38,7 @@ public class Abinary implements AIvalue {
     // Public Methods
     ///////////////////////////////////////////////////////////////////////////
 
+    @Nonnull
     @Override
     public Atype aonType() {
         return Atype.BINARY;
@@ -59,6 +58,12 @@ public class Abinary implements AIvalue {
         }
         Abinary arg = (Abinary) o;
         return Arrays.equals(value, arg.value);
+    }
+
+    @Nonnull
+    @Override
+    public byte[] get() {
+        return value;
     }
 
     @Override
@@ -90,11 +95,13 @@ public class Abinary implements AIvalue {
         return Arrays.copyOf(value, value.length);
     }
 
+    @Nonnull
     @Override
     public Aprimitive toPrimitive() {
         return Astr.valueOf(toString());
     }
 
+    @Nonnull
     @Override
     public String toString() {
         if (value.length == 0) {

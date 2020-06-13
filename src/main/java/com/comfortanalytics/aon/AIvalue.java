@@ -2,9 +2,14 @@ package com.comfortanalytics.aon;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
+import javax.annotation.Nonnull;
 
 /**
- * Marker interface for all Aon data types.
+ * Marker interface for all Aon compatible data types.  Aprimitives map to the JSON type
+ * system, however there may be tu[es that serialize themselves as Aprimitives but represent
+ * different Java classes.  For example, JSON can't distinguish between a float and a double,
+ * so Aon uses Adouble as the primitive while Afloat is a non-primitive that implements this
+ * interface.
  *
  * @author Aaron Hansen
  */
@@ -14,14 +19,26 @@ public interface AIvalue {
     /**
      * The value type for the value returned by toValue.
      */
+    @Nonnull
     Atype aonType();
 
     /**
      * If an object is mutable (list or object) then this should clone it,
      * immutable objects can simply return themselves.
      */
+    @Nonnull
     default AIvalue copy() {
         return this;
+    }
+
+    /**
+     * A convenience for getting the value being wrapped.  Agroups will return themselves.
+     *
+     * @throws ClassCastException Be careful
+     */
+    @Nonnull
+    default <T> T get() {
+        return (T) this;
     }
 
     /**
@@ -257,14 +274,22 @@ public interface AIvalue {
     /**
      * AIvalues that are not Aprimitives must be able to convert themselves.
      */
+    @Nonnull
     Aprimitive toPrimitive();
+
+    @Nonnull
+    @Override
+    String toString();
 
     /**
      * Convert the arg to the proper type.
      *
-     * @return This by default.
+     * @return Anull.NULL if null, or the arg.
      */
     default AIvalue valueOf(Aprimitive arg) {
+        if (arg == null) {
+            return Anull.NULL;
+        }
         return arg;
     }
 
