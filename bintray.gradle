@@ -1,21 +1,7 @@
 apply plugin: "com.jfrog.bintray"
 apply plugin: 'maven-publish'
 
-task sourcesJar(type: Jar) {
-    //archiveClassifier.set('sources')
-    classifier = 'sources'
-    from sourceSets.main.allJava
-}
-
-task javadocJar(type: Jar) {
-    //archiveClassifier.set('javadoc')
-    classifier = 'javadoc'
-    from javadoc.destinationDir
-}
-
 def myOrg = 'a-hansen'
-def myRepo = 'com.comfortanalytics'
-def myPackage = 'aon'
 def developerId = 'a-hansen'
 def developerName = 'Aaron Hansen'
 def developerOrgUrl = 'http://www.comfortanalytics.com'
@@ -23,7 +9,7 @@ def developerEmail = 'developerId@_comfortanalytics_.com'
 def licenseName = 'ISC'
 def licenseUrl = 'http://opensource.org/licenses/ISC'
 
-def myGithubRepo = myOrg + '/' + myPackage
+def myGithubRepo = myOrg + '/' + project.name
 def myProjectUrl = 'https://github.com/' + myGithubRepo
 def myVcsUrl = myProjectUrl
 def myScmUrl = 'scm:git:' + myProjectUrl + '.git'
@@ -34,13 +20,12 @@ bintray {
     user = project.properties.bintrayUser
     key = project.properties.bintrayApiKey
     publications = ['MyPublication']
-    dryRun = false
+    dryRun = true
     publish = true
     override = true
     pkg {
-        repo = myRepo
-        name = myPackage
-        //userOrg = myOrg
+        repo = group
+        name = project.name
         licenses = [licenseName]
         desc = project.description
         vcsUrl = myVcsUrl
@@ -88,8 +73,6 @@ def pomConfig = {
 publishing.publications {
     MyPublication(MavenPublication) {
         from components.java
-        artifact sourcesJar
-        artifact javadocJar
         groupId project.group
         artifactId project.name
         version project.version

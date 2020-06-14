@@ -32,13 +32,26 @@ dependencies {
     testImplementation 'org.testng:testng:+'
 }
 
+jar {
+    manifest {
+        attributes(
+                'Automatic-Module-Name': 'com.comfortanalytics.aon'
+        )
+    }
+}
+
+java {
+    withSourcesJar()
+    withJavadocJar()
+}
+
+tasks.withType(Javadoc) {
+    options.addStringOption('Xdoclint:none', '-quiet')
+}
+
 test {
     useTestNG()
     exclude '**/*Benchmark*'
-}
-
-wrapper {
-    gradleVersion = '6.4.1'
 }
 
 apply from: 'bintray.gradle'
