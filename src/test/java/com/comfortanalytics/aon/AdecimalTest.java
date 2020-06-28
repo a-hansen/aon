@@ -3,8 +3,8 @@ package com.comfortanalytics.aon;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.Random;
-import org.testng.Assert;
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 /**
  * @author Aaron Hansen
@@ -38,24 +38,24 @@ public class AdecimalTest {
     ///////////////////////////////////////////////////////////////////////////
 
     private void validate(Adecimal val) {
-        Assert.assertEquals(val.aonType(), Atype.DECIMAL);
-        Assert.assertEquals(val, val);
-        Assert.assertEquals(val, Adecimal.valueOf(val.toBigDecimal()));
-        Assert.assertEquals(val.hashCode(), Adecimal.valueOf(val.toBigDecimal()).hashCode());
-        Assert.assertTrue(val.isNumber());
-        Assert.assertTrue(val.isBigDecimal());
+        Assertions.assertEquals(val.aonType(), Atype.DECIMAL);
+        Assertions.assertEquals(val, val);
+        Assertions.assertEquals(val, Adecimal.valueOf(val.toBigDecimal()));
+        Assertions.assertEquals(val.hashCode(), Adecimal.valueOf(val.toBigDecimal()).hashCode());
+        Assertions.assertTrue(val.isNumber());
+        Assertions.assertTrue(val.isBigDecimal());
     }
 
     private void validateEqual(Adecimal first, Adecimal second) {
-        Assert.assertEquals(first.aonType(), second.aonType());
-        Assert.assertEquals(first, second);
-        Assert.assertEquals(first.hashCode(), second.hashCode());
+        Assertions.assertEquals(first.aonType(), second.aonType());
+        Assertions.assertEquals(first, second);
+        Assertions.assertEquals(first.hashCode(), second.hashCode());
     }
 
     private void validateUnequal(Adecimal first, Adecimal second) {
-        Assert.assertEquals(first.aonType(), second.aonType());
-        Assert.assertNotEquals(second, first);
-        Assert.assertNotEquals(second.hashCode(), first.hashCode());
+        Assertions.assertEquals(first.aonType(), second.aonType());
+        Assertions.assertNotEquals(second, first);
+        Assertions.assertNotEquals(second.hashCode(), first.hashCode());
     }
 
 }

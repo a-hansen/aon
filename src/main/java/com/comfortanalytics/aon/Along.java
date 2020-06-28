@@ -16,7 +16,7 @@ public class Along extends Aprimitive {
     // Class Fields
     ///////////////////////////////////////////////////////////////////////////
 
-    public static final Along ZERO = LongCache.get(0);
+    public static final Along ZERO = valueOf(0);
 
     ///////////////////////////////////////////////////////////////////////////
     // Instance Fields
@@ -135,11 +135,7 @@ public class Along extends Aprimitive {
      * Attempts to reuse some common values before creating a new instance.
      */
     public static Along valueOf(long arg) {
-        Along ret = null;
-        int i = (int) arg;
-        if (arg == i) {
-            ret = LongCache.get(i);
-        }
+        Along ret = LongCache.get(arg);
         if (ret == null) {
             ret = new Along(arg);
         }
@@ -152,24 +148,30 @@ public class Along extends Aprimitive {
 
     private static class LongCache {
 
+        private static final int MAX = 100;
         private static final Along NEG_ONE = new Along(-1);
-        private static final Along[] cache = new Along[101];
+        private static Along[] cache = null;
 
         public static Along get(long l) {
-            if ((l < 0) || (l > 100)) {
+            if ((l < 0) || (l > MAX)) {
                 if (l == -1) {
                     return NEG_ONE;
                 }
                 return null;
             }
-            return cache[(int) l];
+            int i = (int) l;
+            Along ret;
+            if (cache == null) {
+                cache = new Along[MAX + 1];
+            }
+            ret = cache[i];
+            if (ret == null) {
+                ret = new Along(l);
+                cache[i] = ret;
+            }
+            return ret;
         }
 
-        static {
-            for (int i = 101; --i >= 0; ) {
-                cache[i] = new Along(i);
-            }
-        }
     }
 
 }

@@ -47,6 +47,7 @@ public class Adouble extends Aprimitive {
         if (!(o instanceof Aprimitive)) {
             return false;
         }
+        Long d;
         Aprimitive obj = (Aprimitive) o;
         switch (obj.aonType()) {
             case DECIMAL:
@@ -142,7 +143,7 @@ public class Adouble extends Aprimitive {
             ret = DblCache.get(i);
         }
         if (ret == null) {
-            ret = new Adouble(arg);
+            return new Adouble(arg);
         }
         return ret;
     }
@@ -155,21 +156,26 @@ public class Adouble extends Aprimitive {
 
         private static final int MAX = 100;
         private static final Adouble NEG_ONE = new Adouble(-1);
-        private static final Adouble[] cache = new Adouble[MAX + 1];
+        private static Adouble[] cache;
 
         public static Adouble get(int i) {
-            if (i == -1) {
-                return NEG_ONE;
-            }
             if ((i < 0) || (i > MAX)) {
+                if (i == -1) {
+                    return NEG_ONE;
+                }
                 return null;
             }
-            if (cache[i] == null) {
-                cache[i] = new Adouble(i);
+            Adouble ret;
+            if (cache == null) {
+                cache = new Adouble[MAX + 1];
             }
-            return cache[i];
+            ret = cache[i];
+            if (ret == null) {
+                ret = new Adouble(i);
+                cache[i] = ret;
+            }
+            return ret;
         }
-
     }
 
 }

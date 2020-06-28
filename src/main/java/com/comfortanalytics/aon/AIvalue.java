@@ -6,7 +6,7 @@ import javax.annotation.Nonnull;
 
 /**
  * Marker interface for all Aon compatible data types.  Aprimitives map to the JSON type
- * system, however there may be tu[es that serialize themselves as Aprimitives but represent
+ * system, however there may be types that serialize themselves as Aprimitives but represent
  * different Java classes.  For example, JSON can't distinguish between a float and a double,
  * so Aon uses Adouble as the primitive while Afloat is a non-primitive that implements this
  * interface.

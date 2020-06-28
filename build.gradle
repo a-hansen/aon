@@ -26,10 +26,10 @@ dependencies {
     testImplementation 'com.google.code.gson:gson:+'
     testImplementation 'com.googlecode.json-simple:json-simple:+'
     testImplementation 'com.owlike:genson:+'
-    testImplementation 'net.sf.flexjson:flexjson:+'
     testImplementation 'org.openjdk.jmh:jmh-core:+'
     testImplementation 'org.openjdk.jmh:jmh-generator-annprocess:+'
-    testImplementation 'org.testng:testng:+'
+    testImplementation 'org.junit.jupiter:junit-jupiter-engine:+'
+
 }
 
 jar {
@@ -50,9 +50,11 @@ tasks.withType(Javadoc) {
 }
 
 test {
-    useTestNG()
+    useJUnitPlatform()
     exclude '**/*Benchmark*'
 }
 
 apply from: 'bintray.gradle'
+apply from: 'jmh.gradle'
+
 

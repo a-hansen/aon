@@ -1,8 +1,8 @@
 package com.comfortanalytics.aon;
 
 import com.comfortanalytics.aon.Aobj.Member;
-import org.testng.Assert;
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 /**
  * @author Aaron Hansen
@@ -30,11 +30,11 @@ public class AonGroupsTest {
         list.add(Integer.MAX_VALUE);
         list.add(Long.MAX_VALUE);
         Alist copy = Aon.decode(Aon.encode(list)).toList();
-        Assert.assertEquals(list.size(), copy.size());
-        Assert.assertEquals(list, copy);
-        Assert.assertEquals(list.hashCode(), copy.hashCode());
+        Assertions.assertEquals(list.size(), copy.size());
+        Assertions.assertEquals(list, copy);
+        Assertions.assertEquals(list.hashCode(), copy.hashCode());
         for (int i = 0; i < list.size(); i++) {
-            Assert.assertEquals((Object) list.getValue(i), copy.getValue(i));
+            Assertions.assertEquals((Object) list.getValue(i), copy.getValue(i));
         }
     }
 
@@ -60,11 +60,11 @@ public class AonGroupsTest {
         obj.put("16", Double.MAX_VALUE);
         byte[] b = Aon.encode(obj);
         Aobj copy = Aon.decode(b).toObj();
-        Assert.assertEquals(obj.size(), copy.size());
-        Assert.assertEquals(obj, copy);
-        Assert.assertEquals(obj.hashCode(), copy.hashCode());
+        Assertions.assertEquals(obj.size(), copy.size());
+        Assertions.assertEquals(obj, copy);
+        Assertions.assertEquals(obj.hashCode(), copy.hashCode());
         for (Member om = obj.getFirst(), cm = copy.getFirst(); om != null; ) {
-            Assert.assertEquals(om.getValue(), cm.getValue());
+            Assertions.assertEquals(om.getValue(), cm.getValue());
             om = om.next();
             cm = cm.next();
         }

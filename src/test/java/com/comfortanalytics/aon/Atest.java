@@ -9,8 +9,8 @@ import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.StringReader;
-import org.testng.Assert;
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 /**
  * @author Aaron Hansen
@@ -65,7 +65,7 @@ public class Atest {
         test(Aint.valueOf(101), 101);
         test(Along.valueOf(0L), 0L);
         test(Along.valueOf(101L), 101L);
-        Assert.assertTrue(Along.valueOf(101L).isLong());
+        Assertions.assertTrue(Along.valueOf(101L).isLong());
         test(Astr.valueOf(""), "");
         test(Astr.valueOf("0"), "0");
         test(Astr.valueOf("abc"), "abc");
@@ -110,142 +110,142 @@ public class Atest {
     }
 
     private void test(Aprimitive obj, boolean value) {
-        Assert.assertSame(obj.aonType(), Atype.BOOLEAN);
-        Assert.assertSame(Abool.valueOf(value), obj);
-        Assert.assertTrue(obj.isBoolean());
-        Assert.assertFalse(obj.isDouble());
-        Assert.assertFalse(obj.isGroup());
-        Assert.assertFalse(obj.isInt());
-        Assert.assertFalse(obj.isList());
-        Assert.assertFalse(obj.isLong());
-        Assert.assertFalse(obj.isObj());
-        Assert.assertFalse(obj.isNull());
-        Assert.assertFalse(obj.isNumber());
-        Assert.assertFalse(obj.isString());
-        Assert.assertEquals(value, obj.toBoolean());
+        Assertions.assertSame(obj.aonType(), Atype.BOOLEAN);
+        Assertions.assertSame(Abool.valueOf(value), obj);
+        Assertions.assertTrue(obj.isBoolean());
+        Assertions.assertFalse(obj.isDouble());
+        Assertions.assertFalse(obj.isGroup());
+        Assertions.assertFalse(obj.isInt());
+        Assertions.assertFalse(obj.isList());
+        Assertions.assertFalse(obj.isLong());
+        Assertions.assertFalse(obj.isObj());
+        Assertions.assertFalse(obj.isNull());
+        Assertions.assertFalse(obj.isNumber());
+        Assertions.assertFalse(obj.isString());
+        Assertions.assertEquals(value, obj.toBoolean());
         int num = value ? 1 : 0;
-        Assert.assertEquals(num, obj.toDouble());
-        Assert.assertEquals(num, obj.toFloat());
-        Assert.assertEquals(num, obj.toInt());
-        Assert.assertEquals(num, obj.toLong());
-        Assert.assertEquals(value + "", obj.toString());
+        Assertions.assertEquals(num, obj.toDouble());
+        Assertions.assertEquals(num, obj.toFloat());
+        Assertions.assertEquals(num, obj.toInt());
+        Assertions.assertEquals(num, obj.toLong());
+        Assertions.assertEquals(value + "", obj.toString());
     }
 
     private void test(Aprimitive obj, double value) {
-        Assert.assertSame(obj.aonType(), Atype.DOUBLE);
+        Assertions.assertSame(obj.aonType(), Atype.DOUBLE);
         if (value < 100) {
-            Assert.assertSame(Adouble.valueOf(value), obj);
+            Assertions.assertSame(Adouble.valueOf(value), obj);
         }
-        Assert.assertFalse(obj.isBoolean());
-        Assert.assertTrue(obj.isDouble());
-        Assert.assertFalse(obj.isGroup());
-        Assert.assertFalse(obj.isInt());
-        Assert.assertFalse(obj.isList());
-        Assert.assertFalse(obj.isLong());
-        Assert.assertFalse(obj.isObj());
-        Assert.assertFalse(obj.isNull());
-        Assert.assertTrue(obj.isNumber());
-        Assert.assertFalse(obj.isString());
+        Assertions.assertFalse(obj.isBoolean());
+        Assertions.assertTrue(obj.isDouble());
+        Assertions.assertFalse(obj.isGroup());
+        Assertions.assertFalse(obj.isInt());
+        Assertions.assertFalse(obj.isList());
+        Assertions.assertFalse(obj.isLong());
+        Assertions.assertFalse(obj.isObj());
+        Assertions.assertFalse(obj.isNull());
+        Assertions.assertTrue(obj.isNumber());
+        Assertions.assertFalse(obj.isString());
         if (value == 0) {
-            Assert.assertFalse(obj.toBoolean());
+            Assertions.assertFalse(obj.toBoolean());
         } else {
-            Assert.assertTrue(obj.toBoolean());
+            Assertions.assertTrue(obj.toBoolean());
         }
-        Assert.assertEquals(value, obj.toDouble());
-        Assert.assertEquals(value, obj.toFloat());
+        Assertions.assertEquals(value, obj.toDouble());
+        Assertions.assertEquals(value, obj.toFloat());
     }
 
     private void test(Aprimitive obj, int value) {
-        Assert.assertSame(obj.aonType(), Atype.INT);
+        Assertions.assertSame(obj.aonType(), Atype.INT);
         if (value <= 100) {
-            Assert.assertSame(Aint.valueOf(value), obj);
+            Assertions.assertSame(Aint.valueOf(value), obj);
         }
-        Assert.assertFalse(obj.isBoolean());
-        Assert.assertFalse(obj.isDouble());
-        Assert.assertFalse(obj.isGroup());
-        Assert.assertTrue(obj.isInt());
-        Assert.assertFalse(obj.isList());
-        Assert.assertFalse(obj.isLong());
-        Assert.assertFalse(obj.isObj());
-        Assert.assertFalse(obj.isNull());
-        Assert.assertTrue(obj.isNumber());
-        Assert.assertFalse(obj.isString());
+        Assertions.assertFalse(obj.isBoolean());
+        Assertions.assertFalse(obj.isDouble());
+        Assertions.assertFalse(obj.isGroup());
+        Assertions.assertTrue(obj.isInt());
+        Assertions.assertFalse(obj.isList());
+        Assertions.assertFalse(obj.isLong());
+        Assertions.assertFalse(obj.isObj());
+        Assertions.assertFalse(obj.isNull());
+        Assertions.assertTrue(obj.isNumber());
+        Assertions.assertFalse(obj.isString());
         if (value == 0) {
-            Assert.assertFalse(obj.toBoolean());
+            Assertions.assertFalse(obj.toBoolean());
         } else {
-            Assert.assertTrue(obj.toBoolean());
+            Assertions.assertTrue(obj.toBoolean());
         }
-        Assert.assertEquals(value, obj.toDouble());
-        Assert.assertEquals(value, obj.toFloat());
-        Assert.assertEquals(value, obj.toInt());
-        Assert.assertEquals(value, obj.toLong());
+        Assertions.assertEquals(value, obj.toDouble());
+        Assertions.assertEquals(value, obj.toFloat());
+        Assertions.assertEquals(value, obj.toInt());
+        Assertions.assertEquals(value, obj.toLong());
     }
 
     private void test(Aprimitive obj, long value) {
-        Assert.assertSame(obj.aonType(), Atype.LONG);
+        Assertions.assertSame(obj.aonType(), Atype.LONG);
         if (value <= 100) {
-            Assert.assertSame(Along.valueOf(value), obj);
+            Assertions.assertSame(Along.valueOf(value), obj);
         }
-        Assert.assertFalse(obj.isBoolean());
-        Assert.assertFalse(obj.isDouble());
-        Assert.assertFalse(obj.isGroup());
-        Assert.assertFalse(obj.isInt());
-        Assert.assertFalse(obj.isList());
-        Assert.assertTrue(obj.isLong());
-        Assert.assertFalse(obj.isObj());
-        Assert.assertFalse(obj.isNull());
-        Assert.assertTrue(obj.isNumber());
-        Assert.assertFalse(obj.isString());
+        Assertions.assertFalse(obj.isBoolean());
+        Assertions.assertFalse(obj.isDouble());
+        Assertions.assertFalse(obj.isGroup());
+        Assertions.assertFalse(obj.isInt());
+        Assertions.assertFalse(obj.isList());
+        Assertions.assertTrue(obj.isLong());
+        Assertions.assertFalse(obj.isObj());
+        Assertions.assertFalse(obj.isNull());
+        Assertions.assertTrue(obj.isNumber());
+        Assertions.assertFalse(obj.isString());
         if (value == 0) {
-            Assert.assertFalse(obj.toBoolean());
+            Assertions.assertFalse(obj.toBoolean());
         } else {
-            Assert.assertTrue(obj.toBoolean());
+            Assertions.assertTrue(obj.toBoolean());
         }
-        Assert.assertEquals(value, obj.toDouble());
-        Assert.assertEquals(value, obj.toFloat());
-        Assert.assertEquals(value, obj.toInt());
-        Assert.assertEquals(value, obj.toLong());
+        Assertions.assertEquals(value, obj.toDouble());
+        Assertions.assertEquals(value, obj.toFloat());
+        Assertions.assertEquals(value, obj.toInt());
+        Assertions.assertEquals(value, obj.toLong());
     }
 
     private void test(Aprimitive obj, String value) {
-        Assert.assertSame(obj.aonType(), Atype.STRING);
+        Assertions.assertSame(obj.aonType(), Atype.STRING);
         if (value.length() == 0) {
-            Assert.assertSame(Astr.valueOf(""), obj);
+            Assertions.assertSame(Astr.valueOf(""), obj);
         }
-        Assert.assertFalse(obj.isBoolean());
-        Assert.assertFalse(obj.isDouble());
-        Assert.assertFalse(obj.isGroup());
-        Assert.assertFalse(obj.isInt());
-        Assert.assertFalse(obj.isList());
-        Assert.assertFalse(obj.isLong());
-        Assert.assertFalse(obj.isObj());
-        Assert.assertFalse(obj.isNull());
-        Assert.assertFalse(obj.isNumber());
-        Assert.assertTrue(obj.isString());
+        Assertions.assertFalse(obj.isBoolean());
+        Assertions.assertFalse(obj.isDouble());
+        Assertions.assertFalse(obj.isGroup());
+        Assertions.assertFalse(obj.isInt());
+        Assertions.assertFalse(obj.isList());
+        Assertions.assertFalse(obj.isLong());
+        Assertions.assertFalse(obj.isObj());
+        Assertions.assertFalse(obj.isNull());
+        Assertions.assertFalse(obj.isNumber());
+        Assertions.assertTrue(obj.isString());
         if (value.equals("0")) {
-            Assert.assertFalse(obj.toBoolean());
+            Assertions.assertFalse(obj.toBoolean());
         } else if (value.equals("1")) {
-            Assert.assertTrue(obj.toBoolean());
+            Assertions.assertTrue(obj.toBoolean());
         }
-        Assert.assertEquals(value, obj.toString());
+        Assertions.assertEquals(value, obj.toString());
     }
 
     private void testList(Alist list) {
-        Assert.assertSame(list.aonType(), Atype.LIST);
-        Assert.assertTrue(list.isList());
+        Assertions.assertSame(list.aonType(), Atype.LIST);
+        Assertions.assertTrue(list.isList());
         int size = list.size();
         if (size == 0) {
-            Assert.assertTrue(list.isEmpty());
+            Assertions.assertTrue(list.isEmpty());
         }
         if (list.isEmpty()) {
-            Assert.assertEquals(size, 0);
+            Assertions.assertEquals(size, 0);
         }
         Aprimitive tmp = Astr.valueOf("mustNotContain");
         list.add(tmp);
-        Assert.assertFalse(list.isEmpty());
-        Assert.assertEquals((size + 1), list.size());
-        Assert.assertSame(list.remove(size), tmp);
-        Assert.assertEquals(size, list.size());
+        Assertions.assertFalse(list.isEmpty());
+        Assertions.assertEquals((size + 1), list.size());
+        Assertions.assertSame(list.remove(size), tmp);
+        Assertions.assertEquals(size, list.size());
         boolean fail = true;
         try {
             tmp = new Aobj();
@@ -257,14 +257,14 @@ public class Atest {
         if (fail) {
             throw new IllegalStateException("Parenting failure");
         }
-        Assert.assertSame(list.removeLast(), tmp);
+        Assertions.assertSame(list.removeLast(), tmp);
     }
 
     @SuppressWarnings("SameParameterValue")
     private void testNull(Aprimitive obj) {
-        Assert.assertSame(Anull.NULL, obj);
-        Assert.assertTrue(obj.isNull());
-        Assert.assertSame(obj.aonType(), Atype.NULL);
+        Assertions.assertSame(Anull.NULL, obj);
+        Assertions.assertTrue(obj.isNull());
+        Assertions.assertSame(obj.aonType(), Atype.NULL);
     }
 
     private void testObj() {
@@ -275,59 +275,59 @@ public class Atest {
         testPrimitiveList(list);
         object.put("object", primitiveObj());
         object.put("list", primitiveList());
-        Assert.assertTrue(object.getValue("object").isObj());
-        Assert.assertTrue(object.getValue("list").isList());
+        Assertions.assertTrue(object.getValue("object").isObj());
+        Assertions.assertTrue(object.getValue("list").isList());
         testObj(object);
         //encode and reconstitute
         ByteArrayOutputStream out = new ByteArrayOutputStream();
         newWriter(out).value(object).close();
         ByteArrayInputStream in = new ByteArrayInputStream(out.toByteArray());
         object = newReader(in).getObj();
-        Assert.assertTrue(object.getValue("object").isObj());
-        Assert.assertTrue(object.getValue("list").isList());
+        Assertions.assertTrue(object.getValue("object").isObj());
+        Assertions.assertTrue(object.getValue("list").isList());
         testPrimitiveObj(object.getValue("object"));
         list.add(primitiveObj());
         list.add(primitiveList());
         testList(list);
-        Assert.assertTrue(list.getValue(8).isObj());
-        Assert.assertTrue(list.getValue(9).isList());
+        Assertions.assertTrue(list.getValue(8).isObj());
+        Assertions.assertTrue(list.getValue(9).isList());
         out = new ByteArrayOutputStream();
         newWriter(out).value(object).close();
         in = new ByteArrayInputStream(out.toByteArray());
         object = newReader(in).getValue().toObj();
-        Assert.assertTrue(object.getValue("object").isObj());
-        Assert.assertTrue(object.getValue("list").isList());
+        Assertions.assertTrue(object.getValue("object").isObj());
+        Assertions.assertTrue(object.getValue("list").isList());
         testPrimitiveList(list.getValue(9).toList());
     }
 
     private void testObj(Aobj object) {
-        Assert.assertSame(object.aonType(), Atype.OBJECT);
-        Assert.assertTrue(object.isObj());
+        Assertions.assertSame(object.aonType(), Atype.OBJECT);
+        Assertions.assertTrue(object.isObj());
         int size = object.size();
         if (size == 0) {
-            Assert.assertTrue(object.isEmpty());
+            Assertions.assertTrue(object.isEmpty());
         }
         if (object.isEmpty()) {
-            Assert.assertEquals(size, 0);
+            Assertions.assertEquals(size, 0);
         }
-        Assert.assertNull(object.get("mustNotContain", null));
-        Assert.assertTrue(object.isNull("mustNotContain"));
+        Assertions.assertNull(object.get("mustNotContain", null));
+        Assertions.assertTrue(object.isNull("mustNotContain"));
         object.put("mustNotContain", 10);
-        Assert.assertFalse(object.isNull("mustNotContain"));
-        Assert.assertFalse(object.isEmpty());
-        Assert.assertEquals((size + 1), object.size());
-        Assert.assertEquals(object.remove("mustNotContain").toInt(), 10);
-        Assert.assertEquals(size, object.size());
+        Assertions.assertFalse(object.isNull("mustNotContain"));
+        Assertions.assertFalse(object.isEmpty());
+        Assertions.assertEquals((size + 1), object.size());
+        Assertions.assertEquals(object.remove("mustNotContain").toInt(), 10);
+        Assertions.assertEquals(size, object.size());
         object.putNull("mustNotContain");
-        Assert.assertFalse(object.isEmpty());
-        Assert.assertEquals((size + 1), object.size());
-        Assert.assertTrue(object.remove("mustNotContain").isNull());
-        Assert.assertEquals(size, object.size());
+        Assertions.assertFalse(object.isEmpty());
+        Assertions.assertEquals((size + 1), object.size());
+        Assertions.assertTrue(object.remove("mustNotContain").isNull());
+        Assertions.assertEquals(size, object.size());
         object.putNull("mustNotContain");
         object.put("mustNotContain", 10);
-        Assert.assertEquals((size + 1), object.size());
-        Assert.assertEquals(object.remove("mustNotContain").toInt(), 10);
-        Assert.assertEquals(size, object.size());
+        Assertions.assertEquals((size + 1), object.size());
+        Assertions.assertEquals(object.remove("mustNotContain").toInt(), 10);
+        Assertions.assertEquals(size, object.size());
         boolean fail = true;
         Aobj tmp = new Aobj();
         try {
@@ -340,36 +340,36 @@ public class Atest {
         if (fail) {
             throw new IllegalStateException("Parenting failure");
         }
-        Assert.assertSame(object.removeLast(), tmp);
+        Assertions.assertSame(object.removeLast(), tmp);
     }
 
     private void testPrimitiveList(Alist list) {
         testList(list);
-        Assert.assertTrue(list.getValue(0).isBoolean());
-        Assert.assertTrue(list.getValue(1).isDouble());
-        Assert.assertTrue(list.getValue(2).isInt());
-        Assert.assertTrue(list.getValue(3).isNumber()); //Deserializes as an int
-        Assert.assertTrue(list.getValue(4).isString());
-        Assert.assertTrue(list.getValue(5).isNull());
-        Assert.assertEquals(list.getValue(6).toInt(), 5);
-        Assert.assertEquals(list.getValue(7).toString(), "abcde");
+        Assertions.assertTrue(list.getValue(0).isBoolean());
+        Assertions.assertTrue(list.getValue(1).isDouble());
+        Assertions.assertTrue(list.getValue(2).isInt());
+        Assertions.assertTrue(list.getValue(3).isNumber()); //Deserializes as an int
+        Assertions.assertTrue(list.getValue(4).isString());
+        Assertions.assertTrue(list.getValue(5).isNull());
+        Assertions.assertEquals(list.getValue(6).toInt(), 5);
+        Assertions.assertEquals(list.getValue(7).toString(), "abcde");
     }
 
     private void testPrimitiveObj(Aobj object) {
         testObj(object);
-        Assert.assertTrue(object.getValue("boolean").isBoolean());
-        Assert.assertTrue(object.getValue("double").isDouble());
-        Assert.assertTrue(object.getValue("int").isNumber());
-        Assert.assertTrue(object.getValue("long").isNumber());
-        Assert.assertTrue(object.getValue("string").isString());
-        Assert.assertTrue(object.getValue("null").isNull());
-        Assert.assertTrue(object.getValue("boolean").toBoolean());
-        Assert.assertEquals(object.getValue("double").toDouble(), 105.001d);
-        Assert.assertEquals(object.getValue("int").toInt(), 100001);
-        Assert.assertEquals(object.getValue("long").toLong(), 123L);
-        Assert.assertEquals(object.getValue("string").toString(),
+        Assertions.assertTrue(object.getValue("boolean").isBoolean());
+        Assertions.assertTrue(object.getValue("double").isDouble());
+        Assertions.assertTrue(object.getValue("int").isNumber());
+        Assertions.assertTrue(object.getValue("long").isNumber());
+        Assertions.assertTrue(object.getValue("string").isString());
+        Assertions.assertTrue(object.getValue("null").isNull());
+        Assertions.assertTrue(object.getValue("boolean").toBoolean());
+        Assertions.assertEquals(object.getValue("double").toDouble(), 105.001d);
+        Assertions.assertEquals(object.getValue("int").toInt(), 100001);
+        Assertions.assertEquals(object.getValue("long").toLong(), 123L);
+        Assertions.assertEquals(object.getValue("string").toString(),
                             "abcdefghij\r\njklmnopqrs\u0000\u0001\u0002tuvwxyz\r\n");
-        Assert.assertTrue(object.getValue("null").isNull());
+        Assertions.assertTrue(object.getValue("null").isNull());
     }
 
 }

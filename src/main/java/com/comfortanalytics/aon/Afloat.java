@@ -189,19 +189,25 @@ public class Afloat implements AIvalue {
 
         private static final int MAX = 100;
         private static final Afloat NEG_ONE = new Afloat(-1);
-        private static final Afloat[] cache = new Afloat[MAX + 1];
+        private static Afloat[] cache;
 
         public static Afloat get(int i) {
-            if (i == -1) {
-                return NEG_ONE;
-            }
             if ((i < 0) || (i > MAX)) {
+                if (i == -1) {
+                    return NEG_ONE;
+                }
                 return null;
             }
-            if (cache[i] == null) {
-                cache[i] = new Afloat(i);
+            Afloat ret;
+            if (cache == null) {
+                cache = new Afloat[MAX + 1];
             }
-            return cache[i];
+            ret = cache[i];
+            if (ret == null) {
+                ret = new Afloat(i);
+                cache[i] = ret;
+            }
+            return ret;
         }
     }
 

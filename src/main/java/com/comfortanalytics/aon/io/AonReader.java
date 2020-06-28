@@ -3,6 +3,7 @@ package com.comfortanalytics.aon.io;
 import com.comfortanalytics.aon.AbstractReader;
 import com.comfortanalytics.aon.Aon;
 import java.io.BufferedInputStream;
+import java.io.EOFException;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -206,7 +207,7 @@ public class AonReader extends AbstractReader implements AonConstants {
     private String readString(int len) throws IOException {
         byte[] buf = getBuffer(len);
         if (in.read(buf, 0, len) != len) {
-            throw new IOException("Unexpected end of stream");
+            throw new EOFException();
         }
         return new String(buf, 0, len, Aon.UTF8);
     }

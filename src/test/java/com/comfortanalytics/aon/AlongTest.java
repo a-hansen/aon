@@ -1,8 +1,8 @@
 package com.comfortanalytics.aon;
 
 import java.util.Random;
-import org.testng.Assert;
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 /**
  * @author Aaron Hansen
@@ -19,7 +19,7 @@ public class AlongTest {
         Random random = new Random(System.currentTimeMillis());
         Along val = Along.valueOf(Long.MAX_VALUE);
         validate(val);
-        Assert.assertSame(Along.valueOf(10), Along.valueOf(10));
+        Assertions.assertSame(Along.valueOf(10), Along.valueOf(10));
         validateEqual(val, Along.valueOf(val.toLong()));
         Along val2 = Along.valueOf(5000000000L);
         validate(val2);
@@ -38,23 +38,23 @@ public class AlongTest {
     ///////////////////////////////////////////////////////////////////////////
 
     private void validate(Along val) {
-        Assert.assertEquals(val.aonType(), Atype.LONG);
-        Assert.assertEquals(val, val);
-        Assert.assertEquals(val, Along.valueOf(val.toLong()));
-        Assert.assertEquals(val.hashCode(), Along.valueOf(val.toLong()).hashCode());
-        Assert.assertTrue(val.isNumber());
+        Assertions.assertEquals(val.aonType(), Atype.LONG);
+        Assertions.assertEquals(val, val);
+        Assertions.assertEquals(val, Along.valueOf(val.toLong()));
+        Assertions.assertEquals(val.hashCode(), Along.valueOf(val.toLong()).hashCode());
+        Assertions.assertTrue(val.isNumber());
     }
 
     private void validateEqual(Along first, Along second) {
-        Assert.assertEquals(first.aonType(), second.aonType());
-        Assert.assertEquals(first, second);
-        Assert.assertEquals(first.hashCode(), second.hashCode());
+        Assertions.assertEquals(first.aonType(), second.aonType());
+        Assertions.assertEquals(first, second);
+        Assertions.assertEquals(first.hashCode(), second.hashCode());
     }
 
     private void validateUnequal(Along first, Along second) {
-        Assert.assertEquals(first.aonType(), second.aonType());
-        Assert.assertNotEquals(second, first);
-        Assert.assertNotEquals(second.hashCode(), first.hashCode());
+        Assertions.assertEquals(first.aonType(), second.aonType());
+        Assertions.assertNotEquals(second, first);
+        Assertions.assertNotEquals(second.hashCode(), first.hashCode());
     }
 
 }

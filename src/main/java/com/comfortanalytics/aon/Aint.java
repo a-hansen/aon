@@ -16,7 +16,7 @@ public class Aint extends Aprimitive {
     // Class Fields
     ///////////////////////////////////////////////////////////////////////////
 
-    public static final Aint ZERO = IntCache.get(0);
+    public static final Aint ZERO = valueOf(0);
 
     ///////////////////////////////////////////////////////////////////////////
     // Instance Fields
@@ -169,19 +169,25 @@ public class Aint extends Aprimitive {
 
         private static final int MAX = 100;
         private static final Aint NEG_ONE = new Aint(-1);
-        private static final Aint[] cache = new Aint[MAX + 1];
+        private static Aint[] cache;
 
         public static Aint get(int i) {
-            if (i == -1) {
-                return NEG_ONE;
-            }
             if ((i < 0) || (i > MAX)) {
+                if (i == -1) {
+                    return NEG_ONE;
+                }
                 return null;
             }
-            if (cache[i] == null) {
-                cache[i] = new Aint(i);
+            Aint ret;
+            if (cache == null) {
+                cache = new Aint[MAX + 1];
             }
-            return cache[i];
+            ret = cache[i];
+            if (ret == null) {
+                ret = new Aint(i);
+                cache[i] = ret;
+            }
+            return ret;
         }
 
     }
