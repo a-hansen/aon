@@ -133,7 +133,7 @@ public class Abigint implements AIvalue {
     }
 
     /**
-     * Will convert attempt to convert numbers and strings, otherwise returns null.
+     * Will attempt to convert numbers and strings, otherwise returns null.
      */
     @Override
     public Abigint valueOf(Aprimitive value) {
