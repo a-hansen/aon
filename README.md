@@ -367,7 +367,7 @@ public void notStreaming(Awriter out) {
 Benchmark
 ---------
 
-There is a benchmark test class that compares native Aon encoding with
+There is a benchmark test class compares native Aon encoding with
 Aon-JSON as well as other popular JSON libs.  The benchmark uses JMH and
 takes @45 minutes.
 
@@ -375,7 +375,7 @@ There are 4 categories of tests (large/small docs, encode/decode).  The results 
 sorted from fastest to slowest in each category.  If you compute the average placement 
 of the four categories you find the overall performance from fastest to slowest:
 
-1. Aon - Not exactly fair because it isn't JSON.
+1. Aon
 2. Jackson
 3. Aon-JSON
 4. Gson
@@ -474,6 +474,7 @@ _6.0.0_
   - Reworked jmh for the benchmark
   - Intellij Analyzer fixes
   - Switch to JUnit
+  - JSON performance improvements
   
 _5.0.1_
   - Fix reading numbers.

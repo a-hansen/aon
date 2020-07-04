@@ -1,6 +1,5 @@
 package com.comfortanalytics.aon.json;
 
-import com.comfortanalytics.aon.Aon;
 import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -10,6 +9,7 @@ import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.io.Writer;
 import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 
 /**
  * Json implementation of Awriter intended for OutputStreams and Writers.  While
@@ -42,7 +42,7 @@ public class JsonWriter extends AbstractJsonWriter {
     ///////////////////////////////////////////////////////////////////////////
 
     public JsonWriter(File file) {
-        this(fos(file), Aon.UTF8);
+        this(fos(file), StandardCharsets.UTF_8);
     }
 
     public JsonWriter(File file, Charset charset) {
@@ -50,7 +50,7 @@ public class JsonWriter extends AbstractJsonWriter {
     }
 
     public JsonWriter(OutputStream out) {
-        this(new OutputStreamWriter(out, Aon.UTF8));
+        this(new OutputStreamWriter(out, StandardCharsets.UTF_8));
     }
 
     public JsonWriter(OutputStream out, Charset charset) {

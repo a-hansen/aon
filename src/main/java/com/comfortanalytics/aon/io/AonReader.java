@@ -1,7 +1,6 @@
 package com.comfortanalytics.aon.io;
 
 import com.comfortanalytics.aon.AbstractReader;
-import com.comfortanalytics.aon.Aon;
 import java.io.BufferedInputStream;
 import java.io.EOFException;
 import java.io.File;
@@ -11,6 +10,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.math.BigDecimal;
 import java.math.BigInteger;
+import java.nio.charset.StandardCharsets;
 
 /**
  * Areader implementation that uses the Aon format.
@@ -209,7 +209,7 @@ public class AonReader extends AbstractReader implements AonConstants {
         if (in.read(buf, 0, len) != len) {
             throw new EOFException();
         }
-        return new String(buf, 0, len, Aon.UTF8);
+        return new String(buf, 0, len, StandardCharsets.UTF_8);
     }
 
     private static int readU16(InputStream in) throws IOException {

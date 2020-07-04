@@ -33,9 +33,6 @@
  *            .put("c", 3);
  * }
  * </pre>
- * <p>
- * Use implementations of Awriter and Areader for encoding / decoding.  See package
- * com.comfortanalytics.aon.io and com.comfortanalytics.aon.json.
  *
  * @author Aaron Hansen
  */

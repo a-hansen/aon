@@ -368,7 +368,7 @@ public class Atest {
         Assertions.assertEquals(object.getValue("int").toInt(), 100001);
         Assertions.assertEquals(object.getValue("long").toLong(), 123L);
         Assertions.assertEquals(object.getValue("string").toString(),
-                            "abcdefghij\r\njklmnopqrs\u0000\u0001\u0002tuvwxyz\r\n");
+                                "abcdefghij\r\njklmnopqrs\u0000\u0001\u0002tuvwxyz\r\n");
         Assertions.assertTrue(object.getValue("null").isNull());
     }
 

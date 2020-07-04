@@ -1,7 +1,6 @@
 package com.comfortanalytics.aon.io;
 
 import com.comfortanalytics.aon.AbstractWriter;
-import com.comfortanalytics.aon.Aon;
 import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
@@ -9,6 +8,7 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.math.BigDecimal;
 import java.math.BigInteger;
+import java.nio.charset.StandardCharsets;
 
 /**
  * Awriter implementation that uses the Aon format.
@@ -63,7 +63,7 @@ public class AonWriter extends AbstractWriter implements AonConstants {
 
     @Override
     protected void write(BigDecimal arg) throws IOException {
-        byte[] b = arg.toString().getBytes(Aon.UTF8);
+        byte[] b = arg.toString().getBytes(StandardCharsets.UTF_8);
         int len = b.length;
         if (len <= MAX_U8) {
             write1Byte(DEC8, len);
@@ -165,7 +165,7 @@ public class AonWriter extends AbstractWriter implements AonConstants {
 
     @Override
     protected void write(CharSequence arg) throws IOException {
-        byte[] b = arg.toString().getBytes(Aon.UTF8);
+        byte[] b = arg.toString().getBytes(StandardCharsets.UTF_8);
         int len = b.length;
         if (len <= MAX_U5) {
             out.write(S5 | len);

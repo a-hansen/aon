@@ -15,8 +15,6 @@ import java.io.Writer;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.nio.charset.Charset;
-import java.nio.charset.StandardCharsets;
-import java.util.HashMap;
 
 /**
  * Static conveniences.
@@ -25,12 +23,6 @@ import java.util.HashMap;
  */
 @SuppressWarnings({"ThrowFromFinallyBlock", "unused", "unchecked"})
 public class Aon {
-
-    ///////////////////////////////////////////////////////////////////////////
-    // Class Fields
-    ///////////////////////////////////////////////////////////////////////////
-
-    public static final Charset UTF8 = StandardCharsets.UTF_8;
 
     ///////////////////////////////////////////////////////////////////////////
     // Public Methods

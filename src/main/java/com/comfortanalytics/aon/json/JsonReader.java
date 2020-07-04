@@ -222,7 +222,7 @@ public class JsonReader extends AbstractReader {
         boolean more = true;
         while (more) {
             switch (ch) {
-                case -1 :
+                case -1:
                     return setEndInput();
                 case '.':
                     decIndex = bufLen - 1;
@@ -270,7 +270,7 @@ public class JsonReader extends AbstractReader {
             if (ch == '\\') {
                 ch = readChar();
                 switch (ch) {
-                    case -1 :
+                    case -1:
                         throw new EOFException();
                     case 'u': //case 'U' :
                         bufAppend(readUnicode());
@@ -317,7 +317,7 @@ public class JsonReader extends AbstractReader {
         int ch;
         for (int i = 0; i < 4; ++i) {
             switch (ch = readChar()) {
-                case -1 :
+                case -1:
                     throw new EOFException();
                 case '0':
                 case '1':
