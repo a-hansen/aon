@@ -6,7 +6,7 @@ import java.math.BigInteger;
 
 /**
  * A decoder that can be used to decode an entire graph in pieces, or one large
- * Avalue, or somewhere in between. To decode an entire graph, call getObj(), getList()
+ * Aobj, or somewhere in between. To decode an entire graph, call getObj(), getList()
  * or getValue(). Otherwise, use the next() method to iterate the elements of the input
  * document.
  * <p>
@@ -92,9 +92,9 @@ public interface Areader extends Closeable {
     String getString();
 
     /**
-     * Returns the Avalue when last() == raw type, KEY or ROOT.
+     * Returns the value when last() == raw type, KEY or ROOT.
      */
-    AIvalue getValue();
+    Adata getValue();
 
     /**
      * The last value returned from next(). At the beginning of a document, before

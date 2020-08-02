@@ -168,7 +168,7 @@ public abstract class AbstractWriter implements Awriter {
     }
 
     @Override
-    public AbstractWriter value(AIvalue arg) {
+    public AbstractWriter value(Adata arg) {
         if (arg == null) {
             return value((String) null);
         }
@@ -196,7 +196,7 @@ public abstract class AbstractWriter implements Awriter {
                 break;
             case LIST:
                 beginList();
-                for (AIvalue val : arg.toList()) {
+                for (Adata val : arg.toList()) {
                     value(val);
                 }
                 endList();

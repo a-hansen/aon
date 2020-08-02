@@ -13,7 +13,7 @@
  *             .put("long", 100l)
  *             .put("string", "abcdefghij\r\njklmnopqrs\u0000\u0001\u0002tuvwxyz\r\n")
  *             .putNull("null");
- *     System.out.println("The int value in the object is " + object.getInt("int"));
+ *     System.out.println("The int value in the object is " + object.get("int"));
  *     Alist list = new Alist()
  *             .add(true)
  *             .add(100.1d)

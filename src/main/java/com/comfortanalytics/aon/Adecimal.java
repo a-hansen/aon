@@ -10,8 +10,8 @@ import javax.annotation.Nonnull;
  *
  * @author Aaron Hansen
  */
-@SuppressWarnings({"CatchMayIgnoreException", "unused"})
-public class Adecimal implements AIvalue {
+@SuppressWarnings({"unused"})
+public class Adecimal implements Adata {
 
     ///////////////////////////////////////////////////////////////////////////
     // Class Fields
@@ -45,10 +45,10 @@ public class Adecimal implements AIvalue {
 
     @Override
     public boolean equals(Object o) {
-        if (!(o instanceof AIvalue)) {
+        if (!(o instanceof Adata)) {
             return false;
         }
-        return value.equals(((AIvalue) o).toBigDecimal());
+        return value.equals(((Adata) o).toBigDecimal());
     }
 
     @Nonnull
@@ -118,7 +118,7 @@ public class Adecimal implements AIvalue {
     @Nonnull
     @Override
     public Aprimitive toPrimitive() {
-        return Astr.valueOf(toString());
+        return Aon.ensureNotNull(Astr.valueOf(toString()));
     }
 
     @Nonnull
@@ -148,7 +148,7 @@ public class Adecimal implements AIvalue {
                 case STRING:
                     return valueOf(new BigDecimal(value.toString()));
             }
-        } catch (Exception x) {
+        } catch (Exception ignore) {
         }
         return null;
     }

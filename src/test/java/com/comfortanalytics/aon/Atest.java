@@ -310,7 +310,7 @@ public class Atest {
         if (object.isEmpty()) {
             Assertions.assertEquals(size, 0);
         }
-        Assertions.assertNull(object.get("mustNotContain", null));
+        Assertions.assertNull(object.get("mustNotContain", (String) null));
         Assertions.assertTrue(object.isNull("mustNotContain"));
         object.put("mustNotContain", 10);
         Assertions.assertFalse(object.isNull("mustNotContain"));

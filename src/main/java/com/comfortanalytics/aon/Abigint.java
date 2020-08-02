@@ -10,7 +10,7 @@ import javax.annotation.Nonnull;
  * @author Aaron Hansen
  */
 @SuppressWarnings({"unused"})
-public class Abigint implements AIvalue {
+public class Abigint implements Adata {
 
     ///////////////////////////////////////////////////////////////////////////
     // Class Fields
@@ -44,10 +44,10 @@ public class Abigint implements AIvalue {
 
     @Override
     public boolean equals(Object o) {
-        if (!(o instanceof AIvalue)) {
+        if (!(o instanceof Adata)) {
             return false;
         }
-        return value.equals(((AIvalue) o).toBigInt());
+        return value.equals(((Adata) o).toBigInt());
     }
 
     @Nonnull
@@ -118,10 +118,10 @@ public class Abigint implements AIvalue {
     @Override
     public Aprimitive toPrimitive() {
         if (value.compareTo(BigInteger.valueOf(Long.MAX_VALUE)) > 0) {
-            return Astr.valueOf(toString());
+            return Aon.ensureNotNull(Astr.valueOf(toString()));
         }
         if (value.compareTo(BigInteger.valueOf(Long.MIN_VALUE)) < 0) {
-            return Astr.valueOf(toString());
+            return Aon.ensureNotNull(Astr.valueOf(toString()));
         }
         return Along.valueOf(value.longValue());
     }

@@ -12,7 +12,7 @@ import javax.annotation.Nonnull;
  * @author Aaron Hansen
  */
 @SuppressWarnings("unused")
-public class Abinary implements AIvalue {
+public class Abinary implements Adata {
 
     ///////////////////////////////////////////////////////////////////////////
     // Class Fields
@@ -98,7 +98,7 @@ public class Abinary implements AIvalue {
     @Nonnull
     @Override
     public Aprimitive toPrimitive() {
-        return Astr.valueOf(toString());
+        return Aon.ensureNotNull(Astr.valueOf(toString()));
     }
 
     @Nonnull

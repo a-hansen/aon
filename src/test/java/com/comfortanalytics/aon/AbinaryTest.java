@@ -23,8 +23,8 @@ public class AbinaryTest {
         validateEqual(val2, Abinary.valueOf(val2.toByteArray()));
         validateUnequal(val, val2);
         Alist list = new Alist().add(val);
-        byte[] bytes = Aon.encode(list);
-        list = Aon.decode(bytes).toList();
+        byte[] bytes = Aon.aonBytes(list);
+        list = Aon.readAon(bytes).toList();
         validate(Abinary.EMPTY.valueOf(list.getValue(0).toPrimitive()));
         validateEqual(Abinary.EMPTY.valueOf(list.getValue(0).toPrimitive()), val);
         validateUnequal(Abinary.EMPTY.valueOf(list.getValue(0).toPrimitive()), val2);

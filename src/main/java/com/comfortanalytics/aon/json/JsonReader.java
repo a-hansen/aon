@@ -1,9 +1,8 @@
 package com.comfortanalytics.aon.json;
 
 import com.comfortanalytics.aon.AbstractReader;
-import com.comfortanalytics.aon.Areader;
 import com.comfortanalytics.aon.Astr;
-import java.io.BufferedReader;
+import java.io.BufferedInputStream;
 import java.io.EOFException;
 import java.io.File;
 import java.io.FileInputStream;
@@ -16,11 +15,9 @@ import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 
 /**
- * Json implementation of Areader.  The same instance can be re-used with the
- * setInput methods.  This class is not thread safe.
+ * Json implementation of Areader.
  *
  * @author Aaron Hansen
- * @see Areader
  */
 @SuppressWarnings("unused")
 public class JsonReader extends AbstractReader {
@@ -53,7 +50,7 @@ public class JsonReader extends AbstractReader {
     }
 
     public JsonReader(File file, Charset charset) {
-        this(new BufferedReader(new InputStreamReader(fis(file), charset)));
+        this(new InputStreamReader(fis(file), charset));
     }
 
     public JsonReader(InputStream in) {
@@ -151,7 +148,7 @@ public class JsonReader extends AbstractReader {
             size += 131072;
         }
         char[] tmp = new char[size];
-        System.arraycopy(bufChars, inOff, tmp, 0, inLen);
+        System.arraycopy(bufChars, 0, tmp, 0, bufLen);
         bufChars = tmp;
     }
 
@@ -197,7 +194,7 @@ public class JsonReader extends AbstractReader {
 
     private static InputStream fis(File file) {
         try {
-            return new FileInputStream(file);
+            return new BufferedInputStream(new FileInputStream(file));
         } catch (FileNotFoundException x) {
             throw new RuntimeException(x);
         }
@@ -224,13 +221,11 @@ public class JsonReader extends AbstractReader {
             switch (ch) {
                 case -1:
                     return setEndInput();
-                case '.':
-                    decIndex = bufLen - 1;
-                    ch = readChar();
-                    break;
                 case 'e':
                 case 'E':
                     hasExp = true;
+                case '.':
+                    decIndex = bufLen;
                 case '-':
                 case '+':
                 case '0':
@@ -247,8 +242,6 @@ public class JsonReader extends AbstractReader {
                     ch = readChar();
                     break;
                 default:
-                    inOff--;
-                    inLen++;
                     more = false;
                     break;
             }

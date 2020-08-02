@@ -8,6 +8,7 @@ import java.math.BigInteger;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.function.Supplier;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
@@ -91,15 +92,27 @@ public class Aobj extends Agroup implements Iterable<Member> {
         if (e == null) {
             return null;
         }
-        return (T) e.getValue().get();
+        return e.getValue().get();
     }
 
     /**
-     * Optional getter, returns the provided default if the value objectped to the key is
+     * Returns the value being wrapped by the Aon data type for the given key, or null.
+     */
+    @Nullable
+    public <T> T get(@Nonnull String key, Class<T> type) {
+        Member e = map.get(key);
+        if (e == null) {
+            return null;
+        }
+        return type.cast(e.getValue().get());
+    }
+
+    /**
+     * Optional getter, returns the provided default if the value mapped to the key is
      * null or not convertible.
      */
     public boolean get(@Nonnull String key, boolean def) {
-        AIvalue ret = get(key);
+        Adata ret = get(key);
         if (Aon.isNull(ret)) {
             return def;
         }
@@ -111,11 +124,11 @@ public class Aobj extends Agroup implements Iterable<Member> {
     }
 
     /**
-     * Optional getter, returns the provided default if the value objectped to the key is
+     * Optional getter, returns the provided default if the value mapped to the key is
      * null.
      */
     public double get(@Nonnull String key, double def) {
-        AIvalue ret = get(key);
+        Adata ret = get(key);
         if (Aon.isNull(ret)) {
             return def;
         }
@@ -127,11 +140,11 @@ public class Aobj extends Agroup implements Iterable<Member> {
     }
 
     /**
-     * Optional getter, returns the provided default if the value objectped to the key is
+     * Optional getter, returns the provided default if the value mapped to the key is
      * null.
      */
     public float get(@Nonnull String key, float def) {
-        AIvalue ret = get(key);
+        Adata ret = get(key);
         if (Aon.isNull(ret)) {
             return def;
         }
@@ -143,11 +156,11 @@ public class Aobj extends Agroup implements Iterable<Member> {
     }
 
     /**
-     * Optional getter, returns the provided default if the value objectped to the key is
+     * Optional getter, returns the provided default if the value mapped to the key is
      * null or not convertible.
      */
     public int get(@Nonnull String key, int def) {
-        AIvalue ret = get(key);
+        Adata ret = get(key);
         if (Aon.isNull(ret)) {
             return def;
         }
@@ -159,11 +172,11 @@ public class Aobj extends Agroup implements Iterable<Member> {
     }
 
     /**
-     * Optional getter, returns the provided default if the value objectped to the key is
+     * Optional getter, returns the provided default if the value mapped to the key is
      * null or not convertible.
      */
     public long get(@Nonnull String key, long def) {
-        AIvalue ret = get(key);
+        Adata ret = get(key);
         if (Aon.isNull(ret)) {
             return def;
         }
@@ -175,15 +188,30 @@ public class Aobj extends Agroup implements Iterable<Member> {
     }
 
     /**
-     * Optional getter, returns the provided default if the value objectped to the key is
+     * Optional getter, returns the provided default if the value mapped to the key is
      * null.
      */
     public String get(@Nonnull String key, String def) {
-        AIvalue ret = get(key);
+        Adata ret = get(key);
         if (Aon.isNull(ret)) {
             return def;
         }
         return ret.toString();
+    }
+
+    /**
+     * Replaces the value and returns the prior value.
+     */
+    @Nullable
+    public Adata getAndPut(@Nonnull String key, @Nullable Adata value) {
+        Member m = getMember(key);
+        if (m == null) {
+            put(key, value);
+            return null;
+        }
+        Adata ret = m.getValue();
+        m.setValue(value == null ? Anull.NULL : value);
+        return ret;
     }
 
     /**
@@ -197,16 +225,45 @@ public class Aobj extends Agroup implements Iterable<Member> {
         return last;
     }
 
+    @Nullable
+    public Member getMember(String key) {
+        return map.get(key);
+    }
+
     /**
-     * Returns the AIvalue for the given key or null.
+     * Attempts to get the current child but if there is no child, puts the new one and return it.
+     */
+    public <T extends Adata> T getOrPutIfAbsent(String name, Supplier<T> child) {
+        T ret = get(name);
+        if (ret == null) {
+            ret = child.get();
+            put(name, ret);
+        }
+        return ret;
+    }
+
+    /**
+     * Returns the value for the given key or null.
      */
     @Nullable
-    public <T extends AIvalue> T getValue(@Nonnull String key) {
+    public <T extends Adata> T getValue(@Nonnull String key) {
         Member e = map.get(key);
         if (e == null) {
             return null;
         }
         return (T) e.getValue();
+    }
+
+    /**
+     * Returns the value for the given key or null.
+     */
+    @Nullable
+    public <T extends Adata> T getValue(@Nonnull String key, Class<T> type) {
+        Member e = map.get(key);
+        if (e == null) {
+            return null;
+        }
+        return type.cast(e.getValue());
     }
 
     @Override
@@ -284,13 +341,13 @@ public class Aobj extends Agroup implements Iterable<Member> {
      * @return this
      */
     @Nonnull
-    public Aobj put(@Nonnull String key, @Nullable AIvalue val) {
+    public Aobj put(@Nonnull String key, @Nullable Adata val) {
         if (val == null) {
             val = Anull.NULL;
         }
         Member e = map.get(key);
         if (e != null) {
-            AIvalue curr = e.getValue();
+            Adata curr = e.getValue();
             if (curr != val) {
                 e.setValue(val);
             }
@@ -393,6 +450,19 @@ public class Aobj extends Agroup implements Iterable<Member> {
     }
 
     /**
+     * @return this
+     */
+    @Nonnull
+    public Aobj putAll(Aobj arg) {
+        Member m = arg.getFirst();
+        while (m != null) {
+            put(m.getKey(), m.getValue());
+            m = m.next;
+        }
+        return this;
+    }
+
+    /**
      * Puts a null value for given key and returns this.
      */
     @Nonnull
@@ -406,7 +476,7 @@ public class Aobj extends Agroup implements Iterable<Member> {
      * @return Possibly null.
      */
     @Nullable
-    public AIvalue remove(@Nonnull String key) {
+    public Adata remove(@Nonnull String key) {
         Member e = map.remove(key);
         if (e == null) {
             return null;
@@ -427,7 +497,7 @@ public class Aobj extends Agroup implements Iterable<Member> {
     }
 
     @Nullable
-    public AIvalue removeFirst() {
+    public Adata removeFirst() {
         if (first != null) {
             return remove(first.getKey());
         }
@@ -435,7 +505,7 @@ public class Aobj extends Agroup implements Iterable<Member> {
     }
 
     @Nullable
-    public AIvalue removeLast() {
+    public Adata removeLast() {
         if (last != null) {
             return remove(last.getKey());
         }
@@ -481,9 +551,9 @@ public class Aobj extends Agroup implements Iterable<Member> {
 
         private final String key;
         private Member next;
-        private AIvalue val;
+        private Adata val;
 
-        Member(@Nonnull String key, @Nonnull AIvalue val) {
+        Member(@Nonnull String key, @Nonnull Adata val) {
             this.key = key;
             this.val = val;
         }
@@ -509,7 +579,7 @@ public class Aobj extends Agroup implements Iterable<Member> {
         }
 
         @Nonnull
-        public AIvalue getValue() {
+        public Adata getValue() {
             return val;
         }
 
@@ -527,7 +597,7 @@ public class Aobj extends Agroup implements Iterable<Member> {
             next = entry;
         }
 
-        void setValue(@Nonnull AIvalue val) {
+        void setValue(@Nonnull Adata val) {
             this.val = val;
         }
 

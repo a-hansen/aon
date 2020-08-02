@@ -10,8 +10,8 @@ import javax.annotation.Nonnull;
  *
  * @author Aaron Hansen
  */
-@SuppressWarnings({"CatchMayIgnoreException", "unused"})
-public class Afloat implements AIvalue {
+@SuppressWarnings({"unused"})
+public class Afloat implements Adata {
 
     ///////////////////////////////////////////////////////////////////////////
     // Class Fields
@@ -45,10 +45,10 @@ public class Afloat implements AIvalue {
 
     @Override
     public boolean equals(Object o) {
-        if (!(o instanceof AIvalue)) {
+        if (!(o instanceof Adata)) {
             return false;
         }
-        AIvalue obj = (AIvalue) o;
+        Adata obj = (Adata) o;
         switch (obj.aonType()) {
             case DECIMAL:
             case BIGINT:
@@ -161,7 +161,7 @@ public class Afloat implements AIvalue {
                 case LONG:
                     return valueOf(value.toLong());
             }
-        } catch (Exception x) {
+        } catch (Exception ignore) {
         }
         return null;
     }

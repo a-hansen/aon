@@ -26,8 +26,8 @@ public class AlongTest {
         validateEqual(val2, Along.valueOf(val2.toLong()));
         validateUnequal(val, val2);
         Alist list = new Alist().add(val);
-        byte[] bytes = Aon.encode(list);
-        list = Aon.decode(bytes).toList();
+        byte[] bytes = Aon.aonBytes(list);
+        list = Aon.readAon(bytes).toList();
         validate(list.getValue(0));
         validateEqual(list.getValue(0), val);
         validateUnequal(list.getValue(0), val2);

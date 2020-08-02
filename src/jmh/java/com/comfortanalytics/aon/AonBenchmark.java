@@ -36,12 +36,12 @@ public class AonBenchmark {
     ///////////////////////////////////////////////////////////////////////////
 
     private static final int LARGE_OBJ_FACTOR = 200;
-    private static Aobj aobjLarge;
-    private static Aobj aobjSmall;
-    private static byte[] aonLarge;
-    private static byte[] aonSmall;
-    private static byte[] jsonLarge;
-    private static byte[] jsonSmall;
+    private static final Aobj aobjLarge;
+    private static final Aobj aobjSmall;
+    private static final byte[] aonLarge;
+    private static final byte[] aonSmall;
+    private static final byte[] jsonLarge;
+    private static final byte[] jsonSmall;
     private static final NullOutputStream nullOutputStream = new NullOutputStream();
     private static final NullWriter nullWriter = new NullWriter();
 
@@ -137,12 +137,12 @@ public class AonBenchmark {
 
         @Benchmark
         public void Aon() {
-            Aon.reader(new ByteArrayInputStream(aonLarge)).getValue();
+            Aon.aonReader(new ByteArrayInputStream(aonLarge)).getValue();
         }
 
         @Benchmark
         public void AonJson() {
-            Aon.jsonReader(new ByteArrayInputStream(jsonLarge)).getValue();
+            new JsonReader(new ByteArrayInputStream(jsonLarge)).getValue();
         }
 
         @Benchmark
@@ -181,12 +181,12 @@ public class AonBenchmark {
 
         @Benchmark
         public void Aon() {
-            Aon.reader(new ByteArrayInputStream(aonSmall)).getValue();
+            Aon.aonReader(new ByteArrayInputStream(aonSmall)).getValue();
         }
 
         @Benchmark
         public void AonJson() {
-            Aon.jsonReader(new ByteArrayInputStream(jsonSmall)).getValue();
+            new JsonReader(new ByteArrayInputStream(jsonSmall)).getValue();
         }
 
         @Benchmark
@@ -230,7 +230,7 @@ public class AonBenchmark {
 
         @Benchmark
         public void Aon() {
-            Aon.writer(nullOutputStream).value(aobjLarge);
+            Aon.aonWriter(nullOutputStream).value(aobjLarge);
         }
 
         @Benchmark
@@ -292,7 +292,7 @@ public class AonBenchmark {
 
         @Benchmark
         public void Aon() {
-            Aon.writer(nullOutputStream).value(aobjSmall);
+            Aon.aonWriter(nullOutputStream).value(aobjSmall);
         }
 
         @Benchmark

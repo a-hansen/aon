@@ -44,10 +44,10 @@ public class Aint extends Aprimitive {
 
     @Override
     public boolean equals(Object o) {
-        if (!(o instanceof AIvalue)) {
+        if (!(o instanceof Adata)) {
             return false;
         }
-        AIvalue obj = (AIvalue) o;
+        Adata obj = (Adata) o;
         switch (obj.aonType()) {
             case DECIMAL:
             case BIGINT:

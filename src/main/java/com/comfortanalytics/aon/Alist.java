@@ -14,13 +14,13 @@ import javax.annotation.Nullable;
  * @author Aaron Hansen
  */
 @SuppressWarnings({"UnusedReturnValue", "unused"})
-public class Alist extends Agroup implements Iterable<AIvalue> {
+public class Alist extends Agroup implements Iterable<Adata> {
 
     ///////////////////////////////////////////////////////////////////////////
     // Fields
     ///////////////////////////////////////////////////////////////////////////
 
-    private final ArrayList<AIvalue> values = new ArrayList<>();
+    private final ArrayList<Adata> values = new ArrayList<>();
 
     ///////////////////////////////////////////////////////////////////////////
     // Public Methods
@@ -33,7 +33,7 @@ public class Alist extends Agroup implements Iterable<AIvalue> {
      * @return this
      */
     @Nonnull
-    public Alist add(@Nullable AIvalue val) {
+    public Alist add(@Nullable Adata val) {
         if (val == null) {
             val = Anull.NULL;
         }
@@ -114,6 +114,15 @@ public class Alist extends Agroup implements Iterable<AIvalue> {
     }
 
     /**
+     * @return this
+     */
+    @Nonnull
+    public Alist addAll(Alist list) {
+        values.addAll(list.values);
+        return this;
+    }
+
+    /**
      * Appends Anull.NULL and returns this.
      */
     public Alist addNull() {
@@ -136,9 +145,9 @@ public class Alist extends Agroup implements Iterable<AIvalue> {
 
     @Nonnull
     @Override
-    public AIvalue copy() {
+    public Adata copy() {
         Alist ret = new Alist();
-        for (AIvalue val : values) {
+        for (Adata val : values) {
             ret.add(val.copy());
         }
         return ret;
@@ -166,10 +175,20 @@ public class Alist extends Agroup implements Iterable<AIvalue> {
      * Returns the value being wrapped by the Aon data type at the given index, unless
      * the value is Agroup.
      *
-     * @see AIvalue#get()
+     * @see Adata#get()
      */
     public <T> T get(int idx) {
-        return (T) values.get(idx).get();
+        return values.get(idx).get();
+    }
+
+    /**
+     * Returns the value being wrapped by the Aon data type at the given index, unless
+     * the value is Agroup.
+     *
+     * @see Adata#get()
+     */
+    public <T> T get(int idx, Class<T> type) {
+        return type.cast(values.get(idx).get());
     }
 
     /**
@@ -179,7 +198,7 @@ public class Alist extends Agroup implements Iterable<AIvalue> {
         if (isOutOfBounds(idx)) {
             return def;
         }
-        AIvalue ret = get(idx);
+        Adata ret = get(idx);
         if ((ret == null) || ret.isNull()) {
             return def;
         }
@@ -197,7 +216,7 @@ public class Alist extends Agroup implements Iterable<AIvalue> {
         if (isOutOfBounds(idx)) {
             return def;
         }
-        AIvalue ret = get(idx);
+        Adata ret = get(idx);
         if ((ret == null) || ret.isNull()) {
             return def;
         }
@@ -215,7 +234,7 @@ public class Alist extends Agroup implements Iterable<AIvalue> {
         if (isOutOfBounds(idx)) {
             return def;
         }
-        AIvalue ret = get(idx);
+        Adata ret = get(idx);
         if ((ret == null) || ret.isNull()) {
             return def;
         }
@@ -233,7 +252,7 @@ public class Alist extends Agroup implements Iterable<AIvalue> {
         if (isOutOfBounds(idx)) {
             return def;
         }
-        AIvalue ret = get(idx);
+        Adata ret = get(idx);
         if ((ret == null) || ret.isNull()) {
             return def;
         }
@@ -251,7 +270,7 @@ public class Alist extends Agroup implements Iterable<AIvalue> {
         if (isOutOfBounds(idx)) {
             return def;
         }
-        AIvalue ret = get(idx);
+        Adata ret = get(idx);
         if ((ret == null) || ret.isNull()) {
             return def;
         }
@@ -263,7 +282,7 @@ public class Alist extends Agroup implements Iterable<AIvalue> {
      *
      * @return Null (not Anull.NULL) if empty.
      */
-    public AIvalue getFirst() {
+    public Adata getFirst() {
         if (isEmpty()) {
             return null;
         }
@@ -275,7 +294,7 @@ public class Alist extends Agroup implements Iterable<AIvalue> {
      *
      * @return Null (not Anull.NULL) if empty.
      */
-    public AIvalue getLast() {
+    public Adata getLast() {
         if (values.isEmpty()) {
             return null;
         }
@@ -283,10 +302,17 @@ public class Alist extends Agroup implements Iterable<AIvalue> {
     }
 
     /**
-     * Returns the AIvalue at the given index.
+     * Returns the value at the given index.
      */
-    public <T extends AIvalue> T getValue(int idx) {
+    public <T extends Adata> T getValue(int idx) {
         return (T) values.get(idx);
+    }
+
+    /**
+     * Returns the value at the given index.
+     */
+    public <T extends Adata> T getValue(int idx, Class<T> type) {
+        return type.cast(values.get(idx));
     }
 
     @Override
@@ -299,7 +325,7 @@ public class Alist extends Agroup implements Iterable<AIvalue> {
      *
      * @return -1 if not found.
      */
-    public int indexOf(AIvalue obj) {
+    public int indexOf(Adata obj) {
         for (int i = 0, len = size(); i < len; i++) {
             if (obj.equals(get(i))) {
                 return i;
@@ -336,7 +362,7 @@ public class Alist extends Agroup implements Iterable<AIvalue> {
 
     @Nonnull
     @Override
-    public Iterator<AIvalue> iterator() {
+    public Iterator<Adata> iterator() {
         return values.iterator();
     }
 
@@ -352,7 +378,7 @@ public class Alist extends Agroup implements Iterable<AIvalue> {
      *
      * @return -1 if not found.
      */
-    public int lastIndexOf(AIvalue obj) {
+    public int lastIndexOf(Adata obj) {
         for (int i = size(); --i >= 0; ) {
             if (obj.equals(get(i))) {
                 return i;
@@ -384,7 +410,7 @@ public class Alist extends Agroup implements Iterable<AIvalue> {
      * @return this
      */
     @Nonnull
-    public Alist put(int idx, @Nullable AIvalue val) {
+    public Alist put(int idx, @Nullable Adata val) {
         if (val == null) {
             val = Anull.NULL;
         }
@@ -470,7 +496,7 @@ public class Alist extends Agroup implements Iterable<AIvalue> {
      * @return The value removed.
      */
     @Nullable
-    public AIvalue remove(int idx) {
+    public Adata remove(int idx) {
         return values.remove(idx);
     }
 
@@ -480,7 +506,7 @@ public class Alist extends Agroup implements Iterable<AIvalue> {
      * @return The value removed.
      */
     @Nullable
-    public AIvalue removeFirst() {
+    public Adata removeFirst() {
         if (isEmpty()) {
             return null;
         }
@@ -493,7 +519,7 @@ public class Alist extends Agroup implements Iterable<AIvalue> {
      * @return The value removed.
      */
     @Nullable
-    public AIvalue removeLast() {
+    public Adata removeLast() {
         if (isEmpty()) {
             return null;
         }

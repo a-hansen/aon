@@ -26,8 +26,8 @@ public class AdecimalTest {
         validateEqual(val2, Adecimal.valueOf(val2.toBigDecimal()));
         validateUnequal(val, val2);
         Alist list = new Alist().add(val);
-        byte[] bytes = Aon.encode(list);
-        list = Aon.decode(bytes).toList();
+        byte[] bytes = Aon.aonBytes(list);
+        list = Aon.readAon(bytes).toList();
         validate(Adecimal.ZERO.valueOf(list.getValue(0).toPrimitive()));
         validateEqual(Adecimal.ZERO.valueOf(list.getValue(0).toPrimitive()), val);
         validateUnequal(Adecimal.ZERO.valueOf(list.getValue(0).toPrimitive()), val2);

@@ -41,7 +41,9 @@ public class Anull extends Aprimitive {
         return arg == this;
     }
 
-    @Nonnull
+    /**
+     * Returns null
+     */
     @Override
     public Object get() {
         return null;

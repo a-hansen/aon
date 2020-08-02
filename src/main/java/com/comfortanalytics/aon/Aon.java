@@ -4,6 +4,8 @@ import com.comfortanalytics.aon.io.AonReader;
 import com.comfortanalytics.aon.io.AonWriter;
 import com.comfortanalytics.aon.json.JsonReader;
 import com.comfortanalytics.aon.json.JsonWriter;
+import com.comfortanalytics.aon.msgpack.MsgPackReader;
+import com.comfortanalytics.aon.msgpack.MsgPackWriter;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -15,9 +17,11 @@ import java.io.Writer;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.nio.charset.Charset;
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
 /**
- * Static conveniences.
+ * Static convenience methods.
  *
  * @author Aaron Hansen
  */
@@ -29,30 +33,47 @@ public class Aon {
     ///////////////////////////////////////////////////////////////////////////
 
     /**
-     * Decodes an Aon encoded list or object.
+     * Encode the object to a byte array.
      */
-    public static <T extends Agroup> T decode(byte[] arg) {
-        ByteArrayInputStream in = new ByteArrayInputStream(arg);
-        return (T) read(in, true);
-    }
-
-    /**
-     * Encodes using Aon format.
-     */
-    public static byte[] encode(Agroup arg) {
+    public static byte[] aonBytes(Agroup arg) {
         ByteArrayOutputStream out = new ByteArrayOutputStream();
-        write(arg, out, true);
+        writeAon(arg, out, true);
         return out.toByteArray();
     }
 
+    public static AonReader aonReader(File in) {
+        return new AonReader(in);
+    }
+
+    public static AonReader aonReader(InputStream in) {
+        return new AonReader(in);
+    }
+
+    public static AonWriter aonWriter(File out) {
+        return new AonWriter(out);
+    }
+
+    public static AonWriter aonWriter(OutputStream out) {
+        return new AonWriter(out);
+    }
+
     /**
-     * True if the value == null or isNull.
+     * True if the value == null or value.isNull.
      */
-    public static boolean isNull(AIvalue value) {
+    public static boolean isNull(Adata value) {
         if (value == null) {
             return true;
         }
         return value.isNull();
+    }
+
+    /**
+     * Encode the object to a byte array.
+     */
+    public static byte[] jsonBytes(Agroup arg) {
+        ByteArrayOutputStream out = new ByteArrayOutputStream();
+        writeJson(arg, out, true);
+        return out.toByteArray();
     }
 
     /**
@@ -81,8 +102,12 @@ public class Aon {
         return new JsonReader(in);
     }
 
+    public static String jsonString(Agroup arg) {
+        return arg.toString();
+    }
+
     /**
-     * Encodes in UTF-8.
+     * Encodes using UTF-8.
      */
     public static JsonWriter jsonWriter(File out) {
         return new JsonWriter(out);
@@ -93,7 +118,7 @@ public class Aon {
     }
 
     /**
-     * Encodes in UTF-8.
+     * Encodes using UTF-8.
      */
     public static JsonWriter jsonWriter(OutputStream out) {
         return new JsonWriter(out);
@@ -108,27 +133,59 @@ public class Aon {
     }
 
     /**
-     * Decodes an Aon encoded list or object.
+     * Encode the object to a byte array.
      */
-    public static <T extends Agroup> T read(File in) {
-        try (Areader reader = reader(in)) {
+    public static byte[] msgPackBytes(Agroup arg) {
+        ByteArrayOutputStream out = new ByteArrayOutputStream();
+        writeMsgPack(arg, out, true);
+        return out.toByteArray();
+    }
+
+    public static MsgPackReader msgPackReader(File in) {
+        return new MsgPackReader(in);
+    }
+
+    public static MsgPackReader msgPackReader(InputStream in) {
+        return new MsgPackReader(in);
+    }
+
+    public static MsgPackWriter msgPackWriter(File out) {
+        return new MsgPackWriter(out);
+    }
+
+    public static MsgPackWriter msgPackWriter(OutputStream out) {
+        return new MsgPackWriter(out);
+    }
+
+    public static <T extends Agroup> T readAon(byte[] arg) {
+        ByteArrayInputStream in = new ByteArrayInputStream(arg);
+        return readAon(in, true);
+    }
+
+    public static <T extends Agroup> T readAon(File in) {
+        try (Areader reader = aonReader(in)) {
             return (T) reader.getValue().toGroup();
         }
     }
 
     /**
-     * Decodes an Aon encoded list or object and optionally closes the stream.
+     * Decodes an encoded list or object and optionally closes the stream.
      */
-    public static <T extends Agroup> T read(InputStream in, boolean close) {
+    public static <T extends Agroup> T readAon(InputStream in, boolean close) {
         Areader reader = null;
         try {
-            reader = reader(in);
+            reader = aonReader(in);
             return (T) reader.getValue().toGroup();
         } finally {
             if (close && (reader != null)) {
                 reader.close();
             }
         }
+    }
+
+    public static <T extends Agroup> T readJson(byte[] arg) {
+        ByteArrayInputStream in = new ByteArrayInputStream(arg);
+        return readJson(in, true);
     }
 
     public static <T extends Agroup> T readJson(File file, Charset charset) {
@@ -138,7 +195,7 @@ public class Aon {
     }
 
     /**
-     * Decodes an JSON encoded list or object and optionally closes the stream.
+     * Decodes an encoded list or object and optionally closes the stream.
      */
     public static <T extends Agroup> T readJson(InputStream in, boolean close) {
         JsonReader reader;
@@ -157,7 +214,7 @@ public class Aon {
     }
 
     /**
-     * Decodes an JSON encoded list or object and optionally closes the stream.
+     * Decodes a JSON encoded list or object and optionally closes the stream.
      */
     public static <T extends Agroup> T readJson(Reader in, boolean close) {
         JsonReader reader;
@@ -177,15 +234,33 @@ public class Aon {
     }
 
     public static <T extends Agroup> T readJson(String str) {
-        return (T) readJson(new StringReader(str), true);
+        return readJson(new StringReader(str), true);
     }
 
-    public static AonReader reader(File in) {
-        return new AonReader(in);
+    public static <T extends Agroup> T readMsgPack(byte[] arg) {
+        ByteArrayInputStream in = new ByteArrayInputStream(arg);
+        return readMsgPack(in, true);
     }
 
-    public static AonReader reader(InputStream in) {
-        return new AonReader(in);
+    public static <T extends Agroup> T readMsgPack(File in) {
+        try (Areader reader = msgPackReader(in)) {
+            return (T) reader.getValue().toGroup();
+        }
+    }
+
+    /**
+     * Decodes an encoded list or object and optionally closes the stream.
+     */
+    public static <T extends Agroup> T readMsgPack(InputStream in, boolean close) {
+        Areader reader = null;
+        try {
+            reader = msgPackReader(in);
+            return (T) reader.getValue().toGroup();
+        } finally {
+            if (close && (reader != null)) {
+                reader.close();
+            }
+        }
     }
 
     public static Adecimal valueOf(BigDecimal val) {
@@ -223,8 +298,8 @@ public class Aon {
     /**
      * Encodes using the Aon format.
      */
-    public static void write(Agroup val, File out) {
-        try (Awriter writer = writer(out)) {
+    public static void writeAon(Agroup val, File out) {
+        try (Awriter writer = aonWriter(out)) {
             writer.value(val);
         }
     }
@@ -232,10 +307,10 @@ public class Aon {
     /**
      * Encodes using the Aon format and optionally closes the stream.
      */
-    public static void write(Agroup val, OutputStream out, boolean close) {
+    public static void writeAon(Agroup val, OutputStream out, boolean close) {
         AonWriter writer = null;
         try {
-            writer = writer(out);
+            writer = aonWriter(out);
             writer.value(val);
         } finally {
             if (close && (writer != null)) {
@@ -244,12 +319,65 @@ public class Aon {
         }
     }
 
-    public static AonWriter writer(File out) {
-        return new AonWriter(out);
+    /**
+     * Encodes using the Json format.
+     */
+    public static void writeJson(Agroup val, File out) {
+        try (Awriter writer = jsonWriter(out)) {
+            writer.value(val);
+        }
     }
 
-    public static AonWriter writer(OutputStream out) {
-        return new AonWriter(out);
+    /**
+     * Encodes using the Json format and optionally closes the stream.
+     */
+    public static void writeJson(Agroup val, OutputStream out, boolean close) {
+        JsonWriter writer = null;
+        try {
+            writer = jsonWriter(out);
+            writer.value(val);
+        } finally {
+            if (close && (writer != null)) {
+                writer.close();
+            }
+        }
     }
+
+    /**
+     * Encodes using the MsgPack format.
+     */
+    public static void writeMsgPack(Agroup val, File out) {
+        try (Awriter writer = msgPackWriter(out)) {
+            writer.value(val);
+        }
+    }
+
+    /**
+     * Encodes using the MsgPack format and optionally closes the stream.
+     */
+    public static void writeMsgPack(Agroup val, OutputStream out, boolean close) {
+        Awriter writer = null;
+        try {
+            writer = msgPackWriter(out);
+            writer.value(val);
+        } finally {
+            if (close && (writer != null)) {
+                writer.close();
+            }
+        }
+    }
+
+    ///////////////////////////////////////////////////////////////////////////
+    // Package Methods
+    ///////////////////////////////////////////////////////////////////////////
+
+    @Nonnull
+    static Aprimitive ensureNotNull(@Nullable Aprimitive value) {
+        if (value == null) {
+            return Anull.NULL;
+        }
+        return value;
+    }
+
 
 }

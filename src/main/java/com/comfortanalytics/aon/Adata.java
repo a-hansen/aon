@@ -14,7 +14,7 @@ import javax.annotation.Nonnull;
  * @author Aaron Hansen
  */
 @SuppressWarnings("unused")
-public interface AIvalue {
+public interface Adata {
 
     /**
      * The value type for the value returned by toValue.
@@ -27,7 +27,7 @@ public interface AIvalue {
      * immutable objects can simply return themselves.
      */
     @Nonnull
-    default AIvalue copy() {
+    default Adata copy() {
         return this;
     }
 
@@ -36,7 +36,6 @@ public interface AIvalue {
      *
      * @throws ClassCastException Be careful
      */
-    @Nonnull
     default <T> T get() {
         return (T) this;
     }
@@ -272,7 +271,7 @@ public interface AIvalue {
     }
 
     /**
-     * AIvalues that are not Aprimitives must be able to convert themselves.
+     * Values that are not Aprimitives must be able to convert themselves.
      */
     @Nonnull
     Aprimitive toPrimitive();
@@ -286,7 +285,7 @@ public interface AIvalue {
      *
      * @return Anull.NULL if null, or the arg.
      */
-    default AIvalue valueOf(Aprimitive arg) {
+    default Adata valueOf(Aprimitive arg) {
         if (arg == null) {
             return Anull.NULL;
         }

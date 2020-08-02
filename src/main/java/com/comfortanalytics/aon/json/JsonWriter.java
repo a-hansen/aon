@@ -14,8 +14,6 @@ import java.nio.charset.StandardCharsets;
 /**
  * Json implementation of Awriter intended for OutputStreams and Writers.  While
  * JsonAppender can also handle OutputStreams and Writer, this is more performant.
- * <p>The same instance can be reused with the setOutput methods.</p>
- * <p>This class is not thread safe.</p>
  *
  * @author Aaron Hansen
  * @see com.comfortanalytics.aon.Awriter

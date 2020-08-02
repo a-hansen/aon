@@ -26,8 +26,8 @@ public class AintTest {
         validateEqual(val2, Aint.valueOf(val2.toInt()));
         validateUnequal(val, val2);
         Alist list = new Alist().add(val);
-        byte[] bytes = Aon.encode(list);
-        list = Aon.decode(bytes).toList();
+        byte[] bytes = Aon.aonBytes(list);
+        list = Aon.readAon(bytes).toList();
         validate(Aint.ZERO.valueOf(list.getValue(0).toPrimitive()));
         validateEqual(Aint.ZERO.valueOf(list.getValue(0).toPrimitive()), val);
         validateUnequal(Aint.ZERO.valueOf(list.getValue(0).toPrimitive()), val2);

@@ -6,12 +6,12 @@ import java.math.BigDecimal;
 import java.math.BigInteger;
 
 /**
- * An encoder that can be used to encode large graphs with or without Avalue instances.
+ * An encoder that can be used to encode large graphs with or without Aval instances.
  * <p>
  * To simply encode an Aobj or Alist, use the value(Aobj) method.  For example:
  * <ul><li>new JsonWriter(out).value(myObj).close(); </li> </ul>
  * <p>
- * Otherwise, you can stream data struct without using any Avalue instances:
+ * Otherwise, you can stream data struct without using any Aval instances:
  * <ul>
  * <li>out.newMap().key("a").value(1).key("b").value(2).key("c").value(3).endMap();</li>
  * </ul>
@@ -83,7 +83,7 @@ public interface Awriter extends Closeable, Flushable {
      *
      * @throws IllegalStateException when improperly called.
      */
-    Awriter value(AIvalue arg);
+    Awriter value(Adata arg);
 
     /**
      * Write a value to the object or list.  If in a object, this must have been preceded

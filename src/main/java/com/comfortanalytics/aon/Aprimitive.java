@@ -13,7 +13,7 @@ import javax.annotation.Nonnull;
  * @author Aaron Hansen
  */
 @SuppressWarnings("unused")
-public abstract class Aprimitive implements AIvalue, Cloneable {
+public abstract class Aprimitive implements Adata, Cloneable {
 
     @Override
     public boolean isPrimitive() {

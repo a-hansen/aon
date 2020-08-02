@@ -8,6 +8,7 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.OutputStream;
 import java.io.Writer;
+import javax.annotation.Nonnull;
 
 /**
  * For use with VisualVM to identify bottle necks.
@@ -22,12 +23,12 @@ public class Profiling {
     ///////////////////////////////////////////////////////////////////////////
 
     private static final int LARGE_OBJ_FACTOR = 200;
-    private static Aobj aobjLarge;
-    private static Aobj aobjSmall;
-    private static byte[] aonLarge;
-    private static byte[] aonSmall;
-    private static byte[] jsonLarge;
-    private static byte[] jsonSmall;
+    private static final Aobj aobjLarge;
+    private static final Aobj aobjSmall;
+    private static final byte[] aonLarge;
+    private static final byte[] aonSmall;
+    private static final byte[] jsonLarge;
+    private static final byte[] jsonSmall;
     private static final NullOutputStream nullOutputStream = new NullOutputStream();
     private static final NullWriter nullWriter = new NullWriter();
 
@@ -35,6 +36,7 @@ public class Profiling {
     // Public Methods
     ///////////////////////////////////////////////////////////////////////////
 
+    @SuppressWarnings("InfiniteLoopStatement")
     public static void main(String[] args) throws Exception {
         while (true) {
             //decodeAon(aonLarge);
@@ -50,38 +52,10 @@ public class Profiling {
     }
 
     ///////////////////////////////////////////////////////////////////////////
-    // Private Methods
+    // Package Methods
     ///////////////////////////////////////////////////////////////////////////
 
-    private static void decodeAon(byte[] arg) {
-        try {
-            AonReader reader = new AonReader(new ByteArrayInputStream(arg));
-            reader.getValue();
-            reader.close();
-        } catch (Exception io) {
-            throw new RuntimeException(io);
-        }
-    }
-
-    private static void decodeAonJson(byte[] arg) {
-        try {
-            JsonReader reader = new JsonReader(new ByteArrayInputStream(arg));
-            reader.getValue();
-            reader.close();
-        } catch (Exception io) {
-            throw new RuntimeException(io);
-        }
-    }
-
-    private static void encodeAon(Aobj obj, OutputStream out) {
-        new AonWriter(out).value(obj).close();
-    }
-
-    private static void encodeAonJson(Aobj obj, OutputStream out) {
-        new JsonWriter(out).value(obj).close();
-    }
-
-    private static Aobj makeLargeObj() {
+    static Aobj makeLargeObj() {
         Aobj primitiveObj = new Aobj()
                 .put("boolean", true)
                 .put("double", 100.001d)
@@ -115,6 +89,38 @@ public class Profiling {
         return testObj;
     }
 
+    ///////////////////////////////////////////////////////////////////////////
+    // Private Methods
+    ///////////////////////////////////////////////////////////////////////////
+
+    private static void decodeAon(byte[] arg) {
+        try {
+            AonReader reader = new AonReader(new ByteArrayInputStream(arg));
+            reader.getValue();
+            reader.close();
+        } catch (Exception io) {
+            throw new RuntimeException(io);
+        }
+    }
+
+    private static void decodeAonJson(byte[] arg) {
+        try {
+            JsonReader reader = Aon.jsonReader(new ByteArrayInputStream(arg));
+            reader.getValue();
+            reader.close();
+        } catch (Exception io) {
+            throw new RuntimeException(io);
+        }
+    }
+
+    private static void encodeAon(Aobj obj, OutputStream out) {
+        new AonWriter(out).value(obj).close();
+    }
+
+    private static void encodeAonJson(Aobj obj, OutputStream out) {
+        new JsonWriter(out).value(obj).close();
+    }
+
     private static Aobj makeSmallObj() {
         return new Aobj()
                 .put("boolean", true)
@@ -135,11 +141,11 @@ public class Profiling {
     private static class NullOutputStream extends OutputStream {
 
         @Override
-        public void write(byte[] b) {
+        public void write(@Nonnull byte[] b) {
         }
 
         @Override
-        public void write(byte[] b, int off, int len) {
+        public void write(@Nonnull byte[] b, int off, int len) {
         }
 
         @Override
@@ -158,7 +164,7 @@ public class Profiling {
         }
 
         @Override
-        public void write(char[] cbuf, int off, int len) {
+        public void write(@Nonnull char[] cbuf, int off, int len) {
         }
 
     }

@@ -314,7 +314,7 @@ public abstract class AbstractReader implements Areader {
     }
 
     @Override
-    public AIvalue getValue() {
+    public Adata getValue() {
         if (last == Token.ROOT) {
             next();
         }

@@ -29,7 +29,7 @@ public class AonGroupsTest {
         list.add(Short.MAX_VALUE);
         list.add(Integer.MAX_VALUE);
         list.add(Long.MAX_VALUE);
-        Alist copy = Aon.decode(Aon.encode(list)).toList();
+        Alist copy = Aon.readAon(Aon.aonBytes(list)).toList();
         Assertions.assertEquals(list.size(), copy.size());
         Assertions.assertEquals(list, copy);
         Assertions.assertEquals(list.hashCode(), copy.hashCode());
@@ -58,8 +58,8 @@ public class AonGroupsTest {
         obj.put("14", Float.MAX_VALUE);
         obj.put("15", Double.MIN_VALUE);
         obj.put("16", Double.MAX_VALUE);
-        byte[] b = Aon.encode(obj);
-        Aobj copy = Aon.decode(b).toObj();
+        byte[] b = Aon.aonBytes(obj);
+        Aobj copy = Aon.readAon(b).toObj();
         Assertions.assertEquals(obj.size(), copy.size());
         Assertions.assertEquals(obj, copy);
         Assertions.assertEquals(obj.hashCode(), copy.hashCode());
