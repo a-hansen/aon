@@ -70,7 +70,6 @@ public class MsgPackWriter extends AbstractWriter implements MsgPack {
 
     @Override
     protected void write(BigDecimal arg) {
-        //todo
         byte[] b = arg.toString().getBytes(StandardCharsets.UTF_8);
         int len = b.length;
         if (len < (1 << 8)) {
