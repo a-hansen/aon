@@ -51,7 +51,6 @@ tasks.withType(Javadoc) {
 
 test {
     useJUnitPlatform()
-    exclude '**/*Benchmark*'
 }
 
 apply from: 'bintray.gradle'

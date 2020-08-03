@@ -72,11 +72,11 @@ public class MsgPackWriter extends AbstractWriter implements MsgPack {
     protected void write(BigDecimal arg) {
         byte[] b = arg.toString().getBytes(StandardCharsets.UTF_8);
         int len = b.length;
-        if (len < (1 << 8)) {
+        if (len < MAX8) {
             byteBuffer.put(EXT8);
             byteBuffer.put((byte) len);
             byteBuffer.put(BIG_DECIMAL_TYPE);
-        } else if (len < (1 << 16)) {
+        } else if (len < MAX16) {
             byteBuffer.put(EXT16);
             byteBuffer.putShort((short) len);
             byteBuffer.put(BIG_DECIMAL_TYPE);
@@ -92,11 +92,11 @@ public class MsgPackWriter extends AbstractWriter implements MsgPack {
     protected void write(BigInteger arg) {
         byte[] b = arg.toByteArray();
         int len = b.length;
-        if (len < (1 << 8)) {
+        if (len < MAX8) {
             byteBuffer.put(EXT8);
             byteBuffer.put((byte) len);
             byteBuffer.put(BIG_INTEGER_TYPE);
-        } else if (len < (1 << 16)) {
+        } else if (len < MAX16) {
             byteBuffer.put(EXT16);
             byteBuffer.putShort((short) len);
             byteBuffer.put(BIG_INTEGER_TYPE);
@@ -126,10 +126,10 @@ public class MsgPackWriter extends AbstractWriter implements MsgPack {
             return;
         }
         int len = arg.length;
-        if (len < (1 << 8)) {
+        if (len < MAX8) {
             byteBuffer.put(BIN8);
             byteBuffer.put((byte) len);
-        } else if (len < (1 << 16)) {
+        } else if (len < MAX16) {
             byteBuffer.put(BIN16);
             byteBuffer.putShort((short) len);
         } else {
@@ -167,9 +167,9 @@ public class MsgPackWriter extends AbstractWriter implements MsgPack {
         if (frame != null) {
             frame.increment();
         }
-        if (arg < -(1 << 5)) {
-            if (arg < -(1 << 15)) {
-                if (arg < -(1L << 31)) {
+        if (arg < MIN5) {
+            if (arg < MIN15) {
+                if (arg < MIN31) {
                     byteBuffer.put(INT64);
                     byteBuffer.putLong(arg);
                 } else {
@@ -177,7 +177,7 @@ public class MsgPackWriter extends AbstractWriter implements MsgPack {
                     byteBuffer.putInt((int) arg);
                 }
             } else {
-                if (arg < -(1 << 7)) {
+                if (arg < MIN7) {
                     byteBuffer.put(INT16);
                     byteBuffer.putShort((short) arg);
                 } else {
@@ -185,11 +185,11 @@ public class MsgPackWriter extends AbstractWriter implements MsgPack {
                     byteBuffer.put((byte) arg);
                 }
             }
-        } else if (arg < (1 << 7)) { //negative & positive fixint
+        } else if (arg < MAX7) { //negative & positive fixint
             byteBuffer.put((byte) arg);
         } else {
-            if (arg < (1 << 16)) {
-                if (arg < (1 << 8)) {
+            if (arg < MAX16) {
+                if (arg < MAX8) {
                     byteBuffer.put(UINT8);
                     byteBuffer.put((byte) arg);
                 } else {
@@ -197,7 +197,7 @@ public class MsgPackWriter extends AbstractWriter implements MsgPack {
                     byteBuffer.putU16((int) arg);
                 }
             } else {
-                if (arg < (1L << 32)) {
+                if (arg < MAX32) {
                     byteBuffer.put(UINT32);
                     byteBuffer.putU32((int) arg);
                 } else {
@@ -224,7 +224,7 @@ public class MsgPackWriter extends AbstractWriter implements MsgPack {
         if (frame != null) {
             frame.increment();
         }
-        this.frame = new Frame(false);
+        this.frame = new Frame();
         byteBuffer.put(LIST32);
         frame.offset = byteBuffer.length();
         byteBuffer.putInt(0);
@@ -238,7 +238,7 @@ public class MsgPackWriter extends AbstractWriter implements MsgPack {
         if (frame != null) {
             frame.increment();
         }
-        this.frame = new Frame(true);
+        this.frame = new Frame();
         byteBuffer.put(MAP32);
         frame.offset = byteBuffer.length();
         byteBuffer.putInt(0);
@@ -358,12 +358,12 @@ public class MsgPackWriter extends AbstractWriter implements MsgPack {
         encoder.reset();
         strBuffer.flip();
         int len = strBuffer.remaining();
-        if (len < (1 << 5)) {
+        if (len < MAX5) {
             byteBuffer.put((byte) (FIXSTR_PREFIX | len));
-        } else if (len < (1 << 8)) {
+        } else if (len < MAX8) {
             byteBuffer.put(STR8);
             byteBuffer.put((byte) len);
-        } else if (len < (1 << 16)) {
+        } else if (len < MAX16) {
             byteBuffer.put(STR16);
             byteBuffer.putShort((short) len);
         } else {
@@ -383,7 +383,7 @@ public class MsgPackWriter extends AbstractWriter implements MsgPack {
         final Frame parent;
         int size = 0;
 
-        Frame(boolean map) {
+        Frame() {
             this.parent = frame;
         }
 

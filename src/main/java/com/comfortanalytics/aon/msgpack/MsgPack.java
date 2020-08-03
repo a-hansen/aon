@@ -11,7 +11,6 @@ interface MsgPack {
     byte FIXLIST_PREFIX = (byte) 0x90;
     byte FIXSTR_PREFIX = (byte) 0xa0;
     byte NULL = (byte) 0xc0;
-    byte NEVER_USED = (byte) 0xc1;
     byte FALSE = (byte) 0xc2;
     byte TRUE = (byte) 0xc3;
     byte BIN8 = (byte) 0xc4;
@@ -40,5 +39,16 @@ interface MsgPack {
 
     byte BIG_DECIMAL_TYPE = 0x6D;
     byte BIG_INTEGER_TYPE = 0x71;
+
+    int MAX5 = 1 << 5;
+    int MAX7 = 1 << 7;
+    int MAX8 = 1 << 8;
+    int MAX16 = 1 << 16;
+    long MAX32 = 1L << 32;
+
+    int MIN5 = -(1 << 5);
+    int MIN7 = -(1 << 7);
+    int MIN15 = -(1 << 15);
+    long MIN31 = -(1 << 31);
 
 }

@@ -10,7 +10,6 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonParser;
 import com.owlike.genson.Genson;
 import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
@@ -42,6 +41,8 @@ public class AonBenchmark {
     private static final byte[] aonSmall;
     private static final byte[] jsonLarge;
     private static final byte[] jsonSmall;
+    private static final byte[] msgPackLarge;
+    private static final byte[] msgPackSmall;
     private static final NullOutputStream nullOutputStream = new NullOutputStream();
     private static final NullWriter nullWriter = new NullWriter();
 
@@ -52,18 +53,28 @@ public class AonBenchmark {
     static Aobj makeLargeObj() {
         Aobj primitiveObj = new Aobj()
                 .put("boolean", true)
-                .put("double", 100001.001d)
-                .put("float", 100001.001f)
+                .put("double", 10001.001d)
+                .put("sd", 1d)
+                .put("float", 10001.001f)
+                .put("sf", 1f)
                 .put("int", 100001)
+                .put("si", 1)
                 .put("long", 100001L)
-                .put("string", "abcdefghij\r\njklmnopqrs\u0000\u0001\u0002tuvwxyz\r\n");
+                .put("sl", 1)
+                .put("string", "abcdefghij\r\njklmnopqrs\u0000\u0001\u0002tuvwxyz\r\n")
+                .put("ss", "abc");
         Alist primitiveList = new Alist()
                 .add(true)
                 .add(100001.001d)
+                .add(1d)
                 .add(100001.001f)
+                .add(1f)
                 .add(100001)
+                .add(1)
                 .add(100001L)
-                .add("abcdefghij\r\njklmnopqrs\u0000\u0001\u0002tuvwxyz\r\n");
+                .add(1L)
+                .add("abcdefghij\r\njklmnopqrs\u0000\u0001\u0002tuvwxyz\r\n")
+                .add("abc");
         Aobj complexObj = primitiveObj.copy();
         complexObj.put("list", primitiveList.copy())
                   .put("object", primitiveObj.copy());
@@ -87,17 +98,27 @@ public class AonBenchmark {
         return new Aobj()
                 .put("boolean", true)
                 .put("double", 10001.001d)
+                .put("sd", 1d)
                 .put("float", 10001.001f)
+                .put("sf", 1f)
                 .put("int", 100001)
+                .put("si", 1)
                 .put("long", 100001L)
+                .put("sl", 1)
                 .put("string", "abcdefghij\r\njklmnopqrs\u0000\u0001\u0002tuvwxyz\r\n")
+                .put("ss", "abc")
                 .put("list", new Alist()
                         .add(true)
                         .add(100001.001d)
+                        .add(1d)
                         .add(100001.001f)
+                        .add(1f)
                         .add(100001)
+                        .add(1)
                         .add(100001L)
-                        .add("abcdefghij\r\njklmnopqrs\u0000\u0001\u0002tuvwxyz\r\n"));
+                        .add(1L)
+                        .add("abcdefghij\r\njklmnopqrs\u0000\u0001\u0002tuvwxyz\r\n")
+                        .add("abc"));
     }
 
     private static void decodeAon(byte[] arg) {
@@ -142,7 +163,12 @@ public class AonBenchmark {
 
         @Benchmark
         public void AonJson() {
-            new JsonReader(new ByteArrayInputStream(jsonLarge)).getValue();
+            Aon.jsonReader(new ByteArrayInputStream(jsonLarge)).getValue();
+        }
+
+        @Benchmark
+        public void AonMsgPack() {
+            Aon.msgPackReader(new ByteArrayInputStream(msgPackLarge)).getValue();
         }
 
         @Benchmark
@@ -186,7 +212,12 @@ public class AonBenchmark {
 
         @Benchmark
         public void AonJson() {
-            new JsonReader(new ByteArrayInputStream(jsonSmall)).getValue();
+            Aon.jsonReader(new ByteArrayInputStream(jsonSmall)).getValue();
+        }
+
+        @Benchmark
+        public void AonMsgPack() {
+            Aon.msgPackReader(new ByteArrayInputStream(msgPackSmall)).getValue();
         }
 
         @Benchmark
@@ -236,6 +267,11 @@ public class AonBenchmark {
         @Benchmark
         public void AonJson() {
             Aon.jsonWriter(nullWriter).value(aobjLarge);
+        }
+
+        @Benchmark
+        public void AonMsgPack() {
+            Aon.msgPackWriter(nullOutputStream).value(aobjLarge);
         }
 
         @Benchmark
@@ -298,6 +334,11 @@ public class AonBenchmark {
         @Benchmark
         public void AonJson() {
             Aon.jsonWriter(nullWriter).value(aobjSmall);
+        }
+
+        @Benchmark
+        public void AonMsgPack() {
+            Aon.msgPackWriter(nullOutputStream).value(aobjSmall);
         }
 
         @Benchmark
@@ -383,20 +424,19 @@ public class AonBenchmark {
     static {
         aobjSmall = makeSmallObj();
         aobjLarge = makeLargeObj();
-        ByteArrayOutputStream out;
-        encodeAon(aobjSmall, out = new ByteArrayOutputStream());
-        aonSmall = out.toByteArray();
-        encodeAon(aobjLarge, out = new ByteArrayOutputStream());
-        aonLarge = out.toByteArray();
-        encodeAonJson(aobjSmall, out = new ByteArrayOutputStream());
-        jsonSmall = out.toByteArray();
-        encodeAonJson(aobjLarge, out = new ByteArrayOutputStream());
-        jsonLarge = out.toByteArray();
+        aonLarge = Aon.aonBytes(aobjLarge);
+        aonSmall = Aon.aonBytes(aobjSmall);
+        jsonLarge = Aon.jsonBytes(aobjLarge);
+        jsonSmall = Aon.jsonBytes(aobjSmall);
+        msgPackLarge = Aon.msgPackBytes(aobjLarge);
+        msgPackSmall = Aon.msgPackBytes(aobjSmall);
         /*
-        System.out.println(" AON small doc size: " + aonSmall.length);
-        System.out.println("JSON small doc size: " + jsonSmall.length);
-        System.out.println(" AON large doc size: " + aonLarge.length);
-        System.out.println("JSON large doc size: " + jsonLarge.length);
+        System.out.println("    AON small doc size: " + aonSmall.length);
+        System.out.println("   JSON small doc size: " + msgPackSmall.length);
+        System.out.println("MsgPack small doc size: " + jsonSmall.length);
+        System.out.println("    AON large doc size: " + aonLarge.length);
+        System.out.println("   JSON large doc size: " + jsonLarge.length);
+        System.out.println("MsgPack large doc size: " + msgPackLarge.length);
         */
     }
 
