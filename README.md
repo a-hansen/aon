@@ -389,7 +389,7 @@ public void notStreaming(Awriter out) {
 Benchmark
 ---------
 
-There is a benchmark test class compares Aon encodings with with other popular JSON libs.  
+There is a benchmark that compares Aon encodings with other popular JSON libs.  
 The benchmark uses JMH and takes @45 minutes.
 
 There are 4 categories of tests (large/small docs, encode/decode).  The results are 
@@ -430,17 +430,16 @@ AonBenchmark.EncodeSmallDoc.Genson      avgt    9     56.729 ?    3.687  us/op
 AonBenchmark.EncodeSmallDoc.Gson        avgt    9     60.256 ?    6.424  us/op
 AonBenchmark.EncodeSmallDoc.JsonSimple  avgt    9     61.398 ?    9.151  us/op
 
-Benchmark document sizes in bytes (there might be something wrong with my msgpack
-implementation, but then again, msgpack is optimized for the best case for it, not 
-the real world):
+Benchmark document sizes in bytes (I can't explain msgpack, but I suspect it's
+a case of a protocol designed for it's best case, but not the real world):
 
     AON small doc size: 231
    JSON small doc size: 237
 MsgPack small doc size: 307
 
     AON large doc size: 141400
-   JSON large doc size: 188004
 MsgPack large doc size: 145009
+   JSON large doc size: 188004
 ```
 
 To run the benchmark, use the gradle task jmh:
