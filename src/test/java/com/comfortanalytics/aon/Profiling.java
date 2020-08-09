@@ -41,8 +41,8 @@ public class Profiling {
         while (true) {
             //decodeAon(aonLarge);
             //decodeAon(aonSmall);
-            decodeAonJson(jsonLarge);
-            //decodeAonJson(jsonSmall);
+            //decodeAonJson(jsonLarge);
+            decodeAonJson(jsonSmall);
             //encodeAon(aobjLarge, nullOutputStream);
             //encodeAon(aobjSmall, nullOutputStream);
             //encodeAonJson(aobjLarge, nullOutputStream);

@@ -68,7 +68,7 @@ public class JsonWriter extends AbstractJsonWriter {
      */
     @Override
     public Appendable append(char ch) {
-        if (bufoff + 1 > BUF_SIZE) {
+        if (bufoff == BUF_SIZE) {
             flush();
         }
         buf[bufoff++] = ch;

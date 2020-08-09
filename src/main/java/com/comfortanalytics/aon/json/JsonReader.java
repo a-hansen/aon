@@ -13,6 +13,7 @@ import java.io.InputStreamReader;
 import java.io.Reader;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
+import java.util.Arrays;
 
 /**
  * Json implementation of Areader.
@@ -26,18 +27,18 @@ public class JsonReader extends AbstractReader {
     // Class Fields
     ///////////////////////////////////////////////////////////////////////////
 
-    private static final int[] alse = new int[]{'a', 'l', 's', 'e'};
-    private static final int[] rue = new int[]{'r', 'u', 'e'};
-    private static final int[] ull = new int[]{'u', 'l', 'l'};
+    private static final int[] ALSE = new int[]{'a', 'l', 's', 'e'};
+    private static final int[] RUE = new int[]{'r', 'u', 'e'};
+    private static final int[] ULL = new int[]{'u', 'l', 'l'};
 
     ///////////////////////////////////////////////////////////////////////////
     // Instance Fields
     ///////////////////////////////////////////////////////////////////////////
 
-    private char[] bufChars = new char[512];
+    private char[] bufChars = new char[256];
     private int bufLen;
     private final Reader in;
-    private final char[] inChars = new char[4096];
+    private final char[] inChars = new char[2048];
     private int inLen;
     private int inOff;
 
@@ -99,13 +100,13 @@ public class JsonReader extends AbstractReader {
                     case '"':
                         return setNext(readString());
                     case 't':
-                        validateNextChars(rue);
+                        validateNextChars(RUE);
                         return setNext(true);
                     case 'f':
-                        validateNextChars(alse);
+                        validateNextChars(ALSE);
                         return setNext(false);
                     case 'n':
-                        validateNextChars(ull);
+                        validateNextChars(ULL);
                         return setNextNull();
                     case '-':
                     case '+':
@@ -141,51 +142,41 @@ public class JsonReader extends AbstractReader {
     }
 
     private void bufGrow() {
-        int size = bufChars.length;
-        if (size < 131072) {
-            size *= 2;
+        if (bufChars.length < 131072) {
+            bufChars = Arrays.copyOf(bufChars, bufChars.length * 2);
         } else {
-            size += 131072;
+            bufChars = Arrays.copyOf(bufChars, bufChars.length + 131072);
         }
-        char[] tmp = new char[size];
-        System.arraycopy(bufChars, 0, tmp, 0, bufLen);
-        bufChars = tmp;
     }
 
     private static long decodeLong(char[] buf, int idx, int end) {
         boolean neg = false;
-        if (buf[idx] == '+') {
+        char ch = buf[idx];
+        if (ch == '+') {
             idx++;
-        } else if (buf[idx] == '-') {
+        } else if (ch == '-') {
             neg = true;
             idx++;
         }
         long ret = 0;
         while (idx < end) {
-            ret = (ret * 10L) + (buf[idx++] - '0');
+            ret = (ret * 10) + (buf[idx++] - '0');
         }
-        if (neg) {
-            return -ret;
-        }
-        return ret;
+        return neg ? -ret : ret;
     }
 
     private Token decodeNumber(char[] buf, int len, int decIdx) {
-        int curIdx = 0;
-        //parse whole
-        int endIdx = len;
+        int idx;
         if (decIdx >= 0) {
-            endIdx = decIdx;
+            idx = decIdx;
+        } else {
+            idx = len;
         }
-        long theLong = decodeLong(buf, curIdx, endIdx);
-        curIdx = ++endIdx;
+        long theLong = decodeLong(buf, 0, idx);
         //parse fraction
-        double theFrac;
         if (decIdx >= 0) {
-            long num = decodeLong(buf, curIdx, len);
-            theFrac = num / Math.pow(10, len - curIdx);
-            theFrac += theLong;
-            return setNext(theFrac);
+            double num = decodeLong(buf, ++idx, len);
+            return setNext(theLong + (num / Math.pow(10d, len - idx)));
         }
         return setNext(theLong);
     }
@@ -300,8 +291,6 @@ public class JsonReader extends AbstractReader {
         int ch;
         for (int i = 0; i < 4; i++) {
             switch (ch = readChar()) {
-                case -1:
-                    throw new EOFException();
                 case '0':
                 case '1':
                 case '2':
@@ -331,6 +320,9 @@ public class JsonReader extends AbstractReader {
                     ret = (ret << 4) + (ch - 'A') + 10;
                     break;
                 default:
+                    if (ch < 0) {
+                        throw new EOFException();
+                    }
                     throw new IllegalStateException(
                             "Illegal character in unicode escape: " + (char) ch);
             }
@@ -339,13 +331,13 @@ public class JsonReader extends AbstractReader {
     }
 
     private void validateNextChars(int[] chars) throws IOException {
-        for (int aChar : chars) {
+        for (int i = 0; i < chars.length; i++) {
             int ch = readChar();
-            if (ch != aChar) {
+            if (ch != chars[i]) {
                 if (ch == -1) {
                     throw new EOFException();
                 }
-                throw new IllegalStateException("Expecting " + aChar + ", but got " + ch);
+                throw new IllegalStateException("Expecting " + chars[i] + ", but got " + ch);
             }
         }
     }

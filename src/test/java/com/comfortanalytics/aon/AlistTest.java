@@ -1,7 +1,7 @@
 package com.comfortanalytics.aon;
 
-import org.junit.Test;
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 /**
  * @author Aaron Hansen
@@ -15,7 +15,6 @@ public class AlistTest {
     @Test
     public void test() {
         Alist list1 = makeList();
-        System.out.println(list1);
         Alist list2 = Aon.readAon(Aon.aonBytes(list1));
         Assertions.assertEquals(list1, list2);
         list2 = Aon.readJson(Aon.jsonBytes(list1));

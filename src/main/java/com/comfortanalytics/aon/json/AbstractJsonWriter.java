@@ -32,6 +32,26 @@ public abstract class AbstractJsonWriter extends AbstractWriter implements Appen
                     '0', '1', '2', '3', '4', '5', '6', '7',
                     '8', '9', 'a', 'b', 'c', 'd', 'e', 'f'
             };
+    private static final long POWS[] = new long[]{
+            1,
+            10,
+            100,
+            1000,
+            10000,
+            100000,
+            1000000,
+            10000000,
+            100000000,
+            1000000000,
+            10000000000L,
+            100000000000L,
+            1000000000000L,
+            10000000000000L,
+            100000000000000L,
+            1000000000000000L,
+            10000000000000000L,
+            100000000000000000L,
+            1000000000000000000L};
 
     ///////////////////////////////////////////////////////////////////////////
     // Public Methods
@@ -78,101 +98,133 @@ public abstract class AbstractJsonWriter extends AbstractWriter implements Appen
 
     @Override
     protected void write(double arg) throws IOException {
-        if ((arg % 1) == 0) {
+        if (arg % 1 == 0) {
             write((long) arg);
+            append('.').append('0');
         } else {
-            append(String.valueOf(arg));
+            if (Double.isInfinite(arg) || Double.isNaN(arg)) {
+                append(C_NULL, 0, 4);
+            }
+            append(Double.toString(arg));
         }
     }
 
     @Override
     protected void write(float arg) throws IOException {
-        if ((arg % 1) == 0) {
+        if (arg % 1 == 0) {
             write((long) arg);
+            append('.').append('0');
         } else {
-            append(String.valueOf(arg));
+            if (Float.isInfinite(arg) || Float.isNaN(arg)) {
+                append(C_NULL, 0, 4);
+            }
+            append(Float.toString(arg));
         }
     }
 
     @Override
-    protected void write(int arg) throws IOException {
-        if (arg < 0) {
+    protected void write(int val) throws IOException {
+        if (val == 0) {
+            append('0');
+            return;
+        }
+        boolean minValue = (val == Integer.MIN_VALUE);
+        if (val < 0) {
             append('-');
-            arg = -arg;
+            if (minValue) {
+                val++;
+            }
+            val = -val;
         }
-        if (arg < 10) {
-            append((char) (arg + '0'));
-        } else if (arg < 100) {
-            append((char) ((arg / 10) + '0'));
-            append((char) ((arg % 10) + '0'));
-        } else if (arg < 1000) {
-            append((char) ((arg / 100) + '0'));
-            arg = arg % 100;
-            append((char) ((arg / 10) + '0'));
-            append((char) ((arg % 10) + '0'));
-        } else if (arg < 10000) {
-            append((char) ((arg / 1000) + '0'));
-            arg = arg % 1000;
-            append((char) ((arg / 100) + '0'));
-            arg = arg % 100;
-            append((char) ((arg / 10) + '0'));
-            append((char) ((arg % 10) + '0'));
-        } else if (arg < 100000) {
-            append((char) ((arg / 10000) + '0'));
-            arg = arg % 10000;
-            append((char) ((arg / 1000) + '0'));
-            arg = arg % 1000;
-            append((char) ((arg / 100) + '0'));
-            arg = arg % 100;
-            append((char) ((arg / 10) + '0'));
-            append((char) ((arg % 10) + '0'));
-        } else {
-            append(String.valueOf(arg));
+        int pow = 0;
+        while (pow < POWS.length) {
+            if (val / POWS[pow] == 0) {
+                break;
+            }
+            pow++;
         }
+        pow--;
+        while (pow > 0) {
+            append((char) ((val / POWS[pow]) + '0'));
+            val %= POWS[pow];
+            pow--;
+        }
+        if (minValue) {
+            val++;
+        }
+        append((char) (val + '0'));
     }
 
     @Override
-    protected void write(long arg) throws IOException {
-        if (arg < 100000) {
-            write((int) arg);
+    protected void write(long val) throws IOException {
+        boolean minValue;
+        if (val < 0) {
+            if (val >= Integer.MIN_VALUE) {
+                write((int) val);
+                return;
+            }
+            append('-');
+            minValue = val == Long.MIN_VALUE;
+            if (minValue) {
+                val++;
+            }
+            val = -val;
+        } else if (val <= Integer.MAX_VALUE) {
+            write((int) val);
+            return;
         } else {
-            append(String.valueOf(arg));
+            minValue = false;
         }
+        int pow = 0;
+        while (pow < POWS.length) {
+            if (val / POWS[pow] == 0) {
+                break;
+            }
+            pow++;
+        }
+        pow--;
+        while (pow > 0) {
+            append((char) ((val / POWS[pow]) + '0'));
+            val %= POWS[pow];
+            pow--;
+        }
+        if (minValue) {
+            val++;
+        }
+        append((char) (val + '0'));
     }
 
     @Override
     protected void write(CharSequence buf) throws IOException {
         append('"');
         char ch;
-        for (int i = 0, len = buf.length(); i < len; i++) {
-            ch = buf.charAt(i);
-            switch (ch) {
-                case '"':
-                case '\\':
-                    append('\\');
-                    append(ch);
-                    break;
-                case '\b':
-                    append(C_B, 0, 2);
-                    break;
-                case '\f':
-                    append(C_F, 0, 2);
-                    break;
-                case '\n':
-                    append(C_N, 0, 2);
-                    break;
-                case '\r':
-                    append(C_R, 0, 2);
-                    break;
-                case '\t':
-                    append(C_T, 0, 2);
-                    break;
-                default:
-                    if (Character.isISOControl(ch)) {
+        for (int i = 0, len = buf.length(); i < len; ) {
+            ch = buf.charAt(i++);
+            if (Character.isISOControl(ch)) {
+                switch (ch) {
+                    case '\b':
+                        append(C_B, 0, 2);
+                        break;
+                    case '\f':
+                        append(C_F, 0, 2);
+                        break;
+                    case '\n':
+                        append(C_N, 0, 2);
+                        break;
+                    case '\r':
+                        append(C_R, 0, 2);
+                        break;
+                    case '\t':
+                        append(C_T, 0, 2);
+                        break;
+                    default:
                         writeUnicode(ch);
-                    } else {
-                        append(ch);
-                    }
+                }
+            } else if ((ch == '"') || (ch == '\\')) {
+                append('\\');
+                append(ch);
+            } else {
+                append(ch);
             }
         }
         append('"');

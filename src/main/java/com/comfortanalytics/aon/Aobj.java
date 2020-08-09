@@ -483,7 +483,7 @@ public class Aobj extends Agroup implements Iterable<Member> {
             first = null;
             last = null;
         } else if (e == first) {
-            first = first.next();
+            first = e.next();
         } else {
             Member prev = getPrev(key);
             prev.setNext(e.next());
