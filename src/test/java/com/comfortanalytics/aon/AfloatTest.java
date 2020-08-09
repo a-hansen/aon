@@ -19,7 +19,6 @@ public class AfloatTest {
         Random random = new Random(System.currentTimeMillis());
         Afloat val = Afloat.valueOf(10);
         validate(val);
-        Assertions.assertSame(val, Afloat.valueOf(10));
         validateEqual(val, Afloat.valueOf(val.toFloat()));
         Afloat val2 = Afloat.valueOf(random.nextFloat());
         validate(val2);

@@ -18,7 +18,6 @@ public class AdoubleTest {
         Random random = new Random(System.currentTimeMillis());
         Adouble val = Adouble.valueOf(10);
         validate(val);
-        Assertions.assertSame(val, Adouble.valueOf(10));
         validateEqual(val, Adouble.valueOf(val.toDouble()));
         Adouble val2 = Adouble.valueOf(random.nextDouble());
         validate(val2);

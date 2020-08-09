@@ -114,6 +114,8 @@ public class Alist extends Agroup implements Iterable<Adata> {
     }
 
     /**
+     * Does not {@link #copy()} the contents.
+     *
      * @return this
      */
     @Nonnull

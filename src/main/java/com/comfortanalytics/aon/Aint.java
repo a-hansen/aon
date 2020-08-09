@@ -16,6 +16,9 @@ public class Aint extends Aprimitive {
     // Class Fields
     ///////////////////////////////////////////////////////////////////////////
 
+    private static final Aint[] CACHE = new Aint[256];
+    public static final Aint MAX = new Aint(Integer.MAX_VALUE);
+    public static final Aint MIN = new Aint(Integer.MIN_VALUE);
     public static final Aint ZERO = valueOf(0);
 
     ///////////////////////////////////////////////////////////////////////////
@@ -154,42 +157,22 @@ public class Aint extends Aprimitive {
      * Attempts to reuse some common values before creating a new instance.
      */
     public static Aint valueOf(int arg) {
-        Aint ret = IntCache.get(arg);
+        int idx = arg + 128;
+        if ((idx < 0) || (idx > 255)) {
+            if (arg == Integer.MAX_VALUE) {
+                return MAX;
+            }
+            if (arg == Integer.MIN_VALUE) {
+                return MIN;
+            }
+            return new Aint(arg);
+        }
+        Aint ret = CACHE[idx];
         if (ret == null) {
             ret = new Aint(arg);
+            CACHE[idx] = ret;
         }
         return ret;
-    }
-
-    ///////////////////////////////////////////////////////////////////////////
-    // Inner Classes
-    ///////////////////////////////////////////////////////////////////////////
-
-    private static class IntCache {
-
-        private static final int MAX = 100;
-        private static final Aint NEG_ONE = new Aint(-1);
-        private static Aint[] cache;
-
-        public static Aint get(int i) {
-            if ((i < 0) || (i > MAX)) {
-                if (i == -1) {
-                    return NEG_ONE;
-                }
-                return null;
-            }
-            Aint ret;
-            if (cache == null) {
-                cache = new Aint[MAX + 1];
-            }
-            ret = cache[i];
-            if (ret == null) {
-                ret = new Aint(i);
-                cache[i] = ret;
-            }
-            return ret;
-        }
-
     }
 
 }

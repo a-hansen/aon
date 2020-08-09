@@ -51,30 +51,8 @@ public class AonBenchmark {
     ///////////////////////////////////////////////////////////////////////////
 
     static Aobj makeLargeObj() {
-        Aobj primitiveObj = new Aobj()
-                .put("boolean", true)
-                .put("double", 10001.001d)
-                .put("sd", 1d)
-                .put("float", 10001.001f)
-                .put("sf", 1f)
-                .put("int", 100001)
-                .put("si", 1)
-                .put("long", 100001L)
-                .put("sl", 1)
-                .put("string", "abcdefghij\r\njklmnopqrs\u0000\u0001\u0002tuvwxyz\r\n")
-                .put("ss", "abc");
-        Alist primitiveList = new Alist()
-                .add(true)
-                .add(100001.001d)
-                .add(1d)
-                .add(100001.001f)
-                .add(1f)
-                .add(100001)
-                .add(1)
-                .add(100001L)
-                .add(1L)
-                .add("abcdefghij\r\njklmnopqrs\u0000\u0001\u0002tuvwxyz\r\n")
-                .add("abc");
+        Aobj primitiveObj = makeObj();
+        Alist primitiveList = makeList();
         Aobj complexObj = primitiveObj.copy();
         complexObj.put("list", primitiveList.copy())
                   .put("object", primitiveObj.copy());
@@ -94,31 +72,62 @@ public class AonBenchmark {
         return testObj;
     }
 
-    static Aobj makeSmallObj() {
+    static Alist makeList() {
+        return new Alist()
+                .add(true)
+                .add(false)
+                .add(0d)
+                .add(1234.1234d)
+                .add(Double.MIN_VALUE)
+                .add(Double.MAX_VALUE)
+                .add(0f)
+                .add(1234.1234f)
+                .add(Float.MIN_VALUE)
+                .add(Float.MAX_VALUE)
+                .add(0)
+                .add(1234)
+                .add(Integer.MIN_VALUE)
+                .add(Integer.MAX_VALUE)
+                .add(0L)
+                .add(1234L)
+                .add(Long.MIN_VALUE)
+                .add(Long.MAX_VALUE)
+                .add("abc")
+                .add("")
+                .add("abcdefghij\r\njklmnopqrs\u0000\u0001\u0002tuvwxyz\r\n")
+                .addNull();
+    }
+
+    static Aobj makeObj() {
         return new Aobj()
-                .put("boolean", true)
-                .put("double", 10001.001d)
-                .put("sd", 1d)
-                .put("float", 10001.001f)
-                .put("sf", 1f)
-                .put("int", 100001)
-                .put("si", 1)
-                .put("long", 100001L)
-                .put("sl", 1)
-                .put("string", "abcdefghij\r\njklmnopqrs\u0000\u0001\u0002tuvwxyz\r\n")
-                .put("ss", "abc")
-                .put("list", new Alist()
-                        .add(true)
-                        .add(100001.001d)
-                        .add(1d)
-                        .add(100001.001f)
-                        .add(1f)
-                        .add(100001)
-                        .add(1)
-                        .add(100001L)
-                        .add(1L)
-                        .add("abcdefghij\r\njklmnopqrs\u0000\u0001\u0002tuvwxyz\r\n")
-                        .add("abc"));
+                .put("true", true)
+                .put("false", false)
+                .put("dbl0", 0d)
+                .put("dbl1234", 1234.1234d)
+                .put("dblMin", Double.MIN_VALUE)
+                .put("dblMax", Double.MAX_VALUE)
+                .put("flt0", 0f)
+                .put("flt1234", 1234.1234f)
+                .put("fltMin", Float.MIN_VALUE)
+                .put("fltMax", Float.MAX_VALUE)
+                .put("int0", 0)
+                .put("int1234", 1234)
+                .put("intMin", Integer.MIN_VALUE)
+                .put("intMax", Integer.MAX_VALUE)
+                .put("long0", 0L)
+                .put("long1234", 1234L)
+                .put("longMin", Long.MIN_VALUE)
+                .put("longMax", Long.MAX_VALUE)
+                .put("string", "abc")
+                .put("stringEmpty", "")
+                .put("stringUni", "abcdefghij\r\njklmnopqrs\u0000\u0001\u0002tuvwxyz\r\n")
+                .putNull("null");
+    }
+
+    static Aobj makeSmallObj() {
+        Aobj ret = new Aobj();
+        ret.put("list", makeList());
+        return ret;
     }
 
     private static void decodeAon(byte[] arg) {

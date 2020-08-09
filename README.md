@@ -396,50 +396,48 @@ There are 4 categories of tests (large/small docs, encode/decode).  The results 
 sorted from fastest to slowest in each category.
 
 ```
-Benchmark                               Mode  Cnt      Score      Error  Units
+Benchmark                               Mode  Cnt      Score       Error  Units
+AonBenchmark.DecodeLargeDoc.Aon         avgt    9   3569.506 ?  291.094  us/op
+AonBenchmark.DecodeLargeDoc.AonMsgPack  avgt    9   3985.503 ?  139.522  us/op
+AonBenchmark.DecodeLargeDoc.Genson      avgt    9   6620.837 ?  714.584  us/op
+AonBenchmark.DecodeLargeDoc.AonJson     avgt    9   9997.679 ?  122.104  us/op
+AonBenchmark.DecodeLargeDoc.Gson        avgt    9  10215.495 ?  404.758  us/op
+AonBenchmark.DecodeLargeDoc.Jackson     avgt    9  11026.201 ?  235.516  us/op
+AonBenchmark.DecodeLargeDoc.JsonSimple  avgt    9  17534.389 ?  316.912  us/op
 
-AonBenchmark.DecodeLargeDoc.Aon         avgt    9   1810.641 ?  137.101  us/op
-AonBenchmark.DecodeLargeDoc.AonMsgPack  avgt    9   2249.108 ?  268.008  us/op
-AonBenchmark.DecodeLargeDoc.AonJson     avgt    9   2915.161 ?   35.215  us/op
-AonBenchmark.DecodeLargeDoc.Genson      avgt    9   3308.402 ?  306.437  us/op
-AonBenchmark.DecodeLargeDoc.Jackson     avgt    9   3320.600 ?   89.194  us/op
-AonBenchmark.DecodeLargeDoc.Gson        avgt    9   4717.685 ?   54.909  us/op
-AonBenchmark.DecodeLargeDoc.JsonSimple  avgt    9   7076.103 ?  204.579  us/op
+AonBenchmark.DecodeSmallDoc.Aon         avgt    9      1.544 ?    0.089  us/op
+AonBenchmark.DecodeSmallDoc.AonMsgPack  avgt    9      3.340 ?    1.697  us/op
+AonBenchmark.DecodeSmallDoc.Gson        avgt    9      9.368 ?    1.137  us/op
+AonBenchmark.DecodeSmallDoc.Jackson     avgt    9     12.856 ?    0.253  us/op
+AonBenchmark.DecodeSmallDoc.AonJson     avgt    9     13.368 ?    3.058  us/op
+AonBenchmark.DecodeSmallDoc.JsonSimple  avgt    9     24.792 ?    0.243  us/op
+AonBenchmark.DecodeSmallDoc.Genson      avgt    9     70.248 ?   20.395  us/op
 
-AonBenchmark.DecodeSmallDoc.Aon         avgt    9      3.132 ?    0.161  us/op
-AonBenchmark.DecodeSmallDoc.AonMsgPack  avgt    9      4.614 ?    0.085  us/op
-AonBenchmark.DecodeSmallDoc.Gson        avgt    9      9.563 ?    0.083  us/op
-AonBenchmark.DecodeSmallDoc.AonJson     avgt    9     10.497 ?    0.092  us/op
-AonBenchmark.DecodeSmallDoc.Jackson     avgt    9     10.817 ?    0.204  us/op
-AonBenchmark.DecodeSmallDoc.JsonSimple  avgt    9     26.118 ?    0.462  us/op
-AonBenchmark.DecodeSmallDoc.Genson      avgt    9     68.171 ?    6.861  us/op
+AonBenchmark.EncodeLargeDoc.Aon         avgt    9   2700.939 ?  115.509  us/op
+AonBenchmark.EncodeLargeDoc.AonMsgPack  avgt    9   3116.499 ?   63.592  us/op
+AonBenchmark.EncodeLargeDoc.Jackson     avgt    9   8766.225 ?  204.503  us/op
+AonBenchmark.EncodeLargeDoc.AonJson     avgt    9  11238.628 ?  305.669  us/op
+AonBenchmark.EncodeLargeDoc.Genson      avgt    9  12098.172 ?   83.345  us/op
+AonBenchmark.EncodeLargeDoc.Gson        avgt    9  52938.239 ? 4531.534  us/op
+AonBenchmark.EncodeLargeDoc.JsonSimple  avgt    9  80057.571 ? 4674.598  us/op
 
-AonBenchmark.EncodeLargeDoc.Jackson     avgt    9   1287.746 ?   17.954  us/op
-AonBenchmark.EncodeLargeDoc.Aon         avgt    9   1390.533 ?   16.399  us/op
-AonBenchmark.EncodeLargeDoc.AonMsgPack  avgt    9   1696.430 ?   48.512  us/op
-AonBenchmark.EncodeLargeDoc.AonJson     avgt    9   2076.987 ?   88.402  us/op
-AonBenchmark.EncodeLargeDoc.Genson      avgt    9   3053.206 ?   17.989  us/op
-AonBenchmark.EncodeLargeDoc.Gson        avgt    9  39526.293 ? 4957.543  us/op
-AonBenchmark.EncodeLargeDoc.JsonSimple  avgt    9  44618.631 ? 4842.464  us/op
+AonBenchmark.EncodeSmallDoc.Aon         avgt    9      1.177 ?    0.033  us/op
+AonBenchmark.EncodeSmallDoc.AonMsgPack  avgt    9      5.373 ?    0.072  us/op
+AonBenchmark.EncodeSmallDoc.Jackson     avgt    9      8.325 ?    0.065  us/op
+AonBenchmark.EncodeSmallDoc.AonJson     avgt    9      8.929 ?    0.183  us/op
+AonBenchmark.EncodeSmallDoc.Gson        avgt    9     29.725 ?    2.078  us/op
+AonBenchmark.EncodeSmallDoc.JsonSimple  avgt    9     39.783 ?    3.061  us/op
+AonBenchmark.EncodeSmallDoc.Genson      avgt    9     55.321 ?    0.930  us/op
 
-AonBenchmark.EncodeSmallDoc.Aon         avgt    9      2.416 ?    0.146  us/op
-AonBenchmark.EncodeSmallDoc.AonJson     avgt    9      4.650 ?    0.080  us/op
-AonBenchmark.EncodeSmallDoc.Jackson     avgt    9      4.717 ?    0.400  us/op
-AonBenchmark.EncodeSmallDoc.AonMsgPack  avgt    9      6.526 ?    0.096  us/op
-AonBenchmark.EncodeSmallDoc.Genson      avgt    9     56.729 ?    3.687  us/op
-AonBenchmark.EncodeSmallDoc.Gson        avgt    9     60.256 ?    6.424  us/op
-AonBenchmark.EncodeSmallDoc.JsonSimple  avgt    9     61.398 ?    9.151  us/op
+Benchmark document sizes in bytes:
 
-Benchmark document sizes in bytes (I can't explain msgpack, but I suspect it's
-a case of a protocol designed for it's best case, but not the real world):
+    AON small doc size: 145
+   JSON small doc size: 151
+MsgPack small doc size: 250
 
-    AON small doc size: 231
-   JSON small doc size: 237
-MsgPack small doc size: 307
-
-    AON large doc size: 141400
-MsgPack large doc size: 145009
-   JSON large doc size: 188004
+****    AON large doc size: 275200
+MsgPack large doc size: 278809
+   JSON large doc size: 437604
 ```
 
 To run the benchmark, use the gradle task jmh:

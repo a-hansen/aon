@@ -159,7 +159,7 @@ public class Astr extends Aprimitive {
         if (arg == null) {
             return null;
         }
-        if (arg.length() == 0) {
+        if (arg.isEmpty()) {
             return EMPTY;
         }
         return new Astr(arg);

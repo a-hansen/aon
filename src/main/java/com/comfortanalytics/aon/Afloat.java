@@ -17,7 +17,9 @@ public class Afloat implements Adata {
     // Class Fields
     ///////////////////////////////////////////////////////////////////////////
 
-    public static final Afloat ZERO = FltCache.get(0);
+    public static final Afloat MAX = new Afloat(Float.MAX_VALUE);
+    public static final Afloat MIN = new Afloat(Float.MIN_VALUE);
+    public static final Afloat ZERO = new Afloat(0);
 
     ///////////////////////////////////////////////////////////////////////////
     // Instance Fields
@@ -166,49 +168,15 @@ public class Afloat implements Adata {
         return null;
     }
 
-    /**
-     * Attempts to reuse some common values before creating a new instance.
-     */
     public static Afloat valueOf(float arg) {
-        Afloat ret = null;
-        int i = (int) arg;
-        if (arg == i) {
-            ret = FltCache.get(i);
+        if (arg == 0) {
+            return ZERO;
+        } else if (arg == Float.MIN_VALUE) {
+            return MIN;
+        } else if (arg == Float.MAX_VALUE) {
+            return MAX;
         }
-        if (ret == null) {
-            ret = new Afloat(arg);
-        }
-        return ret;
-    }
-
-    ///////////////////////////////////////////////////////////////////////////
-    // Inner Classes
-    ///////////////////////////////////////////////////////////////////////////
-
-    private static class FltCache {
-
-        private static final int MAX = 100;
-        private static final Afloat NEG_ONE = new Afloat(-1);
-        private static Afloat[] cache;
-
-        public static Afloat get(int i) {
-            if ((i < 0) || (i > MAX)) {
-                if (i == -1) {
-                    return NEG_ONE;
-                }
-                return null;
-            }
-            Afloat ret;
-            if (cache == null) {
-                cache = new Afloat[MAX + 1];
-            }
-            ret = cache[i];
-            if (ret == null) {
-                ret = new Afloat(i);
-                cache[i] = ret;
-            }
-            return ret;
-        }
+        return new Afloat(arg);
     }
 
 }

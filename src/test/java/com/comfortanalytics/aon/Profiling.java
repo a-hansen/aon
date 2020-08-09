@@ -42,7 +42,7 @@ public class Profiling {
             //decodeAon(aonLarge);
             //decodeAon(aonSmall);
             decodeAonJson(jsonLarge);
-            decodeAonJson(jsonSmall);
+            //decodeAonJson(jsonSmall);
             //encodeAon(aobjLarge, nullOutputStream);
             //encodeAon(aobjSmall, nullOutputStream);
             //encodeAonJson(aobjLarge, nullOutputStream);
@@ -56,20 +56,8 @@ public class Profiling {
     ///////////////////////////////////////////////////////////////////////////
 
     static Aobj makeLargeObj() {
-        Aobj primitiveObj = new Aobj()
-                .put("boolean", true)
-                .put("double", 100.001d)
-                .put("float", 100.001f)
-                .put("int", 100001)
-                .put("long", 100001L)
-                .put("string", "abcdefghij\r\njklmnopqrs\u0000\u0001\u0002tuvwxyz\r\n");
-        Alist primitiveList = new Alist()
-                .add(true)
-                .add(100.001d)
-                .add(100.001f)
-                .add(100001)
-                .add(100001L)
-                .add("abcdefghij\r\njklmnopqrs\u0000\u0001\u0002tuvwxyz\r\n");
+        Aobj primitiveObj = AobjTest.makeObj();
+        Alist primitiveList = AlistTest.makeList();
         Aobj complexObj = primitiveObj.copy();
         complexObj.put("list", primitiveList.copy())
                   .put("object", primitiveObj.copy());
@@ -87,6 +75,12 @@ public class Profiling {
             testObj.put("list" + i, complexList.copy());
         }
         return testObj;
+    }
+
+    static Aobj makeSmallObj() {
+        Aobj ret = new Aobj();
+        ret.put("list", AlistTest.makeList());
+        return ret;
     }
 
     ///////////////////////////////////////////////////////////////////////////
@@ -119,23 +113,6 @@ public class Profiling {
 
     private static void encodeAonJson(Aobj obj, OutputStream out) {
         new JsonWriter(out).value(obj).close();
-    }
-
-    private static Aobj makeSmallObj() {
-        return new Aobj()
-                .put("boolean", true)
-                .put("double", 100.001d)
-                .put("float", 100.001f)
-                .put("int", 100001)
-                .put("long", 100001L)
-                .put("string", "abcdefghij\r\njklmnopqrs\u0000\u0001\u0002tuvwxyz\r\n")
-                .put("list", new Alist()
-                        .add(true)
-                        .add(100.001d)
-                        .add(100.001f)
-                        .add(100001)
-                        .add(100001L)
-                        .add("abcdefghij\r\njklmnopqrs\u0000\u0001\u0002tuvwxyz\r\n"));
     }
 
     private static class NullOutputStream extends OutputStream {

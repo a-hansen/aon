@@ -17,13 +17,13 @@ public abstract class AbstractWriter implements Awriter {
     // Class Fields
     ///////////////////////////////////////////////////////////////////////////
 
-    private static final int LAST_DONE = 0; //document complete
-    private static final int LAST_END = 1;  //end of object/list
-    private static final int LAST_INIT = 2; //start
-    private static final int LAST_KEY = 3;  //object key
+    private static final int LAST_INIT = 0; //start
+    private static final int LAST_DONE = 1; //document complete
+    private static final int LAST_END = 2;  //end of object/list
+    private static final int LAST_VAL = 3;  //list or object value
     private static final int LAST_LIST = 4; //started a list
     private static final int LAST_OBJ = 5;  //started a object
-    private static final int LAST_VAL = 6;  //list or object value
+    private static final int LAST_KEY = 6;  //object key
 
     ///////////////////////////////////////////////////////////////////////////
     // Instance Fields
@@ -52,10 +52,9 @@ public abstract class AbstractWriter implements Awriter {
                 case LAST_VAL:
                 case LAST_END:
                     writeSeparator();
-                default:
-                    if (prettyPrint && (last != LAST_INIT) && (last != LAST_KEY)) {
-                        writeNewLineIndent();
-                    }
+            }
+            if (prettyPrint && (last != LAST_INIT) && (last != LAST_KEY)) {
+                writeNewLineIndent();
             }
             writeBeginList();
             last = LAST_LIST;
@@ -77,10 +76,9 @@ public abstract class AbstractWriter implements Awriter {
                 case LAST_VAL:
                 case LAST_END:
                     writeSeparator();
-                default:
-                    if (prettyPrint && (last != LAST_INIT) && (last != LAST_KEY)) {
-                        writeNewLineIndent();
-                    }
+            }
+            if (prettyPrint && (last != LAST_INIT) && (last != LAST_KEY)) {
+                writeNewLineIndent();
             }
             writeBeginObj();
             last = LAST_OBJ;
@@ -146,10 +144,9 @@ public abstract class AbstractWriter implements Awriter {
                 case LAST_VAL:
                 case LAST_END:
                     writeSeparator();
-                default:
-                    if (prettyPrint) {
-                        writeNewLineIndent();
-                    }
+            }
+            if (prettyPrint) {
+                writeNewLineIndent();
             }
             writeKey(arg);
             last = LAST_KEY;

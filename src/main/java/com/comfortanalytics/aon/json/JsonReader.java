@@ -184,10 +184,8 @@ public class JsonReader extends AbstractReader {
         if (decIdx >= 0) {
             long num = decodeLong(buf, curIdx, len);
             theFrac = num / Math.pow(10, len - curIdx);
-            if (theFrac != 0) {
-                theFrac += theLong;
-                return setNext(theFrac);
-            }
+            theFrac += theLong;
+            return setNext(theFrac);
         }
         return setNext(theLong);
     }
@@ -216,35 +214,24 @@ public class JsonReader extends AbstractReader {
         bufLen = 0;
         int decIndex = -1;
         boolean hasExp = false;
-        boolean more = true;
-        while (more) {
-            switch (ch) {
-                case -1:
-                    return setEndInput();
-                case 'e':
-                case 'E':
-                    hasExp = true;
-                case '.':
+        while (true) {
+            if (ch < '0') {
+                if (ch == '.') {
                     decIndex = bufLen;
-                case '-':
-                case '+':
-                case '0':
-                case '1':
-                case '2':
-                case '3':
-                case '4':
-                case '5':
-                case '6':
-                case '7':
-                case '8':
-                case '9':
-                    bufAppend((char) ch);
-                    ch = readChar();
+                } else if (ch == -1) {
+                    return setEndInput();
+                } else if (ch != '-' && ch != '+') {
                     break;
-                default:
-                    more = false;
+                }
+            } else if (ch > '9') {
+                if (ch == 'e' || ch == 'E') {
+                    hasExp = true;
+                } else {
                     break;
+                }
             }
+            bufAppend((char) ch);
+            ch = readChar();
         }
         if (hasExp) {
             String s = new String(bufChars, 0, bufLen);
@@ -260,11 +247,11 @@ public class JsonReader extends AbstractReader {
         bufLen = 0;
         int ch = readChar();
         while (ch != '"') {
-            if (ch == '\\') {
+            if (ch < 0) {
+                throw new EOFException();
+            } else if (ch == '\\') {
                 ch = readChar();
                 switch (ch) {
-                    case -1:
-                        throw new EOFException();
                     case 'u': //case 'U' :
                         bufAppend(readUnicode());
                         break;
@@ -292,6 +279,9 @@ public class JsonReader extends AbstractReader {
                         bufAppend('/');
                         break;
                     default:
+                        if (ch < 0) {
+                            throw new EOFException();
+                        }
                         throw new IOException("Unexpected char: " + ch);
                 }
             } else {
@@ -308,7 +298,7 @@ public class JsonReader extends AbstractReader {
     private char readUnicode() throws IOException {
         int ret = 0;
         int ch;
-        for (int i = 0; i < 4; ++i) {
+        for (int i = 0; i < 4; i++) {
             switch (ch = readChar()) {
                 case -1:
                     throw new EOFException();
@@ -349,13 +339,12 @@ public class JsonReader extends AbstractReader {
     }
 
     private void validateNextChars(int[] chars) throws IOException {
-        int ch;
         for (int aChar : chars) {
-            ch = readChar();
-            if (ch == -1) {
-                throw new EOFException();
-            }
+            int ch = readChar();
             if (ch != aChar) {
+                if (ch == -1) {
+                    throw new EOFException();
+                }
                 throw new IllegalStateException("Expecting " + aChar + ", but got " + ch);
             }
         }

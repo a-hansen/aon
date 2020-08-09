@@ -74,11 +74,7 @@ public class Aobj extends Agroup implements Iterable<Member> {
             return true;
         }
         if (o instanceof Aobj) {
-            Aobj arg = (Aobj) o;
-            if (size() != arg.size()) {
-                return false;
-            }
-            return map.equals(arg.map);
+            return map.equals(((Aobj) o).map);
         }
         return false;
     }
@@ -88,7 +84,7 @@ public class Aobj extends Agroup implements Iterable<Member> {
      */
     @Nullable
     public <T> T get(@Nonnull String key) {
-        Member e = map.get(key);
+        Member e = getMember(key);
         if (e == null) {
             return null;
         }
@@ -100,7 +96,7 @@ public class Aobj extends Agroup implements Iterable<Member> {
      */
     @Nullable
     public <T> T get(@Nonnull String key, Class<T> type) {
-        Member e = map.get(key);
+        Member e = getMember(key);
         if (e == null) {
             return null;
         }
@@ -247,7 +243,7 @@ public class Aobj extends Agroup implements Iterable<Member> {
      */
     @Nullable
     public <T extends Adata> T getValue(@Nonnull String key) {
-        Member e = map.get(key);
+        Member e = getMember(key);
         if (e == null) {
             return null;
         }
@@ -259,7 +255,7 @@ public class Aobj extends Agroup implements Iterable<Member> {
      */
     @Nullable
     public <T extends Adata> T getValue(@Nonnull String key, Class<T> type) {
-        Member e = map.get(key);
+        Member e = getMember(key);
         if (e == null) {
             return null;
         }
@@ -345,7 +341,7 @@ public class Aobj extends Agroup implements Iterable<Member> {
         if (val == null) {
             val = Anull.NULL;
         }
-        Member e = map.get(key);
+        Member e = getMember(key);
         if (e != null) {
             Adata curr = e.getValue();
             if (curr != val) {
@@ -450,6 +446,8 @@ public class Aobj extends Agroup implements Iterable<Member> {
     }
 
     /**
+     * Does not {@link #copy()} the contents.
+     *
      * @return this
      */
     @Nonnull
@@ -565,10 +563,7 @@ public class Aobj extends Agroup implements Iterable<Member> {
             }
             if (obj instanceof Member) {
                 Member e = (Member) obj;
-                if (!e.getKey().equals(key)) {
-                    return false;
-                }
-                return e.getValue().equals(val);
+                return e.getKey().equals(key) && e.getValue().equals(val);
             }
             return false;
         }

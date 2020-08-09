@@ -16,7 +16,9 @@ public class Adouble extends Aprimitive {
     // Class Fields
     ///////////////////////////////////////////////////////////////////////////
 
-    public static final Adouble ZERO = DblCache.get(0);
+    public static final Adouble MAX = new Adouble(Double.MAX_VALUE);
+    public static final Adouble MIN = new Adouble(Double.MIN_VALUE);
+    public static final Adouble ZERO = new Adouble(0);
 
     ///////////////////////////////////////////////////////////////////////////
     // Instance Fields
@@ -44,23 +46,21 @@ public class Adouble extends Aprimitive {
 
     @Override
     public boolean equals(Object o) {
-        if (!(o instanceof Aprimitive)) {
-            return false;
-        }
-        Long d;
-        Aprimitive obj = (Aprimitive) o;
-        switch (obj.aonType()) {
-            case DECIMAL:
-            case BIGINT:
-                return obj.equals(this);
-            case DOUBLE:
-                return obj.toDouble() == value;
-            case FLOAT:
-                return obj.toFloat() == value;
-            case INT:
-                return obj.toInt() == value;
-            case LONG:
-                return obj.toLong() == value;
+        if (o instanceof Aprimitive) {
+            Aprimitive obj = (Aprimitive) o;
+            switch (obj.aonType()) {
+                case DECIMAL:
+                case BIGINT:
+                    return obj.equals(this);
+                case DOUBLE:
+                    return obj.toDouble() == value;
+                case FLOAT:
+                    return obj.toFloat() == value;
+                case INT:
+                    return obj.toInt() == value;
+                case LONG:
+                    return obj.toLong() == value;
+            }
         }
         return false;
     }
@@ -137,45 +137,14 @@ public class Adouble extends Aprimitive {
      * Attempts to reuse some common values before creating a new instance.
      */
     public static Adouble valueOf(double arg) {
-        Adouble ret = null;
-        int i = (int) arg;
-        if (arg == i) {
-            ret = DblCache.get(i);
+        if (arg == 0) {
+            return ZERO;
+        } else if (arg == Double.MIN_VALUE) {
+            return MIN;
+        } else if (arg == Double.MAX_VALUE) {
+            return MAX;
         }
-        if (ret == null) {
-            return new Adouble(arg);
-        }
-        return ret;
-    }
-
-    ///////////////////////////////////////////////////////////////////////////
-    // Inner Classes
-    ///////////////////////////////////////////////////////////////////////////
-
-    private static class DblCache {
-
-        private static final int MAX = 100;
-        private static final Adouble NEG_ONE = new Adouble(-1);
-        private static Adouble[] cache;
-
-        public static Adouble get(int i) {
-            if ((i < 0) || (i > MAX)) {
-                if (i == -1) {
-                    return NEG_ONE;
-                }
-                return null;
-            }
-            Adouble ret;
-            if (cache == null) {
-                cache = new Adouble[MAX + 1];
-            }
-            ret = cache[i];
-            if (ret == null) {
-                ret = new Adouble(i);
-                cache[i] = ret;
-            }
-            return ret;
-        }
+        return new Adouble(arg);
     }
 
 }

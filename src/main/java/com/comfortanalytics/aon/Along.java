@@ -16,6 +16,9 @@ public class Along extends Aprimitive {
     // Class Fields
     ///////////////////////////////////////////////////////////////////////////
 
+    private static final Along[] CACHE = new Along[256];
+    public static final Along MAX = new Along(Long.MAX_VALUE);
+    public static final Along MIN = new Along(Long.MIN_VALUE);
     public static final Along ZERO = valueOf(0);
 
     ///////////////////////////////////////////////////////////////////////////
@@ -135,43 +138,24 @@ public class Along extends Aprimitive {
      * Attempts to reuse some common values before creating a new instance.
      */
     public static Along valueOf(long arg) {
-        Along ret = LongCache.get(arg);
-        if (ret == null) {
-            ret = new Along(arg);
+        long idx = arg + 128;
+        if ((idx < 0) || (idx > 255)) {
+            if (arg == Long.MAX_VALUE) {
+                return MAX;
+            }
+            if (arg == Long.MIN_VALUE) {
+                return MIN;
+            }
+            return new Along(arg);
         }
-        return ret;
-    }
-
-    ///////////////////////////////////////////////////////////////////////////
-    // Inner Classes
-    ///////////////////////////////////////////////////////////////////////////
-
-    private static class LongCache {
-
-        private static final int MAX = 100;
-        private static final Along NEG_ONE = new Along(-1);
-        private static Along[] cache = null;
-
-        public static Along get(long l) {
-            if ((l < 0) || (l > MAX)) {
-                if (l == -1) {
-                    return NEG_ONE;
-                }
-                return null;
-            }
-            int i = (int) l;
-            Along ret;
-            if (cache == null) {
-                cache = new Along[MAX + 1];
-            }
-            ret = cache[i];
-            if (ret == null) {
-                ret = new Along(l);
-                cache[i] = ret;
-            }
+        int i = (int) idx;
+        Along ret = CACHE[i];
+        if (ret != null) {
             return ret;
         }
-
+        ret = new Along(arg);
+        CACHE[i] = ret;
+        return ret;
     }
 
 }

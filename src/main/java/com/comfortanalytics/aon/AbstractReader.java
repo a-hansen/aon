@@ -33,9 +33,10 @@ public abstract class AbstractReader implements Areader {
 
     @Override
     public BigDecimal getBigDecimal() {
+        if (last == Token.DECIMAL) {
+            return valDecimal;
+        }
         switch (last) {
-            case DECIMAL:
-                break;
             case BIGINT:
                 return new BigDecimal(valBigint);
             case DOUBLE:
@@ -51,16 +52,16 @@ public abstract class AbstractReader implements Areader {
             default:
                 throw new IllegalStateException("Not a big decimal");
         }
-        return valDecimal;
     }
 
     @Override
     public BigInteger getBigInt() {
+        if (last == Token.BIGINT) {
+            return valBigint;
+        }
         switch (last) {
             case DECIMAL:
                 return new BigInteger(valDecimal.toString());
-            case BIGINT:
-                break;
             case DOUBLE:
                 return BigInteger.valueOf((long) valDouble);
             case FLOAT:
@@ -74,7 +75,6 @@ public abstract class AbstractReader implements Areader {
             default:
                 throw new IllegalStateException("Not a big integer");
         }
-        return valBigint;
     }
 
     @Override
@@ -98,9 +98,10 @@ public abstract class AbstractReader implements Areader {
 
     @Override
     public double getDouble() {
+        if (last == Token.DOUBLE) {
+            return valDouble;
+        }
         switch (last) {
-            case DOUBLE:
-                break;
             case FLOAT:
                 return valFloat;
             case INT:
@@ -110,11 +111,13 @@ public abstract class AbstractReader implements Areader {
             default:
                 throw new IllegalStateException("Not a double");
         }
-        return valDouble;
     }
 
     @Override
     public float getFloat() {
+        if (last == Token.FLOAT) {
+            return valFloat;
+        }
         switch (last) {
             case DECIMAL:
                 return valDecimal.floatValue();
@@ -122,8 +125,6 @@ public abstract class AbstractReader implements Areader {
                 return valBigint.floatValue();
             case DOUBLE:
                 return (float) valDouble;
-            case FLOAT:
-                break;
             case INT:
                 return (float) valInt;
             case LONG:
@@ -131,11 +132,13 @@ public abstract class AbstractReader implements Areader {
             default:
                 throw new IllegalStateException("Not a float");
         }
-        return valFloat;
     }
 
     @Override
     public int getInt() {
+        if (last == Token.INT) {
+            return valInt;
+        }
         switch (last) {
             case DECIMAL:
                 return valDecimal.intValue();
@@ -145,14 +148,11 @@ public abstract class AbstractReader implements Areader {
                 return (int) valDouble;
             case FLOAT:
                 return (int) valFloat;
-            case INT:
-                break;
             case LONG:
                 return (int) valLong;
             default:
                 throw new IllegalStateException("Not an int");
         }
-        return valInt;
     }
 
     @Override
@@ -216,6 +216,9 @@ public abstract class AbstractReader implements Areader {
 
     @Override
     public long getLong() {
+        if (last == Token.LONG) {
+            return valLong;
+        }
         switch (last) {
             case DECIMAL:
                 return valDecimal.longValue();
@@ -227,12 +230,9 @@ public abstract class AbstractReader implements Areader {
                 return (long) valFloat;
             case INT:
                 return valInt;
-            case LONG:
-                break;
             default:
                 throw new IllegalStateException("Not an int");
         }
-        return valLong;
     }
 
     @Override
