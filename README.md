@@ -1,16 +1,16 @@
 Aon
 ===
 [![](https://jitpack.io/v/a-hansen/aon.svg)](https://jitpack.io/#a-hansen/aon)
-* JDK 1.6+
-* [Javadoc](https://jitpack.io/com/github/a-hansen/aon/master-SNAPSHOT/javadoc/)
+* JDK 1.8+
+
 
 Overview
 --------
 
 Aon is:
 
-* Another binary JSON-like object notation.
-* A streaming parser generator for the JSON and Aon formats.
+* Another JSON-like object notation.
+* A streaming parser generator for the Aon, JSON and MsgPack formats.
 * An [API](#java-library) like JSONObject for dealing with data in memory.
 
 The Aon format is like JSON except is it more compact, has more data
@@ -26,16 +26,16 @@ Big decimal, big integer, binary, boolean, double, float, list, long,
 null, object, string and many flavors of signed and unsigned integers.
 
 #### Ordered Objects
-Order matters when displaying object members on user interfaces such
+IMHO order matters when displaying object members on user interfaces such
 as property sheets.
 
 #### Stream Friendly
 Some formats encode object and array lengths at the start of the
 structure.  It can make parsing more efficient, but streaming very
-difficult.
+difficult and uses more memory. 
 
 #### Java Friendly
-All data bytes are supported by Java.  For example, it isn't
+All data types are supported by Java.  For example, it isn't
 possible to have a string or byte array whose length is specified as
 an unsigned 32 bit int.
 
@@ -43,7 +43,7 @@ Dependency Management
 ---------------------
 
 Maven
-```xml
+```
 <repositories>
     <repository>
       <id>jcenter</id>
@@ -60,7 +60,7 @@ Maven
 ```
 
 Gradle
-```groovy
+```
 repositories {
     jcenter()
 }
@@ -241,7 +241,7 @@ significant byte in the zeroth element (left most byte).  The array
 must include at least one sign bit.
 
 #### Big Decimal
-An decimal so large it has to be encoded as a string.
+A decimal so large it has to be encoded as a string.
 ```
 <Big-Decimal> ::= <bigdec8> | <bigdec16> | <bigdec32>
 <bigdec8>  ::= "g" uint8-length UTF8
@@ -265,18 +265,22 @@ MIME Type
 ---------
 application/aon
 
+File Extension
+--------------
+*.aon
+
 Java Library
 ------------
 
 This includes a Java library for representing Aon values in memory as
-well as encoding and decoding.  It can also encode and decode JSON.
+well as encoding and decoding.
 
 Usage
 -----
 
 Create data structures with Alist and Aobj.
 
-```java
+```
 import com.comfortanalytics.aon.*;
 
 public static void main(String[] args) {
@@ -312,26 +316,26 @@ public static void main(String[] args) {
 }
 ```
 
-Aon encoding and decoding is straightforward.
+Encoding and decoding is straightforward.
 
-```java
+```
 import com.comfortanalytics.aon.*;
 import com.comfortanalytics.aon.io.*;
 
 public Aobj decode() throws IOException {
-    try (AonReader reader = Aon.reader(new File("data.aon"))) {
+    try (AonReader reader = Aon.aonReader(new File("data.aon"))) {
         return reader.getObj();
     }
 }
 
 public void encode(Aobj obj) throws IOException {
-    Aon.writer(new File("data.aon")).value(obj).close();
+    Aon.aonWriter(new File("data.aon")).value(obj).close();
 }
 ```
 
 The library also supports JSON encoding and decoding.
 
-```java
+```
 import com.comfortanalytics.aon.*;
 import com.comfortanalytics.aon.json.*;
 
@@ -346,10 +350,27 @@ public void encode(Aobj map) throws IOException {
 }
 ```
 
+The library also supports MsgPack encoding and decoding.
+
+```
+import com.comfortanalytics.aon.*;
+import com.comfortanalytics.aon.msgpack.*;
+
+public Aobj decode() throws IOException {
+    try (MsgPackReader reader = Aon.msgPackReader(new File("data.mp"))) {
+        return reader.getObj();
+    }
+}
+
+public void encode(Aobj map) throws IOException {
+    Aon.msgPackWriter(new File("data.json")).value(map).close();
+}
+```
+
 Streaming IO is supported as well.  The following two methods produce
 the same result.
 
-```java
+```
 import com.comfortanalytics.aon.*;
 
 public void streaming(Awriter out) {
@@ -361,60 +382,70 @@ public void streaming(Awriter out) {
 }
 
 public void notStreaming(Awriter out) {
-    out.value(new Aobj().put("a",1).put("b",2).put("c",3));
+    Aobj obj = new Aobj().put("a",1).put("b",2).put("c",3);
+    out.value(obj);
 }
 ```
 
 Benchmark
 ---------
 
-There is a benchmark test class that compares native Aon encoding with
-Aon-JSON as well as many other JSON libs.  The benchmark uses JMH and
-takes 10-15 minutes.  At the end of the benchmark are some Aon vs JSON
-document size comparisions.
+There is a benchmark that compares Aon encodings with other popular JSON libs.  
+The benchmark uses JMH and takes @45 minutes.
 
-Example benchmark results:
+There are 4 categories of tests (large/small docs, encode/decode).  The results are 
+sorted from fastest to slowest in each category.
 
 ```
-Benchmark                                             Mode  Cnt     Score      Error  Units
-AonBenchmark.DecodeLargeDoc.Aon                       avgt    4   975.111 ±  328.698  us/op
-AonBenchmark.DecodeLargeDoc.AonJson                   avgt    4  2312.974 ±  251.520  us/op
-AonBenchmark.DecodeLargeDoc.Flexjson                  avgt    4  8548.223 ± 1313.849  us/op
-AonBenchmark.DecodeLargeDoc.Genson                    avgt    4  1615.309 ±   95.464  us/op
-AonBenchmark.DecodeLargeDoc.Gson                      avgt    4  2651.733 ±  317.195  us/op
-AonBenchmark.DecodeLargeDoc.Jackson                   avgt    4  2133.457 ± 1447.510  us/op
-AonBenchmark.DecodeLargeDoc.JsonSimple                avgt    4  4547.263 ±  139.267  us/op
-AonBenchmark.DecodeLargeDoc.THE_END_OF_GROUP________  avgt    4     0.001 ±    0.001  us/op
-AonBenchmark.DecodeSmallDoc.Aon                       avgt    4     1.716 ±    0.157  us/op
-AonBenchmark.DecodeSmallDoc.AonJson                   avgt    4     6.232 ±    0.592  us/op
-AonBenchmark.DecodeSmallDoc.Flexjson                  avgt    4    21.293 ±   12.643  us/op
-AonBenchmark.DecodeSmallDoc.Genson                    avgt    4     7.449 ±    1.322  us/op
-AonBenchmark.DecodeSmallDoc.Gson                      avgt    4     6.496 ±    1.321  us/op
-AonBenchmark.DecodeSmallDoc.Jackson                   avgt    4     5.309 ±    0.746  us/op
-AonBenchmark.DecodeSmallDoc.JsonSimple                avgt    4    18.020 ±    1.273  us/op
-AonBenchmark.DecodeSmallDoc.THE_END_OF_GROUP________  avgt    4     0.001 ±    0.001  us/op
-AonBenchmark.EncodeLargeDoc.Aon                       avgt    4   755.315 ±   69.104  us/op
-AonBenchmark.EncodeLargeDoc.AonJson                   avgt    4  1581.966 ±  208.914  us/op
-AonBenchmark.EncodeLargeDoc.Flexjson                  avgt    4  5076.796 ± 1846.097  us/op
-AonBenchmark.EncodeLargeDoc.Genson                    avgt    4  1756.630 ±  177.190  us/op
-AonBenchmark.EncodeLargeDoc.Gson                      avgt    4  1835.124 ±  445.181  us/op
-AonBenchmark.EncodeLargeDoc.Jackson                   avgt    4   974.625 ±   28.251  us/op
-AonBenchmark.EncodeLargeDoc.JsonSimple                avgt    4  8505.397 ± 2905.306  us/op
-AonBenchmark.EncodeLargeDoc.THE_END_OF_GROUP________  avgt    4     0.001 ±    0.001  us/op
-AonBenchmark.EncodeSmallDoc.Aon                       avgt    4     1.175 ±    0.161  us/op
-AonBenchmark.EncodeSmallDoc.AonJson                   avgt    4     2.673 ±    0.283  us/op
-AonBenchmark.EncodeSmallDoc.Flexjson                  avgt    4    14.328 ±    6.559  us/op
-AonBenchmark.EncodeSmallDoc.Genson                    avgt    4     3.361 ±    0.133  us/op
-AonBenchmark.EncodeSmallDoc.Gson                      avgt    4    12.197 ±    9.608  us/op
-AonBenchmark.EncodeSmallDoc.Jackson                   avgt    4     1.547 ±    0.118  us/op
-AonBenchmark.EncodeSmallDoc.JsonSimple                avgt    4    17.370 ±    8.667  us/op
- AON small doc size: 183
-JSON small doc size: 261
- AON large doc size: 111596
-JSON large doc size: 159198
+Benchmark                               Mode  Cnt      Score       Error  Units
+
+AonBenchmark.DecodeLargeDoc.Aon         avgt    9   3656.512 ?  391.488  us/op
+AonBenchmark.DecodeLargeDoc.AonMsgPack  avgt    9   4359.576 ? 1520.838  us/op
+AonBenchmark.DecodeLargeDoc.Genson      avgt    9   6708.738 ?  732.679  us/op
+AonBenchmark.DecodeLargeDoc.AonJson     avgt    9   8722.492 ?  196.013  us/op
+AonBenchmark.DecodeLargeDoc.Jackson     avgt    9  10359.837 ?  946.803  us/op
+AonBenchmark.DecodeLargeDoc.Gson        avgt    9  10949.713 ? 1310.581  us/op
+AonBenchmark.DecodeLargeDoc.JsonSimple  avgt    9  17607.081 ? 1985.333  us/op
+
+AonBenchmark.DecodeSmallDoc.Aon         avgt    9      1.577 ?    0.140  us/op
+AonBenchmark.DecodeSmallDoc.AonMsgPack  avgt    9      2.711 ?    0.030  us/op
+AonBenchmark.DecodeSmallDoc.Gson        avgt    9      8.607 ?    0.335  us/op
+AonBenchmark.DecodeSmallDoc.AonJson     avgt    9      9.551 ?    0.663  us/op
+AonBenchmark.DecodeSmallDoc.Jackson     avgt    9     11.954 ?    0.310  us/op
+AonBenchmark.DecodeSmallDoc.JsonSimple  avgt    9     24.672 ?    1.161  us/op
+AonBenchmark.DecodeSmallDoc.Genson      avgt    9     67.096 ?    5.936  us/op
+
+AonBenchmark.EncodeLargeDoc.Aon         avgt    9   2764.954 ?  132.043  us/op
+AonBenchmark.EncodeLargeDoc.AonMsgPack  avgt    9   3397.231 ?  265.818  us/op
+AonBenchmark.EncodeLargeDoc.Jackson     avgt    9   5196.017 ?  323.112  us/op
+AonBenchmark.EncodeLargeDoc.AonJson     avgt    9   8141.134 ?  328.242  us/op
+AonBenchmark.EncodeLargeDoc.Genson      avgt    9  11543.533 ?  619.295  us/op
+AonBenchmark.EncodeLargeDoc.Gson        avgt    9  63534.978 ? 6738.232  us/op
+AonBenchmark.EncodeLargeDoc.JsonSimple  avgt    9  81293.455 ? 7912.592  us/op
+
+AonBenchmark.EncodeSmallDoc.Aon         avgt    9      1.303 ?    0.175  us/op
+AonBenchmark.EncodeSmallDoc.AonMsgPack  avgt    9      5.607 ?    0.340  us/op
+AonBenchmark.EncodeSmallDoc.Jackson     avgt    9      5.748 ?    0.460  us/op
+AonBenchmark.EncodeSmallDoc.AonJson     avgt    9      6.745 ?    0.291  us/op
+AonBenchmark.EncodeSmallDoc.Gson        avgt    9     31.643 ?    2.519  us/op
+AonBenchmark.EncodeSmallDoc.JsonSimple  avgt    9     42.043 ?    3.586  us/op
+AonBenchmark.EncodeSmallDoc.Genson      avgt    9     62.020 ?    7.317  us/op
+
+Benchmark document sizes in bytes:
+    AON small doc size: 145
+   JSON small doc size: 151
+MsgPack small doc size: 250
+    AON large doc size: 275200
+MsgPack large doc size: 278809
+   JSON large doc size: 437604
 ```
 
-The benchmark in the tests and must be run manually.
+To run the benchmark, use the gradle task jmh:
+
+```
+gradlew jmh
+```
+
 
 Type Cheat Sheet
 ----------------
@@ -458,10 +489,19 @@ Type Cheat Sheet
 
 History
 -------
+_6.0.0_
+  - Moved to Java 1.8.
+  - Model changes revolving around the addition of Aprimitive and Aval.
+  - Added msgpack support.
+  - Reworked jmh for the benchmark.
+  - Switch to JUnit.
+  - Performance improvements.
+  - Lots of refactoring.
+  
 _5.0.1_
   - Fix reading numbers.
-  - TestNG
-  - jcenter
+  - TestNG.
+  - jcenter.
   
 _5.0.0_
   - New native Aon encoding format, major rewrite.

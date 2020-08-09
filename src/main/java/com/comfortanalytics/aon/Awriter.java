@@ -6,12 +6,12 @@ import java.math.BigDecimal;
 import java.math.BigInteger;
 
 /**
- * An encoder that can be used to encode large graphs with or without Avalue instances.
+ * An encoder that can be used to encode large graphs with or without Aval instances.
  * <p>
  * To simply encode an Aobj or Alist, use the value(Aobj) method.  For example:
  * <ul><li>new JsonWriter(out).value(myObj).close(); </li> </ul>
  * <p>
- * Otherwise, you can stream data struct without using any Avalue instances:
+ * Otherwise, you can stream data struct without using any Aval instances:
  * <ul>
  * <li>out.newMap().key("a").value(1).key("b").value(2).key("c").value(3).endMap();</li>
  * </ul>
@@ -21,6 +21,7 @@ import java.math.BigInteger;
  *
  * @author Aaron Hansen
  */
+@SuppressWarnings("unused")
 public interface Awriter extends Closeable, Flushable {
 
     /**
@@ -28,38 +29,40 @@ public interface Awriter extends Closeable, Flushable {
      *
      * @throws IllegalStateException when improperly called.
      */
-    public Awriter beginList();
+    Awriter beginList();
 
     /**
      * Start a new object and return this.
      *
      * @throws IllegalStateException when improperly called.
      */
-    public Awriter beginObj();
+    Awriter beginObj();
 
     /**
      * Close the stream. IOExceptions will be wrapped in runtime exceptions.
      */
-    public void close();
+    @Override
+    void close();
 
     /**
      * End the current list.
      *
      * @throws IllegalStateException when improperly called.
      */
-    public Awriter endList();
+    Awriter endList();
 
     /**
      * End the current object.
      *
      * @throws IllegalStateException when improperly called.
      */
-    public Awriter endObj();
+    Awriter endObj();
 
     /**
      * Flush the stream. IOExceptions will be wrapped in runtime exceptions.
      */
-    public void flush();
+    @Override
+    void flush();
 
     /**
      * Write a key in the current object.  Cannot be called in a list, must be followed
@@ -67,12 +70,12 @@ public interface Awriter extends Closeable, Flushable {
      *
      * @throws IllegalStateException when improperly called.
      */
-    public Awriter key(CharSequence key);
+    Awriter key(CharSequence key);
 
     /**
      * Clears the state of the writer.
      */
-    public Awriter reset();
+    Awriter reset();
 
     /**
      * Write a value to the object or list.  If in a object, this must have been preceded
@@ -80,7 +83,7 @@ public interface Awriter extends Closeable, Flushable {
      *
      * @throws IllegalStateException when improperly called.
      */
-    public Awriter value(Avalue arg);
+    Awriter value(Adata arg);
 
     /**
      * Write a value to the object or list.  If in a object, this must have been preceded
@@ -88,7 +91,7 @@ public interface Awriter extends Closeable, Flushable {
      *
      * @throws IllegalStateException when improperly called.
      */
-    public Awriter value(BigDecimal arg);
+    Awriter value(BigDecimal arg);
 
     /**
      * Write a value to the object or list.  If in a object, this must have been preceded
@@ -96,7 +99,7 @@ public interface Awriter extends Closeable, Flushable {
      *
      * @throws IllegalStateException when improperly called.
      */
-    public Awriter value(BigInteger arg);
+    Awriter value(BigInteger arg);
 
     /**
      * Write a value to the object or list.  If in a object, this must have been preceded
@@ -104,7 +107,7 @@ public interface Awriter extends Closeable, Flushable {
      *
      * @throws IllegalStateException when improperly called.
      */
-    public Awriter value(boolean arg);
+    Awriter value(boolean arg);
 
     /**
      * Write a value to the object or list.  If in a object, this must have been preceded
@@ -112,7 +115,7 @@ public interface Awriter extends Closeable, Flushable {
      *
      * @throws IllegalStateException when improperly called.
      */
-    public Awriter value(byte[] arg);
+    Awriter value(byte[] arg);
 
     /**
      * Write a value to the object or list.  If in a object, this must have been preceded
@@ -120,7 +123,7 @@ public interface Awriter extends Closeable, Flushable {
      *
      * @throws IllegalStateException when improperly called.
      */
-    public Awriter value(double arg);
+    Awriter value(double arg);
 
     /**
      * Write a value to the object or list.  If in a object, this must have been preceded
@@ -128,7 +131,7 @@ public interface Awriter extends Closeable, Flushable {
      *
      * @throws IllegalStateException when improperly called.
      */
-    public Awriter value(float arg);
+    Awriter value(float arg);
 
     /**
      * Write a value to the object or list.  If in a object, this must have been preceded
@@ -136,7 +139,7 @@ public interface Awriter extends Closeable, Flushable {
      *
      * @throws IllegalStateException when improperly called.
      */
-    public Awriter value(int arg);
+    Awriter value(int arg);
 
     /**
      * Write a value to the object or list.  If in a object, this must have been preceded
@@ -144,7 +147,7 @@ public interface Awriter extends Closeable, Flushable {
      *
      * @throws IllegalStateException when improperly called.
      */
-    public Awriter value(long arg);
+    Awriter value(long arg);
 
     /**
      * Write a value to the object or list.  If in a object, this must have been preceded
@@ -152,7 +155,7 @@ public interface Awriter extends Closeable, Flushable {
      *
      * @throws IllegalStateException when improperly called.
      */
-    public Awriter value(String arg);
+    Awriter value(String arg);
 
 
 }

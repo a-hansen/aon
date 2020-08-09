@@ -1,8 +1,9 @@
 package com.comfortanalytics.aon.json;
 
 import com.comfortanalytics.aon.AbstractReader;
-import com.comfortanalytics.aon.Areader;
-import java.io.BufferedReader;
+import com.comfortanalytics.aon.Astr;
+import java.io.BufferedInputStream;
+import java.io.EOFException;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -11,50 +12,50 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
 import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
+import java.util.Arrays;
 
 /**
- * Json implementation of Areader.  The same instance can be re-used with the
- * setInput methods.  This class is not thread safe.
+ * Json implementation of Areader.
  *
  * @author Aaron Hansen
- * @see Areader
  */
+@SuppressWarnings("unused")
 public class JsonReader extends AbstractReader {
 
     ///////////////////////////////////////////////////////////////////////////
     // Class Fields
     ///////////////////////////////////////////////////////////////////////////
 
-    private static final int[] alse = new int[]{'a', 'l', 's', 'e'};
-    private static final int[] rue = new int[]{'r', 'u', 'e'};
-    private static final int[] ull = new int[]{'u', 'l', 'l'};
-
-    private static final Charset UTF8 = Charset.forName("UTF-8");
+    private static final int[] ALSE = new int[]{'a', 'l', 's', 'e'};
+    private static final int[] RUE = new int[]{'r', 'u', 'e'};
+    private static final int[] ULL = new int[]{'u', 'l', 'l'};
 
     ///////////////////////////////////////////////////////////////////////////
     // Instance Fields
     ///////////////////////////////////////////////////////////////////////////
 
-    private StringBuilder buf = new StringBuilder(512);
-    private char[] chars = new char[512];
-    private int charsLen = 0;
-    private int charsPos = 0;
-    private Reader in;
+    private char[] bufChars = new char[256];
+    private int bufLen;
+    private final Reader in;
+    private final char[] inChars = new char[2048];
+    private int inLen;
+    private int inOff;
 
     ///////////////////////////////////////////////////////////////////////////
     // Constructors
     ///////////////////////////////////////////////////////////////////////////
 
     public JsonReader(File file) {
-        this(file, UTF8);
+        this(file, StandardCharsets.UTF_8);
     }
 
     public JsonReader(File file, Charset charset) {
-        this(new BufferedReader(new InputStreamReader(fis(file), charset)));
+        this(new InputStreamReader(fis(file), charset));
     }
 
     public JsonReader(InputStream in) {
-        this(in, UTF8);
+        this(in, StandardCharsets.UTF_8);
     }
 
     public JsonReader(InputStream in, Charset charset) {
@@ -99,17 +100,17 @@ public class JsonReader extends AbstractReader {
                     case '"':
                         return setNext(readString());
                     case 't':
-                        validateNextChars(rue);
+                        validateNextChars(RUE);
                         return setNext(true);
                     case 'f':
-                        validateNextChars(alse);
+                        validateNextChars(ALSE);
                         return setNext(false);
                     case 'n':
-                        validateNextChars(ull);
+                        validateNextChars(ULL);
                         return setNextNull();
                     case '-':
-                    case '+':  //can number start with '+'?
-                    case '.':  //can number start with '.'?
+                    case '+':
+                    case '.':
                     case '0':
                     case '1':
                     case '2':
@@ -129,113 +130,166 @@ public class JsonReader extends AbstractReader {
     }
 
     ///////////////////////////////////////////////////////////////////////////
-    // Package / Private Methods
+    // Private Methods
     ///////////////////////////////////////////////////////////////////////////
+
+    private void bufAppend(char b) {
+        if (bufLen >= bufChars.length) {
+            bufGrow();
+        }
+        bufChars[bufLen] = b;
+        bufLen++;
+    }
+
+    private void bufGrow() {
+        if (bufChars.length < 131072) {
+            bufChars = Arrays.copyOf(bufChars, bufChars.length * 2);
+        } else {
+            bufChars = Arrays.copyOf(bufChars, bufChars.length + 131072);
+        }
+    }
+
+    private static long decodeLong(char[] buf, int idx, int end) {
+        boolean neg = false;
+        char ch = buf[idx];
+        if (ch == '+') {
+            idx++;
+        } else if (ch == '-') {
+            neg = true;
+            idx++;
+        }
+        long ret = 0;
+        while (idx < end) {
+            ret = (ret * 10) + (buf[idx++] - '0');
+        }
+        return neg ? -ret : ret;
+    }
+
+    private Token decodeNumber(char[] buf, int len, int decIdx) {
+        int idx;
+        if (decIdx >= 0) {
+            idx = decIdx;
+        } else {
+            idx = len;
+        }
+        long theLong = decodeLong(buf, 0, idx);
+        //parse fraction
+        if (decIdx >= 0) {
+            double num = decodeLong(buf, ++idx, len);
+            return setNext(theLong + (num / Math.pow(10d, len - idx)));
+        }
+        return setNext(theLong);
+    }
 
     private static InputStream fis(File file) {
         try {
-            return new FileInputStream(file);
+            return new BufferedInputStream(new FileInputStream(file));
         } catch (FileNotFoundException x) {
             throw new RuntimeException(x);
         }
     }
 
     private int readChar() throws IOException {
-        if (charsPos >= charsLen) {
-            if (charsLen == -1) {
+        if (inLen == 0) {
+            inOff = 0;
+            inLen = in.read(inChars, 0, inChars.length);
+            if (inLen <= 0) {
                 return -1;
             }
-            charsLen = in.read(chars);
-            if (charsLen < 0) {
-                return -1;
-            }
-            charsPos = 0;
         }
-        return chars[charsPos++];
+        inLen--;
+        return inChars[inOff++];
     }
 
     private Token readNumber(int ch) throws IOException {
-        boolean hasDecimal = false;
-        boolean more = true;
-        while (more) {
-            switch (ch) {
-                case '.':
-                case 'e':
-                case 'E':
-                    hasDecimal = true;
-                case '-':
-                case '+':
-                case '0':
-                case '1':
-                case '2':
-                case '3':
-                case '4':
-                case '5':
-                case '6':
-                case '7':
-                case '8':
-                case '9':
-                    buf.append((char) ch);
-                    ch = readChar();
+        bufLen = 0;
+        int decIndex = -1;
+        boolean hasExp = false;
+        while (true) {
+            if (ch < '0') {
+                if (ch == '.') {
+                    decIndex = bufLen;
+                } else if (ch == -1) {
+                    return setEndInput();
+                } else if (ch != '-' && ch != '+') {
                     break;
-                default:
-                    charsPos--;
-                    more = false;
+                }
+            } else if (ch > '9') {
+                if (ch == 'e' || ch == 'E') {
+                    hasExp = true;
+                } else {
                     break;
+                }
             }
+            bufAppend((char) ch);
+            ch = readChar();
         }
-        String s = buf.toString();
-        buf.setLength(0);
-        if (hasDecimal) {
-            return setNext(Double.parseDouble(s));
+        if (hasExp) {
+            String s = new String(bufChars, 0, bufLen);
+            if (decIndex >= 0) {
+                return setNext(Double.parseDouble(s));
+            }
+            return setNext(Long.parseLong(s));
         }
-        return setNext(Long.parseLong(s));
+        return decodeNumber(bufChars, bufLen, decIndex);
     }
 
     private String readString() throws IOException {
+        bufLen = 0;
         int ch = readChar();
         while (ch != '"') {
-            if (ch == '\\') {
+            if (ch < 0) {
+                throw new EOFException();
+            } else if (ch == '\\') {
                 ch = readChar();
                 switch (ch) {
                     case 'u': //case 'U' :
-                        ch = readUnicode();
+                        bufAppend(readUnicode());
                         break;
                     case 'b':
-                        ch = '\b';
+                        bufAppend('\b');
                         break;
                     case 'f':
-                        ch = '\f';
+                        bufAppend('\f');
                         break;
                     case 'n':
-                        ch = '\n';
+                        bufAppend('\n');
                         break;
                     case 'r':
-                        ch = '\r';
+                        bufAppend('\r');
                         break;
                     case 't':
-                        ch = '\t';
+                        bufAppend('\t');
                         break;
                     case '"':
+                        bufAppend('"');
+                        break;
                     case '\\':
+                        bufAppend('\\');
                     case '/':
+                        bufAppend('/');
                         break;
                     default:
-                        throw new IOException("Unexpected escape: \\" + ch);
+                        if (ch < 0) {
+                            throw new EOFException();
+                        }
+                        throw new IOException("Unexpected char: " + ch);
                 }
+            } else {
+                bufAppend((char) ch);
             }
-            buf.append((char) ch);
             ch = readChar();
         }
-        String s = buf.toString();
-        buf.setLength(0);
-        return s;
+        if (bufLen == 0) {
+            return Astr.EMPTY.get();
+        }
+        return new String(bufChars, 0, bufLen);
     }
 
     private char readUnicode() throws IOException {
         int ret = 0;
         int ch;
-        for (int i = 0; i < 4; ++i) {
+        for (int i = 0; i < 4; i++) {
             switch (ch = readChar()) {
                 case '0':
                 case '1':
@@ -266,6 +320,9 @@ public class JsonReader extends AbstractReader {
                     ret = (ret << 4) + (ch - 'A') + 10;
                     break;
                 default:
+                    if (ch < 0) {
+                        throw new EOFException();
+                    }
                     throw new IllegalStateException(
                             "Illegal character in unicode escape: " + (char) ch);
             }
@@ -274,10 +331,12 @@ public class JsonReader extends AbstractReader {
     }
 
     private void validateNextChars(int[] chars) throws IOException {
-        int ch;
-        for (int i = 0, len = chars.length; i < len; i++) {
-            ch = readChar();
+        for (int i = 0; i < chars.length; i++) {
+            int ch = readChar();
             if (ch != chars[i]) {
+                if (ch == -1) {
+                    throw new EOFException();
+                }
                 throw new IllegalStateException("Expecting " + chars[i] + ", but got " + ch);
             }
         }

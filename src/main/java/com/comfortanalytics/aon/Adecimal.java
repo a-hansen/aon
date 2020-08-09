@@ -2,6 +2,7 @@ package com.comfortanalytics.aon;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
+import javax.annotation.Nonnull;
 
 /**
  * Decimal values that exceed the min and max value of double (IEEE 754 floating-point
@@ -9,19 +10,26 @@ import java.math.BigInteger;
  *
  * @author Aaron Hansen
  */
-public class Adecimal extends Avalue {
+@SuppressWarnings({"unused"})
+public class Adecimal implements Adata {
+
+    ///////////////////////////////////////////////////////////////////////////
+    // Class Fields
+    ///////////////////////////////////////////////////////////////////////////
+
+    public static final Adecimal ZERO = new Adecimal(BigDecimal.ZERO);
 
     ///////////////////////////////////////////////////////////////////////////
     // Instance Fields
     ///////////////////////////////////////////////////////////////////////////
 
-    private BigDecimal value;
+    private final BigDecimal value;
 
     ///////////////////////////////////////////////////////////////////////////
     // Constructors
     ///////////////////////////////////////////////////////////////////////////
 
-    private Adecimal(BigDecimal val) {
+    private Adecimal(@Nonnull BigDecimal val) {
         value = val;
     }
 
@@ -29,6 +37,7 @@ public class Adecimal extends Avalue {
     // Public Methods
     ///////////////////////////////////////////////////////////////////////////
 
+    @Nonnull
     @Override
     public Atype aonType() {
         return Atype.DECIMAL;
@@ -36,14 +45,16 @@ public class Adecimal extends Avalue {
 
     @Override
     public boolean equals(Object o) {
-        if (!(o instanceof Avalue)) {
+        if (!(o instanceof Adata)) {
             return false;
         }
-        Avalue obj = (Avalue) o;
-        if (obj.isNumber()) {
-            return value.equals(obj.toBigDecimal());
-        }
-        return false;
+        return value.equals(((Adata) o).toBigDecimal());
+    }
+
+    @Nonnull
+    @Override
+    public BigDecimal get() {
+        return value;
     }
 
     @Override
@@ -101,12 +112,54 @@ public class Adecimal extends Avalue {
         return value;
     }
 
+    /**
+     * Returns Astr
+     */
+    @Nonnull
+    @Override
+    public Aprimitive toPrimitive() {
+        return Aon.ensureNotNull(Astr.valueOf(toString()));
+    }
+
+    @Nonnull
     @Override
     public String toString() {
         return String.valueOf(value);
     }
 
+    /**
+     * Will convert numbers and strings, otherwise returns null.
+     */
+    @Override
+    public Adecimal valueOf(Aprimitive value) {
+        if (Aon.isNull(value)) {
+            return null;
+        }
+        try {
+            switch (value.aonType()) {
+                case DOUBLE:
+                    return valueOf(BigDecimal.valueOf(value.toDouble()));
+                case FLOAT:
+                    return valueOf(BigDecimal.valueOf(value.toFloat()));
+                case INT:
+                    return valueOf(BigDecimal.valueOf(value.toInt()));
+                case LONG:
+                    return valueOf(BigDecimal.valueOf(value.toLong()));
+                case STRING:
+                    return valueOf(new BigDecimal(value.toString()));
+            }
+        } catch (Exception ignore) {
+        }
+        return null;
+    }
+
     public static Adecimal valueOf(BigDecimal arg) {
+        if (arg == null) {
+            return null;
+        }
+        if (arg.equals(BigDecimal.ZERO)) {
+            return ZERO;
+        }
         return new Adecimal(arg);
     }
 

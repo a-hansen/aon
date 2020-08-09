@@ -2,25 +2,33 @@ package com.comfortanalytics.aon;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
+import javax.annotation.Nonnull;
 
 /**
  * For integers that exceed the min and max values of 64 signed bits.
  *
  * @author Aaron Hansen
  */
-public class Abigint extends Avalue {
+@SuppressWarnings({"unused"})
+public class Abigint implements Adata {
+
+    ///////////////////////////////////////////////////////////////////////////
+    // Class Fields
+    ///////////////////////////////////////////////////////////////////////////
+
+    public static final Abigint ZERO = new Abigint(BigInteger.ZERO);
 
     ///////////////////////////////////////////////////////////////////////////
     // Instance Fields
     ///////////////////////////////////////////////////////////////////////////
 
-    private BigInteger value;
+    private final BigInteger value;
 
     ///////////////////////////////////////////////////////////////////////////
     // Constructors
     ///////////////////////////////////////////////////////////////////////////
 
-    private Abigint(BigInteger val) {
+    private Abigint(@Nonnull BigInteger val) {
         value = val;
     }
 
@@ -28,6 +36,7 @@ public class Abigint extends Avalue {
     // Public Methods
     ///////////////////////////////////////////////////////////////////////////
 
+    @Nonnull
     @Override
     public Atype aonType() {
         return Atype.BIGINT;
@@ -35,14 +44,16 @@ public class Abigint extends Avalue {
 
     @Override
     public boolean equals(Object o) {
-        if (!(o instanceof Avalue)) {
+        if (!(o instanceof Adata)) {
             return false;
         }
-        Avalue obj = (Avalue) o;
-        if (obj.isNumber()) {
-            return value.equals(obj.toBigInt());
-        }
-        return false;
+        return value.equals(((Adata) o).toBigInt());
+    }
+
+    @Nonnull
+    @Override
+    public BigInteger get() {
+        return value;
     }
 
     @Override
@@ -100,12 +111,67 @@ public class Abigint extends Avalue {
         return value;
     }
 
+    /**
+     * Attempts to return Along, but if out of bounds returns Astr.
+     */
+    @Nonnull
+    @Override
+    public Aprimitive toPrimitive() {
+        if (value.compareTo(BigInteger.valueOf(Long.MAX_VALUE)) > 0) {
+            return Aon.ensureNotNull(Astr.valueOf(toString()));
+        }
+        if (value.compareTo(BigInteger.valueOf(Long.MIN_VALUE)) < 0) {
+            return Aon.ensureNotNull(Astr.valueOf(toString()));
+        }
+        return Along.valueOf(value.longValue());
+    }
+
+    @Nonnull
     @Override
     public String toString() {
         return String.valueOf(value);
     }
 
+    /**
+     * Will attempt to convert numbers and strings, otherwise returns null.
+     */
+    @Override
+    public Abigint valueOf(Aprimitive value) {
+        if (Aon.isNull(value)) {
+            return null;
+        }
+        try {
+            switch (value.aonType()) {
+                case DOUBLE:
+                    double d = value.toDouble();
+                    if (d % 1 == 0) {
+                        return valueOf(BigInteger.valueOf(value.toLong()));
+                    }
+                    return null;
+                case FLOAT:
+                    float f = value.toFloat();
+                    if (f % 1 == 0) {
+                        return valueOf(BigInteger.valueOf(value.toLong()));
+                    }
+                    return null;
+                case INT:
+                case LONG:
+                    return valueOf(BigInteger.valueOf(value.toLong()));
+                case STRING:
+                    return valueOf(new BigInteger(value.toString()));
+            }
+        } catch (Exception ignore) {
+        }
+        return null;
+    }
+
     public static Abigint valueOf(BigInteger arg) {
+        if (arg == null) {
+            return null;
+        }
+        if (arg.equals(BigInteger.ZERO)) {
+            return ZERO;
+        }
         return new Abigint(arg);
     }
 

@@ -3,13 +3,15 @@ package com.comfortanalytics.aon;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
+import javax.annotation.Nonnull;
 
 /**
  * Boolean value.
  *
  * @author Aaron Hansen
  */
-public class Abool extends Avalue {
+@SuppressWarnings("unused")
+public class Abool extends Aprimitive {
 
     ///////////////////////////////////////////////////////////////////////////
     // Class Fields
@@ -22,7 +24,7 @@ public class Abool extends Avalue {
     // Instance Fields
     ///////////////////////////////////////////////////////////////////////////
 
-    private boolean value;
+    private final boolean value;
 
     ///////////////////////////////////////////////////////////////////////////
     // Constructors
@@ -36,6 +38,7 @@ public class Abool extends Avalue {
     // Public Methods
     ///////////////////////////////////////////////////////////////////////////
 
+    @Nonnull
     @Override
     public Atype aonType() {
         return Atype.BOOLEAN;
@@ -44,6 +47,12 @@ public class Abool extends Avalue {
     @Override
     public boolean equals(Object arg) {
         return arg == this;
+    }
+
+    @Nonnull
+    @Override
+    public Boolean get() {
+        return value;
     }
 
     @Override
@@ -124,14 +133,12 @@ public class Abool extends Avalue {
         return toInt();
     }
 
+    @Nonnull
     @Override
     public String toString() {
         return String.valueOf(value);
     }
 
-    /**
-     * Will return either TRUE or FALSE.
-     */
     public static Abool valueOf(boolean arg) {
         if (arg) {
             return TRUE;

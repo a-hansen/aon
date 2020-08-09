@@ -2,8 +2,8 @@ package com.comfortanalytics.aon;
 
 import java.math.BigInteger;
 import java.util.Random;
-import org.testng.Assert;
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 /**
  * @author Aaron Hansen
@@ -25,11 +25,11 @@ public class AbigintTest {
         validateEqual(val2, Abigint.valueOf(val2.toBigInt()));
         validateUnequal(val, val2);
         Alist list = new Alist().add(val);
-        byte[] bytes = Aon.encode(list);
-        list = Aon.decode(bytes).toList();
-        validate((Abigint) list.get(0));
-        validateEqual((Abigint) list.get(0), val);
-        validateUnequal((Abigint) list.get(0), val2);
+        byte[] bytes = Aon.aonBytes(list);
+        list = Aon.readAon(bytes).toList();
+        validate(Abigint.ZERO.valueOf(list.getValue(0).toPrimitive()));
+        validateEqual(Abigint.ZERO.valueOf(list.getValue(0).toPrimitive()), val);
+        validateUnequal(Abigint.ZERO.valueOf(list.getValue(0).toPrimitive()), val2);
     }
 
     ///////////////////////////////////////////////////////////////////////////
@@ -37,24 +37,24 @@ public class AbigintTest {
     ///////////////////////////////////////////////////////////////////////////
 
     private void validate(Abigint val) {
-        Assert.assertEquals(val.aonType(), Atype.BIGINT);
-        Assert.assertEquals(val, val);
-        Assert.assertEquals(val, Abigint.valueOf(val.toBigInt()));
-        Assert.assertEquals(val.hashCode(), Abigint.valueOf(val.toBigInt()).hashCode());
-        Assert.assertTrue(val.isNumber());
-        Assert.assertTrue(val.isBigInteger());
+        Assertions.assertEquals(val.aonType(), Atype.BIGINT);
+        Assertions.assertEquals(val, val);
+        Assertions.assertEquals(val, Abigint.valueOf(val.toBigInt()));
+        Assertions.assertEquals(val.hashCode(), Abigint.valueOf(val.toBigInt()).hashCode());
+        Assertions.assertTrue(val.isNumber());
+        Assertions.assertTrue(val.isBigInteger());
     }
 
     private void validateEqual(Abigint first, Abigint second) {
-        Assert.assertEquals(first.aonType(), second.aonType());
-        Assert.assertEquals(first, second);
-        Assert.assertEquals(first.hashCode(), second.hashCode());
+        Assertions.assertEquals(first.aonType(), second.aonType());
+        Assertions.assertEquals(first, second);
+        Assertions.assertEquals(first.hashCode(), second.hashCode());
     }
 
     private void validateUnequal(Abigint first, Abigint second) {
-        Assert.assertEquals(first.aonType(), second.aonType());
-        Assert.assertFalse(first.equals(second));
-        Assert.assertFalse(first.hashCode() == second.hashCode());
+        Assertions.assertEquals(first.aonType(), second.aonType());
+        Assertions.assertNotEquals(second, first);
+        Assertions.assertNotEquals(second.hashCode(), first.hashCode());
     }
 
 }

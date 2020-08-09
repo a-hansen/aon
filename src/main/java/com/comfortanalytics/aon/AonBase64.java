@@ -1,16 +1,20 @@
 package com.comfortanalytics.aon;
 
 import java.io.ByteArrayOutputStream;
+import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 
 /**
- * Base64 encoder and decoder.
+ * Base64 encoder and decoder that supports url encoding and decoding.
+ *
+ * @author Aaron Hansen
  */
+@SuppressWarnings("unused")
 class AonBase64 {
 
-    ///////////////////////////////////////////////////////////////////////////
-    // Class Fields
-    ///////////////////////////////////////////////////////////////////////////
+    ///////////////////////////////////////////////////////////
+    // Constants
+    ///////////////////////////////////////////////////////////
 
     private static final int[] fromBase64 = new int[256];
 
@@ -25,24 +29,20 @@ class AonBase64 {
             '9', '+', '/'
     };
 
-    ///////////////////////////////////////////////////////////////////////////
-    // Public Methods
-    ///////////////////////////////////////////////////////////////////////////
+    ///////////////////////////////////////////////////////////
+    // Methods
+    ///////////////////////////////////////////////////////////
 
     /**
-     * Decodes a base 64 encoded string.  Will decodeKeys both url safe and unsafe.
+     * Decodes a base 64 encoded string.  Will decode both url safe and unsafe.
      *
      * @param str Most not be null.
      * @return Never null.
      * @throws IllegalArgumentException If anything is wrong with the parameter.
      */
+    @SuppressWarnings("UnnecessaryLocalVariable")
     public static byte[] decode(String str) {
-        byte[] src = null;
-        try {
-            src = str.getBytes(Aon.UTF8);
-        } catch (Exception willNotHappen) {
-            throw new RuntimeException(willNotHappen);
-        }
+        byte[] src = str.getBytes(StandardCharsets.UTF_8);
         int len = src.length;
         ByteArrayOutputStream out = new ByteArrayOutputStream((len * 6) / 8);
         int[] base64 = fromBase64;
@@ -116,10 +116,6 @@ class AonBase64 {
         return enc.replace('+', '-').replace('/', '_');
     }
 
-    ///////////////////////////////////////////////////////////////////////////
-    // Package/Private Methods
-    ///////////////////////////////////////////////////////////////////////////
-
     /**
      * Encodes a buffer into a base 64 string.
      *
@@ -131,6 +127,7 @@ class AonBase64 {
      * @param pad     Whether or not pad lines to the given line length.
      * @return The encoding.
      */
+    @SuppressWarnings("SameParameterValue")
     private static String encode(byte[] bytes,
                                  int offset,
                                  int length,
@@ -171,7 +168,7 @@ class AonBase64 {
                     buf.append('=').append('=');
                 }
             } else {
-                int b1 = bytes[pos++] & 0xff;
+                int b1 = bytes[pos] & 0xff;
                 buf.append(base64[(b0 << 4) & 0x3f | (b1 >> 4)]);
                 buf.append(base64[(b1 << 2) & 0x3f]);
                 if (pad) {

@@ -1,8 +1,8 @@
 package com.comfortanalytics.aon;
 
 import java.util.Random;
-import org.testng.Assert;
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 /**
  * @author Aaron Hansen
@@ -13,23 +13,24 @@ public class AintTest {
     // Public Methods
     ///////////////////////////////////////////////////////////////////////////
 
+    @SuppressWarnings("ConstantConditions")
     @Test
     public void test() {
         Random random = new Random(System.currentTimeMillis());
         Aint val = Aint.valueOf(10);
         validate(val);
-        Assert.assertTrue(val == Aint.valueOf(10));
+        Assertions.assertSame(val, Aint.valueOf(10));
         validateEqual(val, Aint.valueOf(val.toInt()));
         Aint val2 = Aint.valueOf(random.nextInt());
         validate(val2);
         validateEqual(val2, Aint.valueOf(val2.toInt()));
         validateUnequal(val, val2);
         Alist list = new Alist().add(val);
-        byte[] bytes = Aon.encode(list);
-        list = Aon.decode(bytes).toList();
-        validate((Aint) list.get(0));
-        validateEqual((Aint) list.get(0), val);
-        validateUnequal((Aint) list.get(0), val2);
+        byte[] bytes = Aon.aonBytes(list);
+        list = Aon.readAon(bytes).toList();
+        validate(Aint.ZERO.valueOf(list.getValue(0).toPrimitive()));
+        validateEqual(Aint.ZERO.valueOf(list.getValue(0).toPrimitive()), val);
+        validateUnequal(Aint.ZERO.valueOf(list.getValue(0).toPrimitive()), val2);
     }
 
     ///////////////////////////////////////////////////////////////////////////
@@ -37,23 +38,23 @@ public class AintTest {
     ///////////////////////////////////////////////////////////////////////////
 
     private void validate(Aint val) {
-        Assert.assertEquals(val.aonType(), Atype.INT);
-        Assert.assertEquals(val, val);
-        Assert.assertEquals(val, Aint.valueOf(val.toInt()));
-        Assert.assertEquals(val.hashCode(), Aint.valueOf(val.toInt()).hashCode());
-        Assert.assertTrue(val.isNumber());
+        Assertions.assertEquals(val.aonType(), Atype.INT);
+        Assertions.assertEquals(val, val);
+        Assertions.assertEquals(val, Aint.valueOf(val.toInt()));
+        Assertions.assertEquals(val.hashCode(), Aint.valueOf(val.toInt()).hashCode());
+        Assertions.assertTrue(val.isNumber());
     }
 
     private void validateEqual(Aint first, Aint second) {
-        Assert.assertEquals(first.aonType(), second.aonType());
-        Assert.assertEquals(first, second);
-        Assert.assertEquals(first.hashCode(), second.hashCode());
+        Assertions.assertEquals(first.aonType(), second.aonType());
+        Assertions.assertEquals(first, second);
+        Assertions.assertEquals(first.hashCode(), second.hashCode());
     }
 
     private void validateUnequal(Aint first, Aint second) {
-        Assert.assertEquals(first.aonType(), second.aonType());
-        Assert.assertFalse(first.equals(second));
-        Assert.assertFalse(first.hashCode() == second.hashCode());
+        Assertions.assertEquals(first.aonType(), second.aonType());
+        Assertions.assertNotEquals(second, first);
+        Assertions.assertNotEquals(second.hashCode(), first.hashCode());
     }
 
 }

@@ -3,6 +3,7 @@ package com.comfortanalytics.aon;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.util.Arrays;
+import javax.annotation.Nonnull;
 
 /**
  * Byte array value.  If the an encoding format doesn't support binary, this encodes to a
@@ -10,7 +11,8 @@ import java.util.Arrays;
  *
  * @author Aaron Hansen
  */
-public class Abinary extends Avalue {
+@SuppressWarnings("unused")
+public class Abinary implements Adata {
 
     ///////////////////////////////////////////////////////////////////////////
     // Class Fields
@@ -22,16 +24,13 @@ public class Abinary extends Avalue {
     // Instance Fields
     ///////////////////////////////////////////////////////////////////////////
 
-    byte[] value;
+    final byte[] value;
 
     ///////////////////////////////////////////////////////////////////////////
     // Constructors
     ///////////////////////////////////////////////////////////////////////////
 
-    private Abinary(byte[] val) {
-        if (val == null) {
-            throw new NullPointerException("Null not allowed");
-        }
+    private Abinary(@Nonnull byte[] val) {
         value = val;
     }
 
@@ -39,9 +38,14 @@ public class Abinary extends Avalue {
     // Public Methods
     ///////////////////////////////////////////////////////////////////////////
 
+    @Nonnull
     @Override
     public Atype aonType() {
         return Atype.BINARY;
+    }
+
+    public void copyInto(byte[] buf, int off) {
+        System.arraycopy(value, 0, buf, off, value.length);
     }
 
     @Override
@@ -54,6 +58,12 @@ public class Abinary extends Avalue {
         }
         Abinary arg = (Abinary) o;
         return Arrays.equals(value, arg.value);
+    }
+
+    @Nonnull
+    @Override
+    public byte[] get() {
+        return value;
     }
 
     @Override
@@ -85,9 +95,27 @@ public class Abinary extends Avalue {
         return Arrays.copyOf(value, value.length);
     }
 
+    @Nonnull
+    @Override
+    public Aprimitive toPrimitive() {
+        return Aon.ensureNotNull(Astr.valueOf(toString()));
+    }
+
+    @Nonnull
     @Override
     public String toString() {
+        if (value.length == 0) {
+            return "";
+        }
         return AonBase64.encode(value);
+    }
+
+    /**
+     * Decodes a base64 string.
+     */
+    @Override
+    public Abinary valueOf(Aprimitive value) {
+        return valueOf(value.toString());
     }
 
     /**
@@ -102,6 +130,19 @@ public class Abinary extends Avalue {
             return EMPTY;
         }
         return new Abinary(arg);
+    }
+
+    /**
+     * Attempts to decode a base64 string.
+     */
+    public static Abinary valueOf(String str) {
+        if (str == null) {
+            return null;
+        }
+        if (str.isEmpty()) {
+            return EMPTY;
+        }
+        return valueOf(AonBase64.decode(str));
     }
 
     /**

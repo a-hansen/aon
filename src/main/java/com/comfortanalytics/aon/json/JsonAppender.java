@@ -7,8 +7,6 @@ import java.io.IOException;
 /**
  * Json implementation of Awriter intended for Appendables such as StringBuilders.
  * This can be used for OutputStreams and Writers as well, but JsonWriter will be faster.
- * <p>The same instance can be reused with the setOutput methods.</p>
- * <p>This class is not thread safe.</p>
  *
  * @author Aaron Hansen
  */
@@ -24,7 +22,7 @@ public class JsonAppender extends AbstractJsonWriter implements Appendable {
     // Instance Fields
     ///////////////////////////////////////////////////////////////////////////
 
-    private StringBuilder buf = new StringBuilder(BUF_SIZE);
+    private final StringBuilder buf = new StringBuilder(BUF_SIZE);
     private Appendable out;
 
     ///////////////////////////////////////////////////////////////////////////
@@ -76,6 +74,7 @@ public class JsonAppender extends AbstractJsonWriter implements Appendable {
     /**
      * Append the chars and return this.  Can be used for custom formatting.
      */
+    @Override
     public Appendable append(CharSequence csq) {
         try {
             buf.append(csq);
@@ -92,6 +91,7 @@ public class JsonAppender extends AbstractJsonWriter implements Appendable {
     /**
      * Append the chars and return this.  Can be used for custom formatting.
      */
+    @Override
     public Appendable append(CharSequence csq, int start, int end) {
         try {
             buf.append(csq, start, end);
@@ -105,6 +105,7 @@ public class JsonAppender extends AbstractJsonWriter implements Appendable {
         return this;
     }
 
+    @Override
     public void close() {
         try {
             flush();

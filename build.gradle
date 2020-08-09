@@ -3,7 +3,7 @@ plugins {
     id 'com.jfrog.bintray' version '1.8.4' apply false
 }
 
-version = '5.0.1'
+version = '6.0.0'
 group = 'com.comfortanalytics'
 description = "Another Object Notation"
 
@@ -19,25 +19,41 @@ repositories {
 }
 
 dependencies {
+    compileOnly 'com.github.spotbugs:spotbugs-annotations:+'
+    testCompileOnly 'com.github.spotbugs:spotbugs-annotations:+'
     testImplementation 'com.fasterxml.jackson.core:jackson-core:+'
     testImplementation 'com.fasterxml.jackson.core:jackson-databind:+'
     testImplementation 'com.google.code.gson:gson:+'
     testImplementation 'com.googlecode.json-simple:json-simple:+'
     testImplementation 'com.owlike:genson:+'
-    testImplementation 'net.sf.flexjson:flexjson:+'
     testImplementation 'org.openjdk.jmh:jmh-core:+'
     testImplementation 'org.openjdk.jmh:jmh-generator-annprocess:+'
-    testImplementation 'org.testng:testng:+'
+    testImplementation 'org.junit.jupiter:junit-jupiter-engine:+'
+
+}
+
+jar {
+    manifest {
+        attributes(
+                'Automatic-Module-Name': 'com.comfortanalytics.aon'
+        )
+    }
+}
+
+java {
+    withSourcesJar()
+    withJavadocJar()
+}
+
+tasks.withType(Javadoc) {
+    options.addStringOption('Xdoclint:none', '-quiet')
 }
 
 test {
-    useTestNG()
-    exclude '**/*Benchmark*'
-}
-
-wrapper {
-    gradleVersion = '5.6.2'
+    useJUnitPlatform()
 }
 
 apply from: 'bintray.gradle'
+apply from: 'jmh.gradle'
+
 

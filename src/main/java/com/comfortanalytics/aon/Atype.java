@@ -1,7 +1,7 @@
 package com.comfortanalytics.aon;
 
 /**
- * The Aon data types.
+ * All Aon data types, not just the primitives.
  *
  * @author Aaron Hansen
  */

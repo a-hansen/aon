@@ -2,19 +2,30 @@ package com.comfortanalytics.aon;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
+import javax.annotation.Nonnull;
 
 /**
  * Long value.
  *
  * @author Aaron Hansen
  */
-public class Along extends Avalue {
+@SuppressWarnings("unused")
+public class Along extends Aprimitive {
 
     ///////////////////////////////////////////////////////////////////////////
-    // Fields
+    // Class Fields
     ///////////////////////////////////////////////////////////////////////////
 
-    private long value;
+    private static final Along[] CACHE = new Along[256];
+    public static final Along MAX = new Along(Long.MAX_VALUE);
+    public static final Along MIN = new Along(Long.MIN_VALUE);
+    public static final Along ZERO = valueOf(0);
+
+    ///////////////////////////////////////////////////////////////////////////
+    // Instance Fields
+    ///////////////////////////////////////////////////////////////////////////
+
+    private final long value;
 
     ///////////////////////////////////////////////////////////////////////////
     // Constructors
@@ -28,6 +39,7 @@ public class Along extends Avalue {
     // Public Methods
     ///////////////////////////////////////////////////////////////////////////
 
+    @Nonnull
     @Override
     public Atype aonType() {
         return Atype.LONG;
@@ -35,13 +47,12 @@ public class Along extends Avalue {
 
     @Override
     public boolean equals(Object o) {
-        if (!(o instanceof Avalue)) {
+        if (!(o instanceof Aprimitive)) {
             return false;
         }
-        Avalue obj = (Avalue) o;
+        Aprimitive obj = (Aprimitive) o;
         switch (obj.aonType()) {
             case DECIMAL:
-                return obj.equals(this);
             case BIGINT:
                 return obj.equals(this);
             case DOUBLE:
@@ -54,6 +65,12 @@ public class Along extends Avalue {
                 return obj.toLong() == value;
         }
         return false;
+    }
+
+    @Nonnull
+    @Override
+    public Long get() {
+        return value;
     }
 
     @Override
@@ -111,6 +128,7 @@ public class Along extends Avalue {
         return value;
     }
 
+    @Nonnull
     @Override
     public String toString() {
         return String.valueOf(value);
@@ -120,41 +138,24 @@ public class Along extends Avalue {
      * Attempts to reuse some common values before creating a new instance.
      */
     public static Along valueOf(long arg) {
-        Along ret = null;
-        int i = (int) arg;
-        if (arg == i) {
-            ret = LongCache.get(i);
+        long idx = arg + 128;
+        if ((idx < 0) || (idx > 255)) {
+            if (arg == Long.MAX_VALUE) {
+                return MAX;
+            }
+            if (arg == Long.MIN_VALUE) {
+                return MIN;
+            }
+            return new Along(arg);
         }
-        if (ret == null) {
-            ret = new Along(arg);
+        int i = (int) idx;
+        Along ret = CACHE[i];
+        if (ret != null) {
+            return ret;
         }
+        ret = new Along(arg);
+        CACHE[i] = ret;
         return ret;
-    }
-
-    ///////////////////////////////////////////////////////////////////////////
-    // Inner Classes
-    ///////////////////////////////////////////////////////////////////////////
-
-    private static class LongCache {
-
-        private static final Along NEG_ONE = new Along(-1);
-        private static final Along[] cache = new Along[101];
-
-        public static Along get(long l) {
-            if ((l < 0) || (l > 100)) {
-                if (l == -1) {
-                    return NEG_ONE;
-                }
-                return null;
-            }
-            return cache[(int) l];
-        }
-
-        static {
-            for (int i = 101; --i >= 0; ) {
-                cache[i] = new Along(i);
-            }
-        }
     }
 
 }

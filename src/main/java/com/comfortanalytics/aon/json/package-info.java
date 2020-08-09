@@ -6,7 +6,6 @@
  * import com.comfortanalytics.aon.json*;
  *
  * public Aobj decode() throws IOException {
- *     //It can detected zipped documents.
  *     return new JsonReader(new File("aon.json")).getObj();
  * }
  *

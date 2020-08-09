@@ -1,8 +1,8 @@
 package com.comfortanalytics.aon.io;
 
 import com.comfortanalytics.aon.AbstractReader;
-import com.comfortanalytics.aon.Aon;
 import java.io.BufferedInputStream;
+import java.io.EOFException;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -10,12 +10,14 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.math.BigDecimal;
 import java.math.BigInteger;
+import java.nio.charset.StandardCharsets;
 
 /**
  * Areader implementation that uses the Aon format.
  *
  * @author Aaron Hansen
  */
+@SuppressWarnings({"ResultOfMethodCallIgnored", "unused"})
 public class AonReader extends AbstractReader implements AonConstants {
 
     ///////////////////////////////////////////////////////////////////////////
@@ -23,7 +25,7 @@ public class AonReader extends AbstractReader implements AonConstants {
     ///////////////////////////////////////////////////////////////////////////
 
     private byte[] buffer;
-    private InputStream in;
+    private final InputStream in;
 
     ///////////////////////////////////////////////////////////////////////////
     // Constructors
@@ -205,9 +207,9 @@ public class AonReader extends AbstractReader implements AonConstants {
     private String readString(int len) throws IOException {
         byte[] buf = getBuffer(len);
         if (in.read(buf, 0, len) != len) {
-            throw new IOException("Unexpected end of stream");
+            throw new EOFException();
         }
-        return new String(buf, 0, len, Aon.UTF8);
+        return new String(buf, 0, len, StandardCharsets.UTF_8);
     }
 
     private static int readU16(InputStream in) throws IOException {

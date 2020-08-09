@@ -2,19 +2,30 @@ package com.comfortanalytics.aon;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
+import javax.annotation.Nonnull;
 
 /**
  * Integer value.
  *
  * @author Aaron Hansen
  */
-public class Aint extends Avalue {
+@SuppressWarnings("unused")
+public class Aint extends Aprimitive {
+
+    ///////////////////////////////////////////////////////////////////////////
+    // Class Fields
+    ///////////////////////////////////////////////////////////////////////////
+
+    private static final Aint[] CACHE = new Aint[256];
+    public static final Aint MAX = new Aint(Integer.MAX_VALUE);
+    public static final Aint MIN = new Aint(Integer.MIN_VALUE);
+    public static final Aint ZERO = valueOf(0);
 
     ///////////////////////////////////////////////////////////////////////////
     // Instance Fields
     ///////////////////////////////////////////////////////////////////////////
 
-    private int value;
+    private final int value;
 
     ///////////////////////////////////////////////////////////////////////////
     // Constructors
@@ -28,6 +39,7 @@ public class Aint extends Avalue {
     // Public Methods
     ///////////////////////////////////////////////////////////////////////////
 
+    @Nonnull
     @Override
     public Atype aonType() {
         return Atype.INT;
@@ -35,25 +47,29 @@ public class Aint extends Avalue {
 
     @Override
     public boolean equals(Object o) {
-        if (!(o instanceof Avalue)) {
+        if (!(o instanceof Adata)) {
             return false;
         }
-        Avalue obj = (Avalue) o;
+        Adata obj = (Adata) o;
         switch (obj.aonType()) {
             case DECIMAL:
-                return obj.equals(this);
             case BIGINT:
-                return obj.equals(this);
+            case INT:
+                return obj.toInt() == value;
             case DOUBLE:
                 return obj.toDouble() == value;
             case FLOAT:
                 return obj.toFloat() == value;
-            case INT:
-                return obj.toInt() == value;
             case LONG:
                 return obj.toLong() == value;
         }
         return false;
+    }
+
+    @Nonnull
+    @Override
+    public Integer get() {
+        return value;
     }
 
     @Override
@@ -111,45 +127,52 @@ public class Aint extends Avalue {
         return value;
     }
 
+    /**
+     * Returns Along
+     */
+    @Nonnull
+    @Override
+    public Aprimitive toPrimitive() {
+        return Along.valueOf(value);
+    }
+
+    @Nonnull
     @Override
     public String toString() {
         return String.valueOf(value);
     }
 
     /**
+     * Will convert numbers, otherwise returns null.
+     */
+    @Override
+    public Aint valueOf(Aprimitive value) {
+        if (value.isNumber()) {
+            return valueOf(value.toNumber().intValue());
+        }
+        return null;
+    }
+
+    /**
      * Attempts to reuse some common values before creating a new instance.
      */
     public static Aint valueOf(int arg) {
-        Aint ret = IntCache.get(arg);
+        int idx = arg + 128;
+        if ((idx < 0) || (idx > 255)) {
+            if (arg == Integer.MAX_VALUE) {
+                return MAX;
+            }
+            if (arg == Integer.MIN_VALUE) {
+                return MIN;
+            }
+            return new Aint(arg);
+        }
+        Aint ret = CACHE[idx];
         if (ret == null) {
             ret = new Aint(arg);
+            CACHE[idx] = ret;
         }
         return ret;
-    }
-
-    ///////////////////////////////////////////////////////////////////////////
-    // Inner Classes
-    ///////////////////////////////////////////////////////////////////////////
-
-    private static class IntCache {
-
-        private static final int MAX = 100;
-        private static final Aint NEG_ONE = new Aint(-1);
-        private static final Aint[] cache = new Aint[MAX + 1];
-
-        public static Aint get(int i) {
-            if (i == -1) {
-                return NEG_ONE;
-            }
-            if ((i < 0) || (i > MAX)) {
-                return null;
-            }
-            if (cache[i] == null) {
-                cache[i] = new Aint(i);
-            }
-            return cache[i];
-        }
-
     }
 
 }

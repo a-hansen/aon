@@ -2,19 +2,29 @@ package com.comfortanalytics.aon;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
+import javax.annotation.Nonnull;
 
 /**
  * IEEE 754 floating-point "double format" bit layout.
  *
  * @author Aaron Hansen
  */
-public class Adouble extends Avalue {
+@SuppressWarnings("unused")
+public class Adouble extends Aprimitive {
+
+    ///////////////////////////////////////////////////////////////////////////
+    // Class Fields
+    ///////////////////////////////////////////////////////////////////////////
+
+    public static final Adouble MAX = new Adouble(Double.MAX_VALUE);
+    public static final Adouble MIN = new Adouble(Double.MIN_VALUE);
+    public static final Adouble ZERO = new Adouble(0);
 
     ///////////////////////////////////////////////////////////////////////////
     // Instance Fields
     ///////////////////////////////////////////////////////////////////////////
 
-    private double value;
+    private final double value;
 
     ///////////////////////////////////////////////////////////////////////////
     // Constructors
@@ -28,6 +38,7 @@ public class Adouble extends Avalue {
     // Public Methods
     ///////////////////////////////////////////////////////////////////////////
 
+    @Nonnull
     @Override
     public Atype aonType() {
         return Atype.DOUBLE;
@@ -35,25 +46,29 @@ public class Adouble extends Avalue {
 
     @Override
     public boolean equals(Object o) {
-        if (!(o instanceof Avalue)) {
-            return false;
-        }
-        Avalue obj = (Avalue) o;
-        switch (obj.aonType()) {
-            case DECIMAL:
-                return obj.equals(this);
-            case BIGINT:
-                return obj.equals(this);
-            case DOUBLE:
-                return obj.toDouble() == value;
-            case FLOAT:
-                return obj.toFloat() == value;
-            case INT:
-                return obj.toInt() == value;
-            case LONG:
-                return obj.toLong() == value;
+        if (o instanceof Aprimitive) {
+            Aprimitive obj = (Aprimitive) o;
+            switch (obj.aonType()) {
+                case DECIMAL:
+                case BIGINT:
+                    return obj.equals(this);
+                case DOUBLE:
+                    return obj.toDouble() == value;
+                case FLOAT:
+                    return obj.toFloat() == value;
+                case INT:
+                    return obj.toInt() == value;
+                case LONG:
+                    return obj.toLong() == value;
+            }
         }
         return false;
+    }
+
+    @Nonnull
+    @Override
+    public Double get() {
+        return value;
     }
 
     @Override
@@ -112,6 +127,7 @@ public class Adouble extends Avalue {
         return value;
     }
 
+    @Nonnull
     @Override
     public String toString() {
         return String.valueOf(value);
@@ -121,40 +137,14 @@ public class Adouble extends Avalue {
      * Attempts to reuse some common values before creating a new instance.
      */
     public static Adouble valueOf(double arg) {
-        Adouble ret = null;
-        int i = (int) arg;
-        if (arg == i) {
-            ret = DblCache.get(i);
+        if (arg == 0) {
+            return ZERO;
+        } else if (arg == Double.MIN_VALUE) {
+            return MIN;
+        } else if (arg == Double.MAX_VALUE) {
+            return MAX;
         }
-        if (ret == null) {
-            ret = new Adouble(arg);
-        }
-        return ret;
-    }
-
-    ///////////////////////////////////////////////////////////////////////////
-    // Inner Classes
-    ///////////////////////////////////////////////////////////////////////////
-
-    private static class DblCache {
-
-        private static final int MAX = 100;
-        private static final Adouble NEG_ONE = new Adouble(-1);
-        private static final Adouble[] cache = new Adouble[MAX + 1];
-
-        public static Adouble get(int i) {
-            if (i == -1) {
-                return NEG_ONE;
-            }
-            if ((i < 0) || (i > MAX)) {
-                return null;
-            }
-            if (cache[i] == null) {
-                cache[i] = new Adouble(i);
-            }
-            return cache[i];
-        }
-
+        return new Adouble(arg);
     }
 
 }

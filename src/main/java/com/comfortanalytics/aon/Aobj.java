@@ -3,47 +3,59 @@ package com.comfortanalytics.aon;
 import com.comfortanalytics.aon.Aobj.Member;
 import java.io.PrintWriter;
 import java.io.StringWriter;
+import java.math.BigDecimal;
+import java.math.BigInteger;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.function.Supplier;
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
 /**
  * String keyed collection of values that preserves the order of addition.  To traverse
- * members in order, use the iterator, or getFirstMember() and use it's next() method.
+ * members in order, use {@link #iterator()}, or {@link #getFirst()} and then use
+ * {@link Member#next()}.
+ * <p>
+ * Adding null will result in Anull.NULL being put into the obj.
  * <p>
  * This is not thread safe.
  *
  * @author Aaron Hansen
  */
+@SuppressWarnings({"unused"})
 public class Aobj extends Agroup implements Iterable<Member> {
 
     ///////////////////////////////////////////////////////////////////////////
     // Instance Fields
     ///////////////////////////////////////////////////////////////////////////
 
-    private Member first;
-    private Member last;
-    private Map<String, Member> object = new HashMap<String, Member>();
+    private volatile Member first;
+    private volatile Member last;
+    private final Map<String, Member> map = new HashMap<>();
 
     ///////////////////////////////////////////////////////////////////////////
     // Methods
     ///////////////////////////////////////////////////////////////////////////
 
+    @Nonnull
     @Override
     public Atype aonType() {
         return Atype.OBJECT;
     }
 
+    @Nonnull
     @Override
     public Aobj clear() {
         first = null;
         last = null;
-        object.clear();
+        map.clear();
         return this;
     }
 
+    @Nonnull
     @Override
-    public Avalue copy() {
+    public Aobj copy() {
         Aobj ret = new Aobj();
         Member e = getFirst();
         while (e != null) {
@@ -62,137 +74,140 @@ public class Aobj extends Agroup implements Iterable<Member> {
             return true;
         }
         if (o instanceof Aobj) {
-            Aobj arg = (Aobj) o;
-            if (size() != arg.size()) {
-                return false;
-            }
-            return hashCode() == arg.hashCode();
+            return map.equals(((Aobj) o).map);
         }
         return false;
     }
 
     /**
-     * Returns the value for the given key or null.
+     * Returns the value being wrapped by the Aon data type for the given key, or null.
      */
-    public Avalue get(String key) {
-        Member e = object.get(key);
+    @Nullable
+    public <T> T get(@Nonnull String key) {
+        Member e = getMember(key);
         if (e == null) {
             return null;
         }
-        return e.getValue();
+        return e.getValue().get();
     }
 
     /**
-     * Optional getter, returns the provided default if the value objectped to the key is
+     * Returns the value being wrapped by the Aon data type for the given key, or null.
+     */
+    @Nullable
+    public <T> T get(@Nonnull String key, Class<T> type) {
+        Member e = getMember(key);
+        if (e == null) {
+            return null;
+        }
+        return type.cast(e.getValue().get());
+    }
+
+    /**
+     * Optional getter, returns the provided default if the value mapped to the key is
      * null or not convertible.
      */
-    public boolean get(String key, boolean def) {
-        Avalue ret = get(key);
-        if ((ret == null) || ret.isNull()) {
+    public boolean get(@Nonnull String key, boolean def) {
+        Adata ret = get(key);
+        if (Aon.isNull(ret)) {
             return def;
         }
         try {
             return ret.toBoolean();
-        } catch (Exception x) {
+        } catch (Exception ignore) {
         }
         return def;
     }
 
     /**
-     * Optional getter, returns the provided default if the value objectped to the key is
+     * Optional getter, returns the provided default if the value mapped to the key is
      * null.
      */
-    public double get(String key, double def) {
-        Avalue ret = get(key);
-        if ((ret == null) || ret.isNull()) {
+    public double get(@Nonnull String key, double def) {
+        Adata ret = get(key);
+        if (Aon.isNull(ret)) {
             return def;
         }
         try {
             return ret.toDouble();
-        } catch (Exception x) {
+        } catch (Exception ignore) {
         }
         return def;
     }
 
     /**
-     * Optional getter, returns the provided default if the value objectped to the key is
+     * Optional getter, returns the provided default if the value mapped to the key is
      * null.
      */
-    public float get(String key, float def) {
-        Avalue ret = get(key);
-        if ((ret == null) || ret.isNull()) {
+    public float get(@Nonnull String key, float def) {
+        Adata ret = get(key);
+        if (Aon.isNull(ret)) {
             return def;
         }
         try {
             return ret.toFloat();
-        } catch (Exception x) {
+        } catch (Exception ignore) {
         }
         return def;
     }
 
     /**
-     * Optional getter, returns the provided default if the value objectped to the key is
+     * Optional getter, returns the provided default if the value mapped to the key is
      * null or not convertible.
      */
-    public int get(String key, int def) {
-        Avalue ret = get(key);
-        if ((ret == null) || ret.isNull()) {
+    public int get(@Nonnull String key, int def) {
+        Adata ret = get(key);
+        if (Aon.isNull(ret)) {
             return def;
         }
         try {
             return ret.toInt();
-        } catch (Exception x) {
+        } catch (Exception ignore) {
         }
         return def;
     }
 
     /**
-     * Optional getter, returns the provided default if the value objectped to the key is
+     * Optional getter, returns the provided default if the value mapped to the key is
      * null or not convertible.
      */
-    public long get(String key, long def) {
-        Avalue ret = get(key);
-        if ((ret == null) || ret.isNull()) {
+    public long get(@Nonnull String key, long def) {
+        Adata ret = get(key);
+        if (Aon.isNull(ret)) {
             return def;
         }
         try {
             return ret.toLong();
-        } catch (Exception x) {
+        } catch (Exception ignore) {
         }
         return def;
     }
 
     /**
-     * Optional getter, returns the provided default if the value objectped to the key is
+     * Optional getter, returns the provided default if the value mapped to the key is
      * null.
      */
-    public String get(String key, String def) {
-        Avalue ret = get(key);
-        if ((ret == null) || ret.isNull()) {
+    public String get(@Nonnull String key, String def) {
+        Adata ret = get(key);
+        if (Aon.isNull(ret)) {
             return def;
         }
         return ret.toString();
     }
 
     /**
-     * Returns the value, null or throws a ClassCastException.
+     * Replaces the value and returns the prior value.
      */
-    public Abinary getBinary(String key) {
-        return get(key).toBinary();
-    }
-
-    /**
-     * Returns the value, null or throws a ClassCastException.
-     */
-    public boolean getBoolean(String key) {
-        return get(key).toBoolean();
-    }
-
-    /**
-     * Returns the value, null or throws a ClassCastException.
-     */
-    public double getDouble(String key) {
-        return get(key).toDouble();
+    @Nullable
+    public Adata getAndPut(@Nonnull String key, @Nullable Adata value) {
+        Member m = getMember(key);
+        if (m == null) {
+            put(key, value);
+            return null;
+        }
+        Adata ret = m.getValue();
+        m.setValue(value == null ? Anull.NULL : value);
+        return ret;
     }
 
     /**
@@ -202,84 +217,61 @@ public class Aobj extends Agroup implements Iterable<Member> {
         return first;
     }
 
-    /**
-     * Returns the value, null or throws a ClassCastException.
-     */
-    public float getFloat(String key) {
-        return get(key).toFloat();
-    }
-
-    /**
-     * Returns the value, null or throws a ClassCastException.
-     */
-    public int getInt(String key) {
-        return get(key).toInt();
-    }
-
     public Member getLast() {
         return last;
     }
 
-    /**
-     * Returns the value, null or throws a ClassCastException.
-     */
-    public Alist getList(String key) {
-        Avalue obj = get(key);
-        if (obj == null) {
-            return null;
-        }
-        return obj.toList();
+    @Nullable
+    public Member getMember(String key) {
+        return map.get(key);
     }
 
     /**
-     * Returns the value, null or throws a ClassCastException.
+     * Attempts to get the current child but if there is no child, puts the new one and return it.
      */
-    public long getLong(String key) {
-        return get(key).toLong();
+    public <T extends Adata> T getOrPutIfAbsent(String name, Supplier<T> child) {
+        T ret = get(name);
+        if (ret == null) {
+            ret = child.get();
+            put(name, ret);
+        }
+        return ret;
     }
 
     /**
-     * Returns the value, null or throws a ClassCastException.
+     * Returns the value for the given key or null.
      */
-    public Aobj getObj(String key) {
-        Avalue o = get(key);
-        if (o == null) {
+    @Nullable
+    public <T extends Adata> T getValue(@Nonnull String key) {
+        Member e = getMember(key);
+        if (e == null) {
             return null;
         }
-        return o.toObj();
+        return (T) e.getValue();
     }
 
     /**
-     * Returns the String value for the given key, or null.
+     * Returns the value for the given key or null.
      */
-    public String getString(String key) {
-        Avalue o = get(key);
-        if (o == null) {
+    @Nullable
+    public <T extends Adata> T getValue(@Nonnull String key, Class<T> type) {
+        Member e = getMember(key);
+        if (e == null) {
             return null;
         }
-        return o.toString();
+        return type.cast(e.getValue());
     }
 
     @Override
     public int hashCode() {
-        int hashCode = 1;
-        Member e = getFirst();
-        while (e != null) {
-            hashCode = 31 * hashCode + e.hashCode();
-            e = e.next();
-        }
-        return hashCode;
+        return map.hashCode();
     }
 
     /**
      * Returns true if the key isn't in the object, or it's value is null.
      */
     public boolean isNull(String key) {
-        Avalue o = get(key);
-        if (o == null) {
-            return true;
-        }
-        return o.aonType() == Atype.NULL;
+        return Aon.isNull(get(key));
     }
 
     /**
@@ -290,6 +282,7 @@ public class Aobj extends Agroup implements Iterable<Member> {
         return true;
     }
 
+    @Nonnull
     @Override
     public Iterator<Member> iterator() {
         return new Iterator<Member>() {
@@ -301,6 +294,7 @@ public class Aobj extends Agroup implements Iterable<Member> {
                 return next != null;
             }
 
+            @Nonnull
             @Override
             public Member next() {
                 prev = next;
@@ -318,6 +312,7 @@ public class Aobj extends Agroup implements Iterable<Member> {
     /**
      * Puts a new list for given key and returns it.
      */
+    @Nonnull
     public Alist newList(String key) {
         Alist ret = new Alist();
         put(key, ret);
@@ -327,6 +322,7 @@ public class Aobj extends Agroup implements Iterable<Member> {
     /**
      * Creates and puts a new object for given key and returns it.
      */
+    @Nonnull
     public Aobj newObj(String key) {
         Aobj ret = new Aobj();
         put(key, ret);
@@ -337,90 +333,102 @@ public class Aobj extends Agroup implements Iterable<Member> {
      * Adds or replaces the value for the given key and returns this.
      *
      * @param key Must not be null.
-     * @param val Can be null, and can not be an already parented group.
+     * @param val Can be null, in which case Anull.NULL will be used.
      * @return this
      */
-    public Aobj put(String key, Avalue val) {
+    @Nonnull
+    public Aobj put(@Nonnull String key, @Nullable Adata val) {
         if (val == null) {
             val = Anull.NULL;
         }
-        Member e = object.get(key);
+        Member e = getMember(key);
         if (e != null) {
-            Avalue curr = e.getValue();
+            Adata curr = e.getValue();
             if (curr != val) {
-                if (val.isGroup()) {
-                    val.toGroup().setParent(this);
-                }
-                if (curr.isGroup()) {
-                    curr.toGroup().setParent(null);
-                }
                 e.setValue(val);
             }
         } else {
-            if (val.isGroup()) {
-                val.toGroup().setParent(this);
-            }
             e = new Member(key, val);
-            object.put(key, e);
+            map.put(key, e);
             if (first == null) {
                 first = e;
-                last = e;
             } else {
                 last.setNext(e);
-                last = e;
             }
+            last = e;
         }
         return this;
     }
 
     /**
-     * Primitive setter, returns this.
+     * @return this
      */
-    public Aobj put(String key, boolean val) {
-        put(key, Abool.valueOf(val));
-        return this;
+    @Nonnull
+    public Aobj put(@Nonnull String key, @Nullable BigDecimal val) {
+        return put(key, Adecimal.valueOf(val));
     }
 
     /**
-     * Primitive setter, returns this.
+     * @return this
      */
-    public Aobj put(String key, double val) {
-        put(key, Adouble.valueOf(val));
-        return this;
+    @Nonnull
+    public Aobj put(@Nonnull String key, @Nullable BigInteger val) {
+        return put(key, Abigint.valueOf(val));
     }
 
     /**
-     * Primitive setter, returns this.
+     * @return this
      */
-    public Aobj put(String key, int val) {
-        put(key, Aint.valueOf(val));
-        return this;
+    @Nonnull
+    public Aobj put(@Nonnull String key, @Nullable byte[] val) {
+        return put(key, Abinary.valueOf(val));
     }
 
     /**
-     * Primitive setter, returns this.
+     * @return this
      */
-    public Aobj put(String key, long val) {
-        put(key, Along.valueOf(val));
-        return this;
+    @Nonnull
+    public Aobj put(@Nonnull String key, boolean val) {
+        return put(key, Abool.valueOf(val));
     }
 
     /**
-     * Primitive setter, returns this.
+     * @return this
      */
-    public Aobj put(String key, String val) {
-        if (val == null) {
-            put(key, Anull.NULL);
-        } else {
-            put(key, Astr.valueOf(val));
-        }
-        return this;
+    @Nonnull
+    public Aobj put(@Nonnull String key, double val) {
+        return put(key, Adouble.valueOf(val));
+    }
+
+    /**
+     * @return this
+     */
+    @Nonnull
+    public Aobj put(@Nonnull String key, int val) {
+        return put(key, Aint.valueOf(val));
+    }
+
+    /**
+     * @return this
+     */
+    @Nonnull
+    public Aobj put(@Nonnull String key, long val) {
+        return put(key, Along.valueOf(val));
+    }
+
+    /**
+     * @return this
+     */
+    @Nonnull
+    public Aobj put(@Nonnull String key, @Nullable String val) {
+        return put(key, Astr.valueOf(val));
     }
 
     /**
      * Puts a String representing the stack trace into the object.
      */
-    public Aobj put(String key, Throwable val) {
+    @Nonnull
+    public Aobj put(@Nonnull String key, @Nonnull Throwable val) {
         StringWriter str = new StringWriter();
         PrintWriter out = new PrintWriter(str);
         val.printStackTrace(out);
@@ -428,11 +436,26 @@ public class Aobj extends Agroup implements Iterable<Member> {
         put(key, str.toString());
         try {
             out.close();
-        } catch (Exception x) {
+        } catch (Exception ignore) {
         }
         try {
             str.close();
-        } catch (Exception x) {
+        } catch (Exception ignore) {
+        }
+        return this;
+    }
+
+    /**
+     * Does not {@link #copy()} the contents.
+     *
+     * @return this
+     */
+    @Nonnull
+    public Aobj putAll(Aobj arg) {
+        Member m = arg.getFirst();
+        while (m != null) {
+            put(m.getKey(), m.getValue());
+            m = m.next;
         }
         return this;
     }
@@ -440,7 +463,8 @@ public class Aobj extends Agroup implements Iterable<Member> {
     /**
      * Puts a null value for given key and returns this.
      */
-    public Aobj putNull(String key) {
+    @Nonnull
+    public Aobj putNull(@Nonnull String key) {
         return put(key, Anull.NULL);
     }
 
@@ -449,8 +473,9 @@ public class Aobj extends Agroup implements Iterable<Member> {
      *
      * @return Possibly null.
      */
-    public Avalue remove(String key) {
-        Member e = object.remove(key);
+    @Nullable
+    public Adata remove(@Nonnull String key) {
+        Member e = map.remove(key);
         if (e == null) {
             return null;
         }
@@ -458,7 +483,7 @@ public class Aobj extends Agroup implements Iterable<Member> {
             first = null;
             last = null;
         } else if (e == first) {
-            first = first.next();
+            first = e.next();
         } else {
             Member prev = getPrev(key);
             prev.setNext(e.next());
@@ -466,21 +491,19 @@ public class Aobj extends Agroup implements Iterable<Member> {
                 last = prev;
             }
         }
-        Avalue ret = e.getValue();
-        if (ret.isGroup()) {
-            ret.toGroup().setParent(null);
-        }
-        return ret;
+        return e.getValue();
     }
 
-    public Avalue removeFirst() {
+    @Nullable
+    public Adata removeFirst() {
         if (first != null) {
             return remove(first.getKey());
         }
         return null;
     }
 
-    public Avalue removeLast() {
+    @Nullable
+    public Adata removeLast() {
         if (last != null) {
             return remove(last.getKey());
         }
@@ -489,9 +512,10 @@ public class Aobj extends Agroup implements Iterable<Member> {
 
     @Override
     public int size() {
-        return object.size();
+        return map.size();
     }
 
+    @Nonnull
     @Override
     public Aobj toObj() {
         return this;
@@ -523,11 +547,11 @@ public class Aobj extends Agroup implements Iterable<Member> {
      */
     public static class Member {
 
-        private String key;
+        private final String key;
         private Member next;
-        private Avalue val;
+        private Adata val;
 
-        Member(String key, Avalue val) {
+        Member(@Nonnull String key, @Nonnull Adata val) {
             this.key = key;
             this.val = val;
         }
@@ -539,24 +563,19 @@ public class Aobj extends Agroup implements Iterable<Member> {
             }
             if (obj instanceof Member) {
                 Member e = (Member) obj;
-                if (!e.getKey().equals(key)) {
-                    return false;
-                }
-                return e.getValue().equals(val);
+                return e.getKey().equals(key) && e.getValue().equals(val);
             }
             return false;
         }
 
+        @Nonnull
         public String getKey() {
             return key;
         }
 
-        public Avalue getValue() {
+        @Nonnull
+        public Adata getValue() {
             return val;
-        }
-
-        void setValue(Avalue val) {
-            this.val = val;
         }
 
         @Override
@@ -564,12 +583,17 @@ public class Aobj extends Agroup implements Iterable<Member> {
             return key.hashCode() ^ val.hashCode();
         }
 
+        @Nonnull
         public Member next() {
             return next;
         }
 
-        void setNext(Member entry) {
+        void setNext(@Nullable Member entry) {
             next = entry;
+        }
+
+        void setValue(@Nonnull Adata val) {
+            this.val = val;
         }
 
     }

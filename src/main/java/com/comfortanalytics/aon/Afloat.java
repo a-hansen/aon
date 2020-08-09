@@ -2,19 +2,30 @@ package com.comfortanalytics.aon;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
+import java.math.MathContext;
+import javax.annotation.Nonnull;
 
 /**
  * Float value.
  *
  * @author Aaron Hansen
  */
-public class Afloat extends Avalue {
+@SuppressWarnings({"unused"})
+public class Afloat implements Adata {
 
     ///////////////////////////////////////////////////////////////////////////
-    // Fields
+    // Class Fields
     ///////////////////////////////////////////////////////////////////////////
 
-    private float value;
+    public static final Afloat MAX = new Afloat(Float.MAX_VALUE);
+    public static final Afloat MIN = new Afloat(Float.MIN_VALUE);
+    public static final Afloat ZERO = new Afloat(0);
+
+    ///////////////////////////////////////////////////////////////////////////
+    // Instance Fields
+    ///////////////////////////////////////////////////////////////////////////
+
+    private final float value;
 
     ///////////////////////////////////////////////////////////////////////////
     // Constructors
@@ -28,6 +39,7 @@ public class Afloat extends Avalue {
     // Public Methods
     ///////////////////////////////////////////////////////////////////////////
 
+    @Nonnull
     @Override
     public Atype aonType() {
         return Atype.FLOAT;
@@ -35,25 +47,36 @@ public class Afloat extends Avalue {
 
     @Override
     public boolean equals(Object o) {
-        if (!(o instanceof Avalue)) {
+        if (!(o instanceof Adata)) {
             return false;
         }
-        Avalue obj = (Avalue) o;
+        Adata obj = (Adata) o;
         switch (obj.aonType()) {
             case DECIMAL:
-                return obj.equals(this);
             case BIGINT:
-                return obj.equals(this);
-            case DOUBLE:
-                return obj.toDouble() == value;
             case FLOAT:
                 return obj.toFloat() == value;
+            case DOUBLE:
+                return obj.toDouble() == value;
             case INT:
                 return obj.toInt() == value;
             case LONG:
                 return obj.toLong() == value;
         }
         return false;
+    }
+
+    /**
+     * Converts the float to a double such that the String value of both would be equal.
+     */
+    public static double formatDouble(float value) {
+        return new BigDecimal(value, MathContext.DECIMAL32).doubleValue();
+    }
+
+    @Nonnull
+    @Override
+    public Float get() {
+        return value;
     }
 
     @Override
@@ -111,48 +134,49 @@ public class Afloat extends Avalue {
         return value;
     }
 
+    /**
+     * Returns Adouble
+     */
+    @Nonnull
+    @Override
+    public Aprimitive toPrimitive() {
+        return Adouble.valueOf(value);
+    }
+
+    @Nonnull
     @Override
     public String toString() {
         return String.valueOf(value);
     }
 
     /**
-     * Attempts to reuse some common values before creating a new instance.
+     * Will convert numbers, otherwise returns null.
      */
-    public static Afloat valueOf(float arg) {
-        Afloat ret = null;
-        int i = (int) arg;
-        if (arg == i) {
-            ret = FltCache.get(i);
+    @Override
+    public Afloat valueOf(Aprimitive value) {
+        try {
+            switch (value.aonType()) {
+                case DOUBLE:
+                    return valueOf((float) value.toDouble());
+                case INT:
+                    return valueOf(value.toInt());
+                case LONG:
+                    return valueOf(value.toLong());
+            }
+        } catch (Exception ignore) {
         }
-        if (ret == null) {
-            ret = new Afloat(arg);
-        }
-        return ret;
+        return null;
     }
 
-    ///////////////////////////////////////////////////////////////////////////
-    // Inner Classes
-    ///////////////////////////////////////////////////////////////////////////
-
-    private static class FltCache {
-
-        private static final int MAX = 100;
-        private static final Afloat NEG_ONE = new Afloat(-1);
-        private static final Afloat[] cache = new Afloat[MAX + 1];
-
-        public static Afloat get(int i) {
-            if (i == -1) {
-                return NEG_ONE;
-            }
-            if ((i < 0) || (i > MAX)) {
-                return null;
-            }
-            if (cache[i] == null) {
-                cache[i] = new Afloat(i);
-            }
-            return cache[i];
+    public static Afloat valueOf(float arg) {
+        if (arg == 0) {
+            return ZERO;
+        } else if (arg == Float.MIN_VALUE) {
+            return MIN;
+        } else if (arg == Float.MAX_VALUE) {
+            return MAX;
         }
+        return new Afloat(arg);
     }
 
 }
