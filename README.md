@@ -494,7 +494,7 @@ _6.0.1_
   
 _6.0.0_
   - Moved to Java 1.8.
-  - Model changes revolving around the addition of Aprimitive and Aval.
+  - Model changes revolving around the addition of Aprimitive and Adata.
   - Added msgpack support.
   - Reworked jmh for the benchmark.
   - Switch to JUnit.
