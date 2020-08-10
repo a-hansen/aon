@@ -20,7 +20,7 @@ bintray {
     user = project.properties.bintrayUser
     key = project.properties.bintrayApiKey
     publications = ['MyPublication']
-    dryRun = true
+    dryRun = false
     publish = true
     override = true
     pkg {

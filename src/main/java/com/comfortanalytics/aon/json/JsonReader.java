@@ -218,6 +218,7 @@ public class JsonReader extends AbstractReader {
                 if (ch == 'e' || ch == 'E') {
                     hasExp = true;
                 } else {
+                    unreadChar();
                     break;
                 }
             }
@@ -328,6 +329,11 @@ public class JsonReader extends AbstractReader {
             }
         }
         return (char) ret;
+    }
+
+    private void unreadChar() {
+        inLen++;
+        inOff--;
     }
 
     private void validateNextChars(int[] chars) throws IOException {
