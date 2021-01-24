@@ -5,10 +5,9 @@ import java.math.BigDecimal;
 import java.math.BigInteger;
 
 /**
- * A decoder that can be used to decode an entire graph in pieces, or one large
- * Aobj, or somewhere in between. To decode an entire graph, call getObj(), getList()
- * or getValue(). Otherwise, use the next() method to iterate the elements of the input
- * document.
+ * A decoder that can be used to decode an entire graph in pieces, or one large Aobj, or somewhere
+ * in between. To decode an entire graph, call getObj(), getList() or getValue(). Otherwise, use the
+ * next() method to iterate the elements of the input document.
  * <p>
  * When next()/last() returns:
  * <ul>
@@ -70,8 +69,8 @@ public interface Areader extends Closeable {
     int getInt();
 
     /**
-     * This should only be called when last() == BEGIN_LIST and it will decode the
-     * entire list.  Call next rather than this method to get the list in pieces.
+     * This should only be called when last() == BEGIN_LIST and it will decode the entire list.
+     * Call next rather than this method to get the list in pieces.
      */
     Alist getList();
 
@@ -81,8 +80,8 @@ public interface Areader extends Closeable {
     long getLong();
 
     /**
-     * This should only be called when last() == BEGIN_OBJ and it will decode the
-     * entire object.  Call next rather than this method get the object in pieces.
+     * This should only be called when last() == BEGIN_OBJ and it will decode the entire object.
+     * Call next rather than this method get the object in pieces.
      */
     Aobj getObj();
 
@@ -97,14 +96,13 @@ public interface Areader extends Closeable {
     Adata getValue();
 
     /**
-     * The last value returned from next(). At the beginning of a document, before
-     * next has been called, this will return ROOT.
+     * The last value returned from next(). At the beginning of a document, before next has been
+     * called, this will return ROOT.
      */
     Token last();
 
     /**
-     * Advances the reader to the next item and returns the token representing it's
-     * current state.
+     * Advances the reader to the next item and returns the token representing it's current state.
      */
     Token next();
 
@@ -114,8 +112,7 @@ public interface Areader extends Closeable {
     Areader reset();
 
     /**
-     * Represents the state of the reader, and determines which getter should be
-     * called next.
+     * Represents the state of the reader, and determines which getter should be called next.
      */
     enum Token {
         BEGIN_LIST,

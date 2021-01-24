@@ -16,9 +16,9 @@ public class Along extends Aprimitive {
     // Class Fields
     ///////////////////////////////////////////////////////////////////////////
 
-    private static final Along[] CACHE = new Along[256];
     public static final Along MAX = new Along(Long.MAX_VALUE);
     public static final Along MIN = new Along(Long.MIN_VALUE);
+    private static final Along[] CACHE = new Along[256];
     public static final Along ZERO = valueOf(0);
 
     ///////////////////////////////////////////////////////////////////////////

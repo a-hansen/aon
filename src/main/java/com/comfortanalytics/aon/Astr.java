@@ -3,7 +3,6 @@ package com.comfortanalytics.aon;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 
 /**
  * String value.
@@ -92,20 +91,7 @@ public class Astr extends Aprimitive {
 
     @Override
     public boolean toBoolean() {
-        if (value.equals("0")) {
-            return false;
-        } else if (value.equals("1")) {
-            return true;
-        } else if (value.equalsIgnoreCase("true")) {
-            return true;
-        } else if (value.equalsIgnoreCase("false")) {
-            return true;
-        } else if (value.equalsIgnoreCase("on")) {
-            return true;
-        } else if (value.equalsIgnoreCase("off")) {
-            return false;
-        }
-        return false;
+        return Abool.valueOf(value);
     }
 
     /**
@@ -154,7 +140,6 @@ public class Astr extends Aprimitive {
         return value;
     }
 
-    @Nullable
     public static Astr valueOf(String arg) {
         if (arg == null) {
             return null;

@@ -16,9 +16,9 @@ public class Aint extends Aprimitive {
     // Class Fields
     ///////////////////////////////////////////////////////////////////////////
 
-    private static final Aint[] CACHE = new Aint[256];
     public static final Aint MAX = new Aint(Integer.MAX_VALUE);
     public static final Aint MIN = new Aint(Integer.MIN_VALUE);
+    private static final Aint[] CACHE = new Aint[256];
     public static final Aint ZERO = valueOf(0);
 
     ///////////////////////////////////////////////////////////////////////////
@@ -143,17 +143,6 @@ public class Aint extends Aprimitive {
     }
 
     /**
-     * Will convert numbers, otherwise returns null.
-     */
-    @Override
-    public Aint valueOf(Aprimitive value) {
-        if (value.isNumber()) {
-            return valueOf(value.toNumber().intValue());
-        }
-        return null;
-    }
-
-    /**
      * Attempts to reuse some common values before creating a new instance.
      */
     public static Aint valueOf(int arg) {
@@ -173,6 +162,17 @@ public class Aint extends Aprimitive {
             CACHE[idx] = ret;
         }
         return ret;
+    }
+
+    /**
+     * Will convert numbers, otherwise returns null.
+     */
+    @Override
+    public Aint valueOf(Aprimitive value) {
+        if (value.isNumber()) {
+            return valueOf(value.toNumber().intValue());
+        }
+        return null;
     }
 
 }

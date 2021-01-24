@@ -65,8 +65,8 @@ public interface Awriter extends Closeable, Flushable {
     void flush();
 
     /**
-     * Write a key in the current object.  Cannot be called in a list, must be followed
-     * by a call to one of the value methods.
+     * Write a key in the current object.  Cannot be called in a list, must be followed by a call to
+     * one of the value methods.
      *
      * @throws IllegalStateException when improperly called.
      */
@@ -78,84 +78,94 @@ public interface Awriter extends Closeable, Flushable {
     Awriter reset();
 
     /**
-     * Write a value to the object or list.  If in a object, this must have been preceded
-     * by a call to key(String).  This can be used to encode an entire graph.
+     * Write a value to the object or list.  If in a object, this must have been preceded by a call
+     * to key(String).  This can be used to encode an entire graph.
      *
      * @throws IllegalStateException when improperly called.
      */
     Awriter value(Adata arg);
 
     /**
-     * Write a value to the object or list.  If in a object, this must have been preceded
-     * by a call to key(String).
+     * Write a value to the object or list.  If in a object, this must have been preceded by a call
+     * to key(String).
      *
      * @throws IllegalStateException when improperly called.
      */
     Awriter value(BigDecimal arg);
 
     /**
-     * Write a value to the object or list.  If in a object, this must have been preceded
-     * by a call to key(String).
+     * Write a value to the object or list.  If in a object, this must have been preceded by a call
+     * to key(String).
      *
      * @throws IllegalStateException when improperly called.
      */
     Awriter value(BigInteger arg);
 
     /**
-     * Write a value to the object or list.  If in a object, this must have been preceded
-     * by a call to key(String).
+     * Write a value to the object or list.  If in a object, this must have been preceded by a call
+     * to key(String).
      *
      * @throws IllegalStateException when improperly called.
      */
     Awriter value(boolean arg);
 
     /**
-     * Write a value to the object or list.  If in a object, this must have been preceded
-     * by a call to key(String).
+     * Write a value to the object or list.  If in a object, this must have been preceded by a call
+     * to key(String).
      *
      * @throws IllegalStateException when improperly called.
      */
     Awriter value(byte[] arg);
 
     /**
-     * Write a value to the object or list.  If in a object, this must have been preceded
-     * by a call to key(String).
+     * Write a value to the object or list.  If in a object, this must have been preceded by a call
+     * to key(String).
      *
      * @throws IllegalStateException when improperly called.
      */
     Awriter value(double arg);
 
     /**
-     * Write a value to the object or list.  If in a object, this must have been preceded
-     * by a call to key(String).
+     * Write a value to the object or list.  If in a object, this must have been preceded by a call
+     * to key(String).
      *
      * @throws IllegalStateException when improperly called.
      */
     Awriter value(float arg);
 
     /**
-     * Write a value to the object or list.  If in a object, this must have been preceded
-     * by a call to key(String).
+     * Write a value to the object or list.  If in a object, this must have been preceded by a call
+     * to key(String).
      *
      * @throws IllegalStateException when improperly called.
      */
     Awriter value(int arg);
 
     /**
-     * Write a value to the object or list.  If in a object, this must have been preceded
-     * by a call to key(String).
+     * Write a value to the object or list.  If in a object, this must have been preceded by a call
+     * to key(String).
      *
      * @throws IllegalStateException when improperly called.
      */
     Awriter value(long arg);
 
     /**
-     * Write a value to the object or list.  If in a object, this must have been preceded
-     * by a call to key(String).
+     * Write a value to the object or list.  If in a object, this must have been preceded by a call
+     * to key(String).
      *
      * @throws IllegalStateException when improperly called.
      */
     Awriter value(String arg);
+
+    /**
+     * Write a null value to the object or list.  If in a object, this must have been preceded by a
+     * call to key(String).
+     *
+     * @throws IllegalStateException when improperly called.
+     */
+    default Awriter valueNull() {
+        return value(Anull.NULL);
+    }
 
 
 }

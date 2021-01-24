@@ -8,12 +8,12 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 /**
- * Indexed collection of values.  Adding null will result in Anull.NULL being added.
- * Not thread safe.
+ * Indexed collection of values.  Adding null will result in Anull.NULL being added. Not thread
+ * safe.
  *
  * @author Aaron Hansen
  */
-@SuppressWarnings({"UnusedReturnValue", "unused"})
+@SuppressWarnings({"UnusedReturnValue", "unused", "unchecked"})
 public class Alist extends Agroup implements Iterable<Adata> {
 
     ///////////////////////////////////////////////////////////////////////////
@@ -174,23 +174,21 @@ public class Alist extends Agroup implements Iterable<Adata> {
     }
 
     /**
-     * Returns the value being wrapped by the Aon data type at the given index, unless
-     * the value is Agroup.
+     * Returns the Adata at the given index.
      *
      * @see Adata#get()
      */
-    public <T> T get(int idx) {
-        return values.get(idx).get();
+    public <T extends Adata> T get(int idx) {
+        return (T) values.get(idx);
     }
 
     /**
-     * Returns the value being wrapped by the Aon data type at the given index, unless
-     * the value is Agroup.
+     * Returns the Adata at the given index.
      *
      * @see Adata#get()
      */
-    public <T> T get(int idx, Class<T> type) {
-        return type.cast(values.get(idx).get());
+    public <T extends Adata> T get(int idx, Class<T> type) {
+        return type.cast(values.get(idx));
     }
 
     /**
@@ -304,17 +302,26 @@ public class Alist extends Agroup implements Iterable<Adata> {
     }
 
     /**
-     * Returns the value at the given index.
+     * The string value at the given index.
+     *
+     * @return Possibly null
      */
-    public <T extends Adata> T getValue(int idx) {
-        return (T) values.get(idx);
+    public String getString(int idx) {
+        return get(idx).toString();
     }
 
     /**
-     * Returns the value at the given index.
+     * Returns the value wrapped by Adata at the given index.
      */
-    public <T extends Adata> T getValue(int idx, Class<T> type) {
-        return type.cast(values.get(idx));
+    public <T> T getValue(int idx) {
+        return values.get(idx).get();
+    }
+
+    /**
+     * Returns the value wrapped by Adata at the given index.
+     */
+    public <T> T getValue(int idx, Class<T> type) {
+        return type.cast(values.get(idx).get());
     }
 
     @Override
@@ -342,8 +349,8 @@ public class Alist extends Agroup implements Iterable<Adata> {
     }
 
     /**
-     * Whether or not the object at the given index is null.  Will return
-     * true if the index is out of bounds.
+     * Whether or not the object at the given index is null.  Will return true if the index is out
+     * of bounds.
      */
     public boolean isNull(int idx) {
         if (isOutOfBounds(idx)) {
@@ -352,7 +359,7 @@ public class Alist extends Agroup implements Iterable<Adata> {
         if (idx < 0) {
             return true;
         }
-        return getValue(idx).isNull();
+        return get(idx).isNull();
     }
 
     public boolean isOutOfBounds(int index) {
@@ -497,7 +504,6 @@ public class Alist extends Agroup implements Iterable<Adata> {
      *
      * @return The value removed.
      */
-    @Nullable
     public Adata remove(int idx) {
         return values.remove(idx);
     }
@@ -505,9 +511,8 @@ public class Alist extends Agroup implements Iterable<Adata> {
     /**
      * Remove and return the item at index 0.
      *
-     * @return The value removed.
+     * @return The value removed or null.
      */
-    @Nullable
     public Adata removeFirst() {
         if (isEmpty()) {
             return null;
@@ -518,9 +523,8 @@ public class Alist extends Agroup implements Iterable<Adata> {
     /**
      * Remove and return the item at the highest index.
      *
-     * @return The value removed.
+     * @return The value removed or null.
      */
-    @Nullable
     public Adata removeLast() {
         if (isEmpty()) {
             return null;

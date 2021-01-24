@@ -137,8 +137,7 @@ public class JsonReader extends AbstractReader {
         if (bufLen >= bufChars.length) {
             bufGrow();
         }
-        bufChars[bufLen] = b;
-        bufLen++;
+        bufChars[bufLen++] = b;
     }
 
     private void bufGrow() {
@@ -150,35 +149,33 @@ public class JsonReader extends AbstractReader {
     }
 
     private static long decodeLong(char[] buf, int idx, int end) {
-        boolean neg = false;
         char ch = buf[idx];
+        if (ch == '-') {
+            ++idx;
+            long ret = 0;
+            while (idx < end) {
+                ret = (ret * 10) + (buf[idx++] - '0');
+            }
+            return -ret;
+        }
         if (ch == '+') {
-            idx++;
-        } else if (ch == '-') {
-            neg = true;
-            idx++;
+            ++idx;
         }
         long ret = 0;
         while (idx < end) {
             ret = (ret * 10) + (buf[idx++] - '0');
         }
-        return neg ? -ret : ret;
+        return ret;
     }
 
     private Token decodeNumber(char[] buf, int len, int decIdx) {
-        int idx;
-        if (decIdx >= 0) {
-            idx = decIdx;
-        } else {
-            idx = len;
+        if (decIdx < 0) {
+            return setNext(decodeLong(buf, 0, len));
         }
-        long theLong = decodeLong(buf, 0, idx);
-        //parse fraction
-        if (decIdx >= 0) {
-            double num = decodeLong(buf, ++idx, len);
-            return setNext(theLong + (num / Math.pow(10d, len - idx)));
-        }
-        return setNext(theLong);
+        long whole = decodeLong(buf, 0, decIdx);
+        int declen = len - ++decIdx;
+        double frac = decodeLong(buf, decIdx, len);
+        return setNext(whole + (frac / Math.pow(10d, declen)));
     }
 
     private static InputStream fis(File file) {
@@ -197,7 +194,7 @@ public class JsonReader extends AbstractReader {
                 return -1;
             }
         }
-        inLen--;
+        --inLen;
         return inChars[inOff++];
     }
 
@@ -227,10 +224,10 @@ public class JsonReader extends AbstractReader {
         }
         if (hasExp) {
             String s = new String(bufChars, 0, bufLen);
-            if (decIndex >= 0) {
-                return setNext(Double.parseDouble(s));
+            if (decIndex < 0) {
+                return setNext(Long.parseLong(s));
             }
-            return setNext(Long.parseLong(s));
+            return setNext(Double.parseDouble(s));
         }
         return decodeNumber(bufChars, bufLen, decIndex);
     }
@@ -332,18 +329,18 @@ public class JsonReader extends AbstractReader {
     }
 
     private void unreadChar() {
-        inLen++;
-        inOff--;
+        ++inLen;
+        --inOff;
     }
 
     private void validateNextChars(int[] chars) throws IOException {
-        for (int i = 0; i < chars.length; i++) {
+        for (int aChar : chars) {
             int ch = readChar();
-            if (ch != chars[i]) {
+            if (ch != aChar) {
                 if (ch == -1) {
                     throw new EOFException();
                 }
-                throw new IllegalStateException("Expecting " + chars[i] + ", but got " + ch);
+                throw new IllegalStateException("Expecting " + aChar + ", but got " + ch);
             }
         }
     }

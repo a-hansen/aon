@@ -13,9 +13,8 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 /**
- * String keyed collection of values that preserves the order of addition.  To traverse
- * members in order, use {@link #iterator()}, or {@link #getFirst()} and then use
- * {@link Member#next()}.
+ * String keyed collection of values that preserves the order of addition.  To traverse members in
+ * order, use {@link #iterator()}, or {@link #getFirst()} and then use {@link Member#next()}.
  * <p>
  * Adding null will result in Anull.NULL being put into the obj.
  * <p>
@@ -23,7 +22,7 @@ import javax.annotation.Nullable;
  *
  * @author Aaron Hansen
  */
-@SuppressWarnings({"unused"})
+@SuppressWarnings({"unused", "unchecked"})
 public class Aobj extends Agroup implements Iterable<Member> {
 
     ///////////////////////////////////////////////////////////////////////////
@@ -80,34 +79,42 @@ public class Aobj extends Agroup implements Iterable<Member> {
     }
 
     /**
-     * Returns the value being wrapped by the Aon data type for the given key, or null.
+     * Returns the Adata for the given key, or null.
+     *
+     * @return Possbily null
      */
-    @Nullable
-    public <T> T get(@Nonnull String key) {
+    public <T extends Adata> T get(@Nullable String key) {
+        if (key == null) {
+            return null;
+        }
         Member e = getMember(key);
         if (e == null) {
             return null;
         }
-        return e.getValue().get();
+        return (T) e.getValue();
     }
 
     /**
-     * Returns the value being wrapped by the Aon data type for the given key, or null.
+     * Returns the Adata for the given key and type, or null.
+     *
+     * @return Possibly null.
      */
-    @Nullable
-    public <T> T get(@Nonnull String key, Class<T> type) {
+    public <T extends Adata> T get(@Nullable String key, Class<T> type) {
+        if (key == null) {
+            return null;
+        }
         Member e = getMember(key);
         if (e == null) {
             return null;
         }
-        return type.cast(e.getValue().get());
+        return type.cast(e.getValue());
     }
 
     /**
-     * Optional getter, returns the provided default if the value mapped to the key is
-     * null or not convertible.
+     * Optional getter, returns the provided default if the value mapped to the key is null or not
+     * convertible.
      */
-    public boolean get(@Nonnull String key, boolean def) {
+    public boolean get(@Nullable String key, boolean def) {
         Adata ret = get(key);
         if (Aon.isNull(ret)) {
             return def;
@@ -120,10 +127,9 @@ public class Aobj extends Agroup implements Iterable<Member> {
     }
 
     /**
-     * Optional getter, returns the provided default if the value mapped to the key is
-     * null.
+     * Optional getter, returns the provided default if the value mapped to the key is null.
      */
-    public double get(@Nonnull String key, double def) {
+    public double get(@Nullable String key, double def) {
         Adata ret = get(key);
         if (Aon.isNull(ret)) {
             return def;
@@ -136,10 +142,9 @@ public class Aobj extends Agroup implements Iterable<Member> {
     }
 
     /**
-     * Optional getter, returns the provided default if the value mapped to the key is
-     * null.
+     * Optional getter, returns the provided default if the value mapped to the key is null.
      */
-    public float get(@Nonnull String key, float def) {
+    public float get(@Nullable String key, float def) {
         Adata ret = get(key);
         if (Aon.isNull(ret)) {
             return def;
@@ -152,10 +157,10 @@ public class Aobj extends Agroup implements Iterable<Member> {
     }
 
     /**
-     * Optional getter, returns the provided default if the value mapped to the key is
-     * null or not convertible.
+     * Optional getter, returns the provided default if the value mapped to the key is null or not
+     * convertible.
      */
-    public int get(@Nonnull String key, int def) {
+    public int get(@Nullable String key, int def) {
         Adata ret = get(key);
         if (Aon.isNull(ret)) {
             return def;
@@ -168,10 +173,10 @@ public class Aobj extends Agroup implements Iterable<Member> {
     }
 
     /**
-     * Optional getter, returns the provided default if the value mapped to the key is
-     * null or not convertible.
+     * Optional getter, returns the provided default if the value mapped to the key is null or not
+     * convertible.
      */
-    public long get(@Nonnull String key, long def) {
+    public long get(@Nullable String key, long def) {
         Adata ret = get(key);
         if (Aon.isNull(ret)) {
             return def;
@@ -184,10 +189,9 @@ public class Aobj extends Agroup implements Iterable<Member> {
     }
 
     /**
-     * Optional getter, returns the provided default if the value mapped to the key is
-     * null.
+     * Optional getter, returns the provided default if the value mapped to the key is null.
      */
-    public String get(@Nonnull String key, String def) {
+    public String get(@Nullable String key, String def) {
         Adata ret = get(key);
         if (Aon.isNull(ret)) {
             return def;
@@ -198,7 +202,6 @@ public class Aobj extends Agroup implements Iterable<Member> {
     /**
      * Replaces the value and returns the prior value.
      */
-    @Nullable
     public Adata getAndPut(@Nonnull String key, @Nullable Adata value) {
         Member m = getMember(key);
         if (m == null) {
@@ -211,25 +214,39 @@ public class Aobj extends Agroup implements Iterable<Member> {
     }
 
     /**
-     * Use this to traverse the children in order.
+     * The first child or null.
+     *
+     * @return Possibly null
      */
     public Member getFirst() {
         return first;
     }
 
+    /**
+     * The last child or null.
+     *
+     * @return Possibly null
+     */
     public Member getLast() {
         return last;
     }
 
-    @Nullable
-    public Member getMember(String key) {
+    /**
+     * The child member or null.
+     *
+     * @return Possibly null
+     */
+    public Member getMember(@Nullable String key) {
+        if (key == null) {
+            return null;
+        }
         return map.get(key);
     }
 
     /**
-     * Attempts to get the current child but if there is no child, puts the new one and return it.
+     * Attempts to get the current child but if there is no child, puts the new one and returns it.
      */
-    public <T extends Adata> T getOrPutIfAbsent(String name, Supplier<T> child) {
+    public <T extends Adata> T getOrPutIfAbsent(@Nonnull String name, Supplier<T> child) {
         T ret = get(name);
         if (ret == null) {
             ret = child.get();
@@ -239,27 +256,36 @@ public class Aobj extends Agroup implements Iterable<Member> {
     }
 
     /**
-     * Returns the value for the given key or null.
+     * @return Possibly null
      */
-    @Nullable
-    public <T extends Adata> T getValue(@Nonnull String key) {
-        Member e = getMember(key);
-        if (e == null) {
+    public String getString(@Nullable String key) {
+        Adata ret = get(key);
+        if (Aon.isNull(ret)) {
             return null;
         }
-        return (T) e.getValue();
+        return ret.toString();
     }
 
     /**
-     * Returns the value for the given key or null.
+     * Returns the value wrapped by Adata for the given key or null.
      */
-    @Nullable
-    public <T extends Adata> T getValue(@Nonnull String key, Class<T> type) {
+    public <T> T getValue(@Nullable String key) {
         Member e = getMember(key);
         if (e == null) {
             return null;
         }
-        return type.cast(e.getValue());
+        return e.getValue().get();
+    }
+
+    /**
+     * Returns the value wrapped by Adata for the given key or null.
+     */
+    public <T> T getValue(@Nonnull String key, Class<T> type) {
+        Member e = getMember(key);
+        if (e == null) {
+            return null;
+        }
+        return type.cast(e.getValue().get());
     }
 
     @Override
@@ -473,8 +499,10 @@ public class Aobj extends Agroup implements Iterable<Member> {
      *
      * @return Possibly null.
      */
-    @Nullable
-    public Adata remove(@Nonnull String key) {
+    public Adata remove(@Nullable String key) {
+        if (key == null) {
+            return null;
+        }
         Member e = map.remove(key);
         if (e == null) {
             return null;
@@ -494,7 +522,9 @@ public class Aobj extends Agroup implements Iterable<Member> {
         return e.getValue();
     }
 
-    @Nullable
+    /**
+     * @return Possibly null
+     */
     public Adata removeFirst() {
         if (first != null) {
             return remove(first.getKey());
@@ -502,7 +532,9 @@ public class Aobj extends Agroup implements Iterable<Member> {
         return null;
     }
 
-    @Nullable
+    /**
+     * @return Possibly null
+     */
     public Adata removeLast() {
         if (last != null) {
             return remove(last.getKey());
@@ -543,7 +575,7 @@ public class Aobj extends Agroup implements Iterable<Member> {
     ///////////////////////////////////////////////////////////////////////////
 
     /**
-     * Object member which provides access to the next member in the object.
+     * Object member which provides access to the key, value and next member in the object.
      */
     public static class Member {
 

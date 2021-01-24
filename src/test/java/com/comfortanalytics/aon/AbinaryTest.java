@@ -25,9 +25,9 @@ public class AbinaryTest {
         Alist list = new Alist().add(val);
         byte[] bytes = Aon.aonBytes(list);
         list = Aon.readAon(bytes).toList();
-        validate(Abinary.EMPTY.valueOf(list.getValue(0).toPrimitive()));
-        validateEqual(Abinary.EMPTY.valueOf(list.getValue(0).toPrimitive()), val);
-        validateUnequal(Abinary.EMPTY.valueOf(list.getValue(0).toPrimitive()), val2);
+        validate(Abinary.EMPTY.valueOf(list.get(0).toPrimitive()));
+        validateEqual(Abinary.EMPTY.valueOf(list.get(0).toPrimitive()), val);
+        validateUnequal(Abinary.EMPTY.valueOf(list.get(0).toPrimitive()), val2);
     }
 
     ///////////////////////////////////////////////////////////////////////////

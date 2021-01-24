@@ -36,8 +36,26 @@ public class Profiling {
     // Public Methods
     ///////////////////////////////////////////////////////////////////////////
 
+    static {
+        aobjSmall = makeSmallObj();
+        aobjLarge = makeLargeObj();
+        ByteArrayOutputStream out;
+        encodeAon(aobjSmall, out = new ByteArrayOutputStream());
+        aonSmall = out.toByteArray();
+        encodeAon(aobjLarge, out = new ByteArrayOutputStream());
+        aonLarge = out.toByteArray();
+        encodeAonJson(aobjSmall, out = new ByteArrayOutputStream());
+        jsonSmall = out.toByteArray();
+        encodeAonJson(aobjLarge, out = new ByteArrayOutputStream());
+        jsonLarge = out.toByteArray();
+    }
+
+    ///////////////////////////////////////////////////////////////////////////
+    // Package Methods
+    ///////////////////////////////////////////////////////////////////////////
+
     @SuppressWarnings("InfiniteLoopStatement")
-    public static void main(String[] args) throws Exception {
+    public static void main(String[] args) {
         while (true) {
             //decodeAon(aonLarge);
             //decodeAon(aonSmall);
@@ -47,13 +65,9 @@ public class Profiling {
             //encodeAon(aobjSmall, nullOutputStream);
             //encodeAonJson(aobjLarge, nullOutputStream);
             //encodeAonJson(aobjSmall, nullOutputStream);
-            Thread.sleep(1);
+            Thread.yield();
         }
     }
-
-    ///////////////////////////////////////////////////////////////////////////
-    // Package Methods
-    ///////////////////////////////////////////////////////////////////////////
 
     static Aobj makeLargeObj() {
         Aobj primitiveObj = AobjTest.makeObj();
@@ -77,15 +91,15 @@ public class Profiling {
         return testObj;
     }
 
+    ///////////////////////////////////////////////////////////////////////////
+    // Private Methods
+    ///////////////////////////////////////////////////////////////////////////
+
     static Aobj makeSmallObj() {
         Aobj ret = new Aobj();
         ret.put("list", AlistTest.makeList());
         return ret;
     }
-
-    ///////////////////////////////////////////////////////////////////////////
-    // Private Methods
-    ///////////////////////////////////////////////////////////////////////////
 
     private static void decodeAon(byte[] arg) {
         try {
@@ -130,6 +144,10 @@ public class Profiling {
         }
     }
 
+    ///////////////////////////////////////////////////////////////////////////
+    // Initialization
+    ///////////////////////////////////////////////////////////////////////////
+
     private static class NullWriter extends Writer {
 
         @Override
@@ -144,24 +162,6 @@ public class Profiling {
         public void write(@Nonnull char[] cbuf, int off, int len) {
         }
 
-    }
-
-    ///////////////////////////////////////////////////////////////////////////
-    // Initialization
-    ///////////////////////////////////////////////////////////////////////////
-
-    static {
-        aobjSmall = makeSmallObj();
-        aobjLarge = makeLargeObj();
-        ByteArrayOutputStream out;
-        encodeAon(aobjSmall, out = new ByteArrayOutputStream());
-        aonSmall = out.toByteArray();
-        encodeAon(aobjLarge, out = new ByteArrayOutputStream());
-        aonLarge = out.toByteArray();
-        encodeAonJson(aobjSmall, out = new ByteArrayOutputStream());
-        jsonSmall = out.toByteArray();
-        encodeAonJson(aobjLarge, out = new ByteArrayOutputStream());
-        jsonLarge = out.toByteArray();
     }
 
 }

@@ -6,8 +6,8 @@ import java.math.BigDecimal;
 import java.math.BigInteger;
 
 /**
- * Basic implementation of Awriter.  Subclasses must implement the
- * abstract methods which all start with 'write'.
+ * Basic implementation of Awriter.  Subclasses must implement the abstract methods which all start
+ * with 'write'.
  *
  * @author Aaron Hansen
  */
@@ -31,7 +31,6 @@ public abstract class AbstractWriter implements Awriter {
 
     private int depth = 0;
     private int last = LAST_INIT;
-
     /**
      * Subclasses can use this if applicable.
      */
@@ -566,8 +565,8 @@ public abstract class AbstractWriter implements Awriter {
     protected abstract void writeKeyValueSeparator() throws IOException;
 
     /**
-     * Override point for subclasses which perform use pretty printing, such as json.
-     * Does nothing by default.
+     * Override point for subclasses which perform use pretty printing, such as json. Does nothing
+     * by default.
      *
      * @see #getDepth()
      */

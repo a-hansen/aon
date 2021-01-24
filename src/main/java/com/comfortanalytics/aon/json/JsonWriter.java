@@ -12,8 +12,8 @@ import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 
 /**
- * Json implementation of Awriter intended for OutputStreams and Writers.  While
- * JsonAppender can also handle OutputStreams and Writer, this is more performant.
+ * Json implementation of Awriter intended for OutputStreams and Writers.  While JsonAppender can
+ * also handle OutputStreams and Writer, this is more performant.
  *
  * @author Aaron Hansen
  * @see com.comfortanalytics.aon.Awriter
@@ -95,7 +95,6 @@ public class JsonWriter extends AbstractJsonWriter {
         return this;
     }
 
-
     /**
      * Append the chars and return this.  Can be used for custom formatting.
      */
@@ -103,11 +102,13 @@ public class JsonWriter extends AbstractJsonWriter {
     public Appendable append(CharSequence csq) {
         int len = csq.length();
         if (bufoff + len < BUF_SIZE) {
+            char[] buf = this.buf;
             for (int i = 0; i < len; i++) {
                 buf[bufoff++] = csq.charAt(i);
             }
         } else if (len <= BUF_SIZE) {
             flush();
+            char[] buf = this.buf;
             for (int i = 0; i < len; i++) {
                 buf[bufoff++] = csq.charAt(i);
             }
@@ -126,11 +127,13 @@ public class JsonWriter extends AbstractJsonWriter {
     public Appendable append(CharSequence csq, int start, int end) {
         int len = end - start;
         if (bufoff + len <= BUF_SIZE) {
+            char[] buf = this.buf;
             while (start < end) {
                 buf[bufoff++] = csq.charAt(start++);
             }
         } else if (len <= BUF_SIZE) {
             flush();
+            char[] buf = this.buf;
             while (start < end) {
                 buf[bufoff++] = csq.charAt(start++);
             }

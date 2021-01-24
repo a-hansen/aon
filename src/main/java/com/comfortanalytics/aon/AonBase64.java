@@ -33,6 +33,16 @@ class AonBase64 {
     // Methods
     ///////////////////////////////////////////////////////////
 
+    static {
+        Arrays.fill(fromBase64, -1);
+        for (int i = 0; i < toBase64.length; i++) {
+            fromBase64[toBase64[i]] = i;
+        }
+        fromBase64['-'] = fromBase64['+'];
+        fromBase64['_'] = fromBase64['/'];
+        fromBase64['='] = -2;
+    }
+
     /**
      * Decodes a base 64 encoded string.  Will decode both url safe and unsafe.
      *
@@ -116,6 +126,10 @@ class AonBase64 {
         return enc.replace('+', '-').replace('/', '_');
     }
 
+    ///////////////////////////////////////////////////////////////////////////
+    // Initialization
+    ///////////////////////////////////////////////////////////////////////////
+
     /**
      * Encodes a buffer into a base 64 string.
      *
@@ -177,20 +191,6 @@ class AonBase64 {
             }
         }
         return buf.toString();
-    }
-
-    ///////////////////////////////////////////////////////////////////////////
-    // Initialization
-    ///////////////////////////////////////////////////////////////////////////
-
-    static {
-        Arrays.fill(fromBase64, -1);
-        for (int i = 0; i < toBase64.length; i++) {
-            fromBase64[toBase64[i]] = i;
-        }
-        fromBase64['-'] = fromBase64['+'];
-        fromBase64['_'] = fromBase64['/'];
-        fromBase64['='] = -2;
     }
 
 }
