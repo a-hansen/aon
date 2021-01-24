@@ -221,14 +221,14 @@ public abstract class AbstractReader implements Areader {
 
     @Override
     public Alist getList() {
-        if (last == Token.ROOT) {
-            next();
-        }
-        if (last == Token.NULL) {
-            return null;
-        }
         if (last != Token.BEGIN_LIST) {
-            throw new IllegalStateException("Not a list");
+            if (last == Token.ROOT) {
+                next();
+            } else if (last == Token.NULL) {
+                return null;
+            } else {
+                throw new IllegalStateException("Not a list");
+            }
         }
         Alist ret = new Alist();
         while (true) {
@@ -308,14 +308,14 @@ public abstract class AbstractReader implements Areader {
 
     @Override
     public Aobj getObj() {
-        if (last == Token.ROOT) {
-            next();
-        }
-        if (last == Token.NULL) {
-            return null;
-        }
         if (last != Token.BEGIN_OBJ) {
-            throw new IllegalStateException("Not a object");
+            if (last == Token.ROOT) {
+                next();
+            } else if (last == Token.NULL) {
+                return null;
+            } else {
+                throw new IllegalStateException("Not a object");
+            }
         }
         Aobj ret = new Aobj();
         String key;
@@ -381,6 +381,9 @@ public abstract class AbstractReader implements Areader {
 
     @Override
     public String getString() {
+        if (last == Token.STRING) {
+            return valString;
+        }
         switch (last) {
             case DECIMAL:
                 return valDecimal.toString();
@@ -402,8 +405,6 @@ public abstract class AbstractReader implements Areader {
                 return getObj().toString();
             case NULL:
                 return null;
-            case STRING:
-                return valString;
             default:
                 throw new IllegalStateException("Not a string");
         }

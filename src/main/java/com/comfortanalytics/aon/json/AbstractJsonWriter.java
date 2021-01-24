@@ -27,12 +27,10 @@ public abstract class AbstractJsonWriter extends AbstractWriter implements Appen
     private static final char[] C_T = new char[]{'\\', 't'};
     private static final char[] C_TRUE = new char[]{'t', 'r', 'u', 'e'};
     private static final char[] C_U = new char[]{'\\', 'u'};
-    private static final char[] HEX =
-            {
-                    '0', '1', '2', '3', '4', '5', '6', '7',
-                    '8', '9', 'a', 'b', 'c', 'd', 'e', 'f'
-            };
-    private static final long[] POWS = new long[]{
+    private static final char[] HEX = {
+            '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'a', 'b', 'c', 'd', 'e', 'f'
+    };
+    static final long[] POWS = new long[]{
             1,
             10,
             100,
@@ -98,7 +96,7 @@ public abstract class AbstractJsonWriter extends AbstractWriter implements Appen
 
     @Override
     protected void write(double arg) throws IOException {
-        if (arg % 1 == 0) {
+        if (arg == StrictMath.rint(arg)) {
             write((long) arg);
             append('.').append('0');
         } else {
@@ -112,7 +110,7 @@ public abstract class AbstractJsonWriter extends AbstractWriter implements Appen
 
     @Override
     protected void write(float arg) throws IOException {
-        if (arg % 1 == 0) {
+        if (arg == StrictMath.rint(arg)) {
             write((int) arg);
             append('.').append('0');
         } else {
@@ -129,6 +127,8 @@ public abstract class AbstractJsonWriter extends AbstractWriter implements Appen
             append('0');
             return;
         }
+        long[] POWS = AbstractJsonWriter.POWS;
+        long pow;
         if (val < 0) {
             append('-');
             boolean minValue = (val == Integer.MIN_VALUE);
@@ -136,11 +136,16 @@ public abstract class AbstractJsonWriter extends AbstractWriter implements Appen
                 ++val;
             }
             val = -val;
-            int pow = digits(val);
-            while (--pow > 0) {
-                long l = POWS[pow];
-                append((char) ((val / l) + '0'));
-                val &= --l;
+            int digit = digits(val);
+            while (--digit > 0) {
+                pow = POWS[digit];
+                append((char) ((val / pow) + '0'));
+                if ((val %= pow) == 0) {
+                    while (--digit > 0) {
+                        append('0');
+                    }
+                    break;
+                }
             }
             if (minValue) {
                 append((char) (++val + '0'));
@@ -148,11 +153,16 @@ public abstract class AbstractJsonWriter extends AbstractWriter implements Appen
                 append((char) (val + '0'));
             }
         } else {
-            int pow = digits(val);
-            while (--pow > 0) {
-                long l = POWS[pow];
-                append((char) ((val / l) + '0'));
-                val &= --l;
+            int digit = digits(val);
+            while (--digit > 0) {
+                pow = POWS[digit];
+                append((char) ((val / pow) + '0'));
+                if ((val %= pow) == 0) {
+                    while (--digit > 0) {
+                        append('0');
+                    }
+                    break;
+                }
             }
             append((char) (val + '0'));
         }
@@ -164,6 +174,8 @@ public abstract class AbstractJsonWriter extends AbstractWriter implements Appen
             append('0');
             return;
         }
+        long[] POWS = AbstractJsonWriter.POWS;
+        long pow;
         if (val < 0) {
             append('-');
             boolean minValue = (val == Long.MIN_VALUE);
@@ -171,11 +183,16 @@ public abstract class AbstractJsonWriter extends AbstractWriter implements Appen
                 ++val;
             }
             val = -val;
-            int pow = digits(val);
-            while (--pow > 0) {
-                long l = POWS[pow];
-                append((char) ((val / l) + '0'));
-                val %= l;
+            int digit = digits(val);
+            while (--digit > 0) {
+                pow = POWS[digit];
+                append((char) ((val / pow) + '0'));
+                if ((val %= pow) == 0) {
+                    while (--digit > 0) {
+                        append('0');
+                    }
+                    break;
+                }
             }
             if (minValue) {
                 append((char) (++val + '0'));
@@ -183,11 +200,16 @@ public abstract class AbstractJsonWriter extends AbstractWriter implements Appen
                 append((char) (val + '0'));
             }
         } else {
-            int pow = digits(val);
-            while (--pow > 0) {
-                long l = POWS[pow];
-                append((char) ((val / l) + '0'));
-                val %= l;
+            int digit = digits(val);
+            while (--digit > 0) {
+                pow = POWS[digit];
+                append((char) ((val / pow) + '0'));
+                if ((val %= pow) == 0) {
+                    while (--digit > 0) {
+                        append('0');
+                    }
+                    break;
+                }
             }
             append((char) (val + '0'));
         }

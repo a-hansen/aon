@@ -31,6 +31,8 @@ public class JsonReader extends AbstractReader {
     private static final int[] RUE = new int[]{'r', 'u', 'e'};
     private static final int[] ULL = new int[]{'u', 'l', 'l'};
 
+    private static final long[] POWS = AbstractJsonWriter.POWS;
+
     ///////////////////////////////////////////////////////////////////////////
     // Instance Fields
     ///////////////////////////////////////////////////////////////////////////
@@ -62,13 +64,13 @@ public class JsonReader extends AbstractReader {
         this(new InputStreamReader(in, charset));
     }
 
-    public JsonReader(Reader in) {
-        this.in = in;
-    }
-
     ///////////////////////////////////////////////////////////////////////////
     // Public Methods
     ///////////////////////////////////////////////////////////////////////////
+
+    public JsonReader(Reader in) {
+        this.in = in;
+    }
 
     @Override
     public void close() {
@@ -78,6 +80,10 @@ public class JsonReader extends AbstractReader {
             throw new RuntimeException(x);
         }
     }
+
+    ///////////////////////////////////////////////////////////////////////////
+    // Private Methods
+    ///////////////////////////////////////////////////////////////////////////
 
     @Override
     public Token next() {
@@ -129,20 +135,18 @@ public class JsonReader extends AbstractReader {
         }
     }
 
-    ///////////////////////////////////////////////////////////////////////////
-    // Private Methods
-    ///////////////////////////////////////////////////////////////////////////
-
     private void bufAppend(char b) {
-        if (bufLen >= bufChars.length) {
+        int len = bufLen;
+        if (len == bufChars.length) {
             bufGrow();
         }
-        bufChars[bufLen++] = b;
+        bufChars[len] = b;
+        ++bufLen;
     }
 
     private void bufGrow() {
         if (bufChars.length < 131072) {
-            bufChars = Arrays.copyOf(bufChars, bufChars.length * 2);
+            bufChars = Arrays.copyOf(bufChars, bufChars.length + bufChars.length);
         } else {
             bufChars = Arrays.copyOf(bufChars, bufChars.length + 131072);
         }
@@ -150,20 +154,19 @@ public class JsonReader extends AbstractReader {
 
     private static long decodeLong(char[] buf, int idx, int end) {
         char ch = buf[idx];
+        long ret = 0;
         if (ch == '-') {
             ++idx;
-            long ret = 0;
             while (idx < end) {
-                ret = (ret * 10) + (buf[idx++] - '0');
+                ret = ((ret << 1) + (ret << 3)) + buf[idx++] - '0';
             }
             return -ret;
         }
         if (ch == '+') {
             ++idx;
         }
-        long ret = 0;
         while (idx < end) {
-            ret = (ret * 10) + (buf[idx++] - '0');
+            ret = ((ret << 1) + (ret << 3)) + buf[idx++] - '0';
         }
         return ret;
     }
@@ -172,10 +175,9 @@ public class JsonReader extends AbstractReader {
         if (decIdx < 0) {
             return setNext(decodeLong(buf, 0, len));
         }
-        long whole = decodeLong(buf, 0, decIdx);
-        int declen = len - ++decIdx;
-        double frac = decodeLong(buf, decIdx, len);
-        return setNext(whole + (frac / Math.pow(10d, declen)));
+        return setNext(
+                decodeLong(buf, 0, decIdx) +
+                        ((double) decodeLong(buf, ++decIdx, len) / POWS[len - decIdx]));
     }
 
     private static InputStream fis(File file) {
@@ -188,11 +190,11 @@ public class JsonReader extends AbstractReader {
 
     private int readChar() throws IOException {
         if (inLen == 0) {
-            inOff = 0;
             inLen = in.read(inChars, 0, inChars.length);
             if (inLen <= 0) {
                 return -1;
             }
+            inOff = 0;
         }
         --inLen;
         return inChars[inOff++];
@@ -209,6 +211,7 @@ public class JsonReader extends AbstractReader {
                 } else if (ch == -1) {
                     return setEndInput();
                 } else if (ch != '-' && ch != '+') {
+                    unreadChar();
                     break;
                 }
             } else if (ch > '9') {
