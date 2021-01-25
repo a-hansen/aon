@@ -279,24 +279,22 @@ public abstract class AbstractWriter implements Awriter {
     @Override
     public AbstractWriter value(boolean arg) {
         try {
-            if (last != LAST_KEY) {
-                switch (last) {
-                    case LAST_DONE:
-                        throw new IllegalStateException("Nesting error: " + arg);
-                    case LAST_INIT:
-                        throw new IllegalStateException("Not expecting value: " + arg);
-                    case LAST_VAL:
-                    case LAST_END:
-                        writeSeparator();
-                        if (prettyPrint) {
-                            writeNewLineIndent();
-                        }
-                        break;
-                    case LAST_LIST:
-                        if (prettyPrint) {
-                            writeNewLineIndent();
-                        }
-                }
+            switch (last) {
+                case LAST_DONE:
+                    throw new IllegalStateException("Nesting error: " + arg);
+                case LAST_INIT:
+                    throw new IllegalStateException("Not expecting value: " + arg);
+                case LAST_VAL:
+                case LAST_END:
+                    writeSeparator();
+                    if (prettyPrint) {
+                        writeNewLineIndent();
+                    }
+                    break;
+                case LAST_LIST:
+                    if (prettyPrint) {
+                        writeNewLineIndent();
+                    }
             }
             write(arg);
             last = LAST_VAL;
@@ -309,24 +307,22 @@ public abstract class AbstractWriter implements Awriter {
     @Override
     public AbstractWriter value(byte[] arg) {
         try {
-            if (last != LAST_KEY) {
-                switch (last) {
-                    case LAST_DONE:
-                        throw new IllegalStateException("Nesting error");
-                    case LAST_INIT:
-                        throw new IllegalStateException("Not expecting byte[] value");
-                    case LAST_VAL:
-                    case LAST_END:
-                        writeSeparator();
-                        if (prettyPrint) {
-                            writeNewLineIndent();
-                        }
-                        break;
-                    case LAST_LIST:
-                        if (prettyPrint) {
-                            writeNewLineIndent();
-                        }
-                }
+            switch (last) {
+                case LAST_DONE:
+                    throw new IllegalStateException("Nesting error");
+                case LAST_INIT:
+                    throw new IllegalStateException("Not expecting byte[] value");
+                case LAST_VAL:
+                case LAST_END:
+                    writeSeparator();
+                    if (prettyPrint) {
+                        writeNewLineIndent();
+                    }
+                    break;
+                case LAST_LIST:
+                    if (prettyPrint) {
+                        writeNewLineIndent();
+                    }
             }
             write(arg);
             last = LAST_VAL;
@@ -339,24 +335,22 @@ public abstract class AbstractWriter implements Awriter {
     @Override
     public AbstractWriter value(double arg) {
         try {
-            if (last != LAST_KEY) {
-                switch (last) {
-                    case LAST_DONE:
-                        throw new IllegalStateException("Nesting error: " + arg);
-                    case LAST_INIT:
-                        throw new IllegalStateException("Not expecting value: " + arg);
-                    case LAST_VAL:
-                    case LAST_END:
-                        writeSeparator();
-                        if (prettyPrint) {
-                            writeNewLineIndent();
-                        }
-                        break;
-                    case LAST_LIST:
-                        if (prettyPrint) {
-                            writeNewLineIndent();
-                        }
-                }
+            switch (last) {
+                case LAST_DONE:
+                    throw new IllegalStateException("Nesting error: " + arg);
+                case LAST_INIT:
+                    throw new IllegalStateException("Not expecting value: " + arg);
+                case LAST_VAL:
+                case LAST_END:
+                    writeSeparator();
+                    if (prettyPrint) {
+                        writeNewLineIndent();
+                    }
+                    break;
+                case LAST_LIST:
+                    if (prettyPrint) {
+                        writeNewLineIndent();
+                    }
             }
             write(arg);
             last = LAST_VAL;
@@ -369,24 +363,22 @@ public abstract class AbstractWriter implements Awriter {
     @Override
     public AbstractWriter value(float arg) {
         try {
-            if (last != LAST_KEY) {
-                switch (last) {
-                    case LAST_DONE:
-                        throw new IllegalStateException("Nesting error: " + arg);
-                    case LAST_INIT:
-                        throw new IllegalStateException("Not expecting value: " + arg);
-                    case LAST_VAL:
-                    case LAST_END:
-                        writeSeparator();
-                        if (prettyPrint) {
-                            writeNewLineIndent();
-                        }
-                        break;
-                    case LAST_LIST:
-                        if (prettyPrint) {
-                            writeNewLineIndent();
-                        }
-                }
+            switch (last) {
+                case LAST_DONE:
+                    throw new IllegalStateException("Nesting error: " + arg);
+                case LAST_INIT:
+                    throw new IllegalStateException("Not expecting value: " + arg);
+                case LAST_VAL:
+                case LAST_END:
+                    writeSeparator();
+                    if (prettyPrint) {
+                        writeNewLineIndent();
+                    }
+                    break;
+                case LAST_LIST:
+                    if (prettyPrint) {
+                        writeNewLineIndent();
+                    }
             }
             write(arg);
             last = LAST_VAL;
@@ -399,24 +391,22 @@ public abstract class AbstractWriter implements Awriter {
     @Override
     public AbstractWriter value(int arg) {
         try {
-            if (last != LAST_KEY) {
-                switch (last) {
-                    case LAST_DONE:
-                        throw new IllegalStateException("Nesting error: " + arg);
-                    case LAST_INIT:
-                        throw new IllegalStateException("Not expecting value: " + arg);
-                    case LAST_VAL:
-                    case LAST_END:
-                        writeSeparator();
-                        if (prettyPrint) {
-                            writeNewLineIndent();
-                        }
-                        break;
-                    case LAST_LIST:
-                        if (prettyPrint) {
-                            writeNewLineIndent();
-                        }
-                }
+            switch (last) {
+                case LAST_DONE:
+                    throw new IllegalStateException("Nesting error: " + arg);
+                case LAST_INIT:
+                    throw new IllegalStateException("Not expecting value: " + arg);
+                case LAST_VAL:
+                case LAST_END:
+                    writeSeparator();
+                    if (prettyPrint) {
+                        writeNewLineIndent();
+                    }
+                    break;
+                case LAST_LIST:
+                    if (prettyPrint) {
+                        writeNewLineIndent();
+                    }
             }
             write(arg);
             last = LAST_VAL;
@@ -429,24 +419,22 @@ public abstract class AbstractWriter implements Awriter {
     @Override
     public AbstractWriter value(long arg) {
         try {
-            if (last != LAST_KEY) {
-                switch (last) {
-                    case LAST_DONE:
-                        throw new IllegalStateException("Nesting error: " + arg);
-                    case LAST_INIT:
-                        throw new IllegalStateException("Not expecting value: " + arg);
-                    case LAST_VAL:
-                    case LAST_END:
-                        writeSeparator();
-                        if (prettyPrint) {
-                            writeNewLineIndent();
-                        }
-                        break;
-                    case LAST_LIST:
-                        if (prettyPrint) {
-                            writeNewLineIndent();
-                        }
-                }
+            switch (last) {
+                case LAST_DONE:
+                    throw new IllegalStateException("Nesting error: " + arg);
+                case LAST_INIT:
+                    throw new IllegalStateException("Not expecting value: " + arg);
+                case LAST_VAL:
+                case LAST_END:
+                    writeSeparator();
+                    if (prettyPrint) {
+                        writeNewLineIndent();
+                    }
+                    break;
+                case LAST_LIST:
+                    if (prettyPrint) {
+                        writeNewLineIndent();
+                    }
             }
             write(arg);
             last = LAST_VAL;
@@ -459,24 +447,22 @@ public abstract class AbstractWriter implements Awriter {
     @Override
     public AbstractWriter value(String arg) {
         try {
-            if (last != LAST_KEY) {
-                switch (last) {
-                    case LAST_DONE:
-                        throw new IllegalStateException("Nesting error: " + arg);
-                    case LAST_INIT:
-                        throw new IllegalStateException("Not expecting value: " + arg);
-                    case LAST_VAL:
-                    case LAST_END:
-                        writeSeparator();
-                        if (prettyPrint) {
-                            writeNewLineIndent();
-                        }
-                        break;
-                    case LAST_LIST:
-                        if (prettyPrint) {
-                            writeNewLineIndent();
-                        }
-                }
+            switch (last) {
+                case LAST_DONE:
+                    throw new IllegalStateException("Nesting error: " + arg);
+                case LAST_INIT:
+                    throw new IllegalStateException("Not expecting value: " + arg);
+                case LAST_VAL:
+                case LAST_END:
+                    writeSeparator();
+                    if (prettyPrint) {
+                        writeNewLineIndent();
+                    }
+                    break;
+                case LAST_LIST:
+                    if (prettyPrint) {
+                        writeNewLineIndent();
+                    }
             }
             if (arg == null) {
                 writeNull();

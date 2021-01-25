@@ -11,6 +11,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
+import java.math.BigDecimal;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
@@ -31,7 +32,26 @@ public class JsonReader extends AbstractReader {
     private static final int[] RUE = new int[]{'r', 'u', 'e'};
     private static final int[] ULL = new int[]{'u', 'l', 'l'};
 
-    private static final long[] POWS = AbstractJsonWriter.POWS;
+    static final long[] POWS = new long[]{
+            1,
+            10,
+            100,
+            1000,
+            10000,
+            100000,
+            1000000,
+            10000000,
+            100000000,
+            1000000000,
+            10000000000L,
+            100000000000L,
+            1000000000000L,
+            10000000000000L,
+            100000000000000L,
+            1000000000000000L,
+            10000000000000000L,
+            100000000000000000L,
+            1000000000000000000L};
 
     ///////////////////////////////////////////////////////////////////////////
     // Instance Fields
@@ -202,12 +222,12 @@ public class JsonReader extends AbstractReader {
 
     private Token readNumber(int ch) throws IOException {
         bufLen = 0;
-        int decIndex = -1;
-        boolean hasExp = false;
+        int dec = -1;
+        boolean exp = false;
         while (true) {
             if (ch < '0') {
                 if (ch == '.') {
-                    decIndex = bufLen;
+                    dec = bufLen;
                 } else if (ch == -1) {
                     return setEndInput();
                 } else if (ch != '-' && ch != '+') {
@@ -216,7 +236,7 @@ public class JsonReader extends AbstractReader {
                 }
             } else if (ch > '9') {
                 if (ch == 'e' || ch == 'E') {
-                    hasExp = true;
+                    exp = true;
                 } else {
                     unreadChar();
                     break;
@@ -225,14 +245,17 @@ public class JsonReader extends AbstractReader {
             bufAppend((char) ch);
             ch = readChar();
         }
-        if (hasExp) {
-            String s = new String(bufChars, 0, bufLen);
-            if (decIndex < 0) {
-                return setNext(Long.parseLong(s));
+        try {
+            if (exp) {
+                if (dec < 0) {
+                    return setNext(Long.parseLong(new String(bufChars, 0, bufLen)));
+                }
+                return setNext(Double.parseDouble(new String(bufChars, 0, bufLen)));
             }
-            return setNext(Double.parseDouble(s));
+            return decodeNumber(bufChars, bufLen, dec);
+        } catch (Exception x) {
+            return setNext(new BigDecimal(new String(bufChars, 0, bufLen)));
         }
-        return decodeNumber(bufChars, bufLen, decIndex);
     }
 
     private String readString() throws IOException {

@@ -30,26 +30,6 @@ public abstract class AbstractJsonWriter extends AbstractWriter implements Appen
     private static final char[] HEX = {
             '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'a', 'b', 'c', 'd', 'e', 'f'
     };
-    static final long[] POWS = new long[]{
-            1,
-            10,
-            100,
-            1000,
-            10000,
-            100000,
-            1000000,
-            10000000,
-            100000000,
-            1000000000,
-            10000000000L,
-            100000000000L,
-            1000000000000L,
-            10000000000000L,
-            100000000000000L,
-            1000000000000000L,
-            10000000000000000L,
-            100000000000000000L,
-            1000000000000000000L};
 
     ///////////////////////////////////////////////////////////////////////////
     // Public Methods
@@ -127,45 +107,7 @@ public abstract class AbstractJsonWriter extends AbstractWriter implements Appen
             append('0');
             return;
         }
-        long[] POWS = AbstractJsonWriter.POWS;
-        long pow;
-        if (val < 0) {
-            append('-');
-            boolean minValue = (val == Integer.MIN_VALUE);
-            if (minValue) {
-                ++val;
-            }
-            val = -val;
-            int digit = digits(val);
-            while (--digit > 0) {
-                pow = POWS[digit];
-                append((char) ((val / pow) + '0'));
-                if ((val %= pow) == 0) {
-                    while (--digit > 0) {
-                        append('0');
-                    }
-                    break;
-                }
-            }
-            if (minValue) {
-                append((char) (++val + '0'));
-            } else {
-                append((char) (val + '0'));
-            }
-        } else {
-            int digit = digits(val);
-            while (--digit > 0) {
-                pow = POWS[digit];
-                append((char) ((val / pow) + '0'));
-                if ((val %= pow) == 0) {
-                    while (--digit > 0) {
-                        append('0');
-                    }
-                    break;
-                }
-            }
-            append((char) (val + '0'));
-        }
+        append(Integer.toString(val));
     }
 
     @Override
@@ -174,6 +116,8 @@ public abstract class AbstractJsonWriter extends AbstractWriter implements Appen
             append('0');
             return;
         }
+        append(Long.toString(val));
+        /* so much work, save for now
         long[] POWS = AbstractJsonWriter.POWS;
         long pow;
         if (val < 0) {
@@ -186,12 +130,11 @@ public abstract class AbstractJsonWriter extends AbstractWriter implements Appen
             int digit = digits(val);
             while (--digit > 0) {
                 pow = POWS[digit];
-                append((char) ((val / pow) + '0'));
-                if ((val %= pow) == 0) {
-                    while (--digit > 0) {
-                        append('0');
-                    }
-                    break;
+                if (val < pow) {
+                    append('0');
+                } else {
+                    append((char) ((val / pow) + '0'));
+                    val %= pow;
                 }
             }
             if (minValue) {
@@ -203,16 +146,16 @@ public abstract class AbstractJsonWriter extends AbstractWriter implements Appen
             int digit = digits(val);
             while (--digit > 0) {
                 pow = POWS[digit];
-                append((char) ((val / pow) + '0'));
-                if ((val %= pow) == 0) {
-                    while (--digit > 0) {
-                        append('0');
-                    }
-                    break;
+                if (val < pow) {
+                    append('0');
+                } else {
+                    append((char) ((val / pow) + '0'));
+                    val %= pow;
                 }
             }
             append((char) (val + '0'));
         }
+        */
     }
 
     @Override
@@ -303,6 +246,7 @@ public abstract class AbstractJsonWriter extends AbstractWriter implements Appen
         append(',');
     }
 
+    /* so much faster than Long/Integer.stringSize
     private int digits(int n) {
         if (n < 1000) {
             if (n < 10) {
@@ -391,6 +335,7 @@ public abstract class AbstractJsonWriter extends AbstractWriter implements Appen
         }
         return 19;
     }
+    */
 
     ///////////////////////////////////////////////////////////////////////////
     // Package / Private Methods

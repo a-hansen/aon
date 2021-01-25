@@ -103,7 +103,7 @@ task jmh(type: JavaExec, description: 'Executing JMH benchmarks') {
     //args '-h' //to see all possible arguments
     args '-bm', 'avgt' //measurement mode
     args '-f', '3' //forks
-    args '-gc', 'true'
+    args '-gc', 'false'
     args '-i', '3' //measurement iterations
     args '-wi', '3' //warmup iterations
     args '-t', '3' //threads
