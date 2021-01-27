@@ -30,19 +30,24 @@ IMHO order matters when displaying object members on user interfaces such
 as property sheets.
 
 #### Stream Friendly
-Some formats encode object and array lengths at the start of the
-structure.  It can make parsing more efficient, but streaming very
-difficult and uses more memory. 
+
+Some formats encode object and array lengths at the start of the structure. It can make parsing more
+efficient, but streaming very difficult and uses more memory.
 
 #### Java Friendly
-All data types are supported by Java.  For example, it isn't
-possible to have a string or byte array whose length is specified as
-an unsigned 32 bit int.
+
+All data types are supported by Java. For example, it isn't possible to have a string or byte array
+whose length is specified as an unsigned 32 bit int.
+
+#### Fast
+
+See the [benchmarks](#benchmark) section.
 
 Dependency Management
 ---------------------
 
 Maven
+
 ```
 <repositories>
     <repository>
