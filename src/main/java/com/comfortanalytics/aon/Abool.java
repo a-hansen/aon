@@ -146,5 +146,67 @@ public class Abool extends Aprimitive {
         return FALSE;
     }
 
+    /**
+     * Attempts to convert the string to a boolean.  Looks for common strings such as 0, 1, true,
+     * false, on, off, enabled, disabled, active and inactive.
+     *
+     * @throws NullPointerException     If the arg is null.
+     * @throws IllegalArgumentException If boolean value cannot be determined.
+     */
+    public static boolean valueOf(String str) {
+        if (str == null) {
+            throw new NullPointerException();
+        }
+        switch (Character.toLowerCase(str.charAt(0))) {
+            case '0':
+                if ("0".equals(str)) {
+                    return false;
+                }
+                break;
+            case '1':
+                if ("1".equals(str)) {
+                    return true;
+                }
+                break;
+            case 't':
+                if ("true".equalsIgnoreCase(str)) {
+                    return true;
+                }
+                break;
+            case 'f':
+                if ("false".equalsIgnoreCase(str)) {
+                    return false;
+                }
+                break;
+            case 'o':
+                if ("on".equalsIgnoreCase(str)) {
+                    return true;
+                } else if ("off".equalsIgnoreCase(str)) {
+                    return false;
+                }
+                break;
+            case 'a':
+                if ("active".equalsIgnoreCase(str)) {
+                    return true;
+                }
+                break;
+            case 'i':
+                if ("inactive".equalsIgnoreCase(str)) {
+                    return false;
+                }
+                break;
+            case 'e':
+                if ("enabled".equalsIgnoreCase(str)) {
+                    return true;
+                }
+                break;
+            case 'd':
+                if ("disabled".equalsIgnoreCase(str)) {
+                    return false;
+                }
+                break;
+        }
+        throw new IllegalArgumentException("Not a boolean: " + str);
+    }
 
 }

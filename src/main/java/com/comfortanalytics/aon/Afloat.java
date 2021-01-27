@@ -2,7 +2,6 @@ package com.comfortanalytics.aon;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
-import java.math.MathContext;
 import javax.annotation.Nonnull;
 
 /**
@@ -70,7 +69,7 @@ public class Afloat implements Adata {
      * Converts the float to a double such that the String value of both would be equal.
      */
     public static double formatDouble(float value) {
-        return new BigDecimal(value, MathContext.DECIMAL32).doubleValue();
+        return Double.parseDouble(Float.toString(value));
     }
 
     @Nonnull
@@ -149,6 +148,17 @@ public class Afloat implements Adata {
         return String.valueOf(value);
     }
 
+    public static Afloat valueOf(float arg) {
+        if (arg == 0) {
+            return ZERO;
+        } else if (arg == Float.MIN_VALUE) {
+            return MIN;
+        } else if (arg == Float.MAX_VALUE) {
+            return MAX;
+        }
+        return new Afloat(arg);
+    }
+
     /**
      * Will convert numbers, otherwise returns null.
      */
@@ -166,17 +176,6 @@ public class Afloat implements Adata {
         } catch (Exception ignore) {
         }
         return null;
-    }
-
-    public static Afloat valueOf(float arg) {
-        if (arg == 0) {
-            return ZERO;
-        } else if (arg == Float.MIN_VALUE) {
-            return MIN;
-        } else if (arg == Float.MAX_VALUE) {
-            return MAX;
-        }
-        return new Afloat(arg);
     }
 
 }

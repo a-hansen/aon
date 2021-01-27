@@ -37,7 +37,7 @@ public class Atest {
             + "    \"temperature\": 73\n"
             + "  }\n"
             + "]";
-    private final boolean aonFormat = true;
+    private boolean aonFormat = true;
 
     ///////////////////////////////////////////////////////////////////////////
     // Public Methods
@@ -45,10 +45,12 @@ public class Atest {
 
     @Test
     public void test() {
-        //aonFormat = true;
-        //allTests();
-        //aonFormat = false;
-        //allTests();
+        /*
+        aonFormat = true;
+        allTests();
+        aonFormat = false;
+        allTests();
+        */
         Aon.jsonReader(new StringReader(test)).getList();
     }
 
@@ -275,29 +277,29 @@ public class Atest {
         testPrimitiveList(list);
         object.put("object", primitiveObj());
         object.put("list", primitiveList());
-        Assertions.assertTrue(object.getValue("object").isObj());
-        Assertions.assertTrue(object.getValue("list").isList());
+        Assertions.assertTrue(object.get("object").isObj());
+        Assertions.assertTrue(object.get("list").isList());
         testObj(object);
         //encode and reconstitute
         ByteArrayOutputStream out = new ByteArrayOutputStream();
         newWriter(out).value(object).close();
         ByteArrayInputStream in = new ByteArrayInputStream(out.toByteArray());
         object = newReader(in).getObj();
-        Assertions.assertTrue(object.getValue("object").isObj());
-        Assertions.assertTrue(object.getValue("list").isList());
+        Assertions.assertTrue(object.get("object").isObj());
+        Assertions.assertTrue(object.get("list").isList());
         testPrimitiveObj(object.getValue("object"));
         list.add(primitiveObj());
         list.add(primitiveList());
         testList(list);
-        Assertions.assertTrue(list.getValue(8).isObj());
-        Assertions.assertTrue(list.getValue(9).isList());
+        Assertions.assertTrue(list.get(8).isObj());
+        Assertions.assertTrue(list.get(9).isList());
         out = new ByteArrayOutputStream();
         newWriter(out).value(object).close();
         in = new ByteArrayInputStream(out.toByteArray());
         object = newReader(in).getValue().toObj();
-        Assertions.assertTrue(object.getValue("object").isObj());
-        Assertions.assertTrue(object.getValue("list").isList());
-        testPrimitiveList(list.getValue(9).toList());
+        Assertions.assertTrue(object.get("object").isObj());
+        Assertions.assertTrue(object.get("list").isList());
+        testPrimitiveList(list.get(9).toList());
     }
 
     private void testObj(Aobj object) {
@@ -345,31 +347,31 @@ public class Atest {
 
     private void testPrimitiveList(Alist list) {
         testList(list);
-        Assertions.assertTrue(list.getValue(0).isBoolean());
-        Assertions.assertTrue(list.getValue(1).isDouble());
-        Assertions.assertTrue(list.getValue(2).isInt());
-        Assertions.assertTrue(list.getValue(3).isNumber()); //Deserializes as an int
-        Assertions.assertTrue(list.getValue(4).isString());
-        Assertions.assertTrue(list.getValue(5).isNull());
-        Assertions.assertEquals(list.getValue(6).toInt(), 5);
-        Assertions.assertEquals(list.getValue(7).toString(), "abcde");
+        Assertions.assertTrue(list.get(0).isBoolean());
+        Assertions.assertTrue(list.get(1).isDouble());
+        Assertions.assertTrue(list.get(2).isInt());
+        Assertions.assertTrue(list.get(3).isNumber()); //Deserializes as an int
+        Assertions.assertTrue(list.get(4).isString());
+        Assertions.assertTrue(list.get(5).isNull());
+        Assertions.assertEquals(list.get(6).toInt(), 5);
+        Assertions.assertEquals(list.get(7).toString(), "abcde");
     }
 
     private void testPrimitiveObj(Aobj object) {
         testObj(object);
-        Assertions.assertTrue(object.getValue("boolean").isBoolean());
-        Assertions.assertTrue(object.getValue("double").isDouble());
-        Assertions.assertTrue(object.getValue("int").isNumber());
-        Assertions.assertTrue(object.getValue("long").isNumber());
-        Assertions.assertTrue(object.getValue("string").isString());
-        Assertions.assertTrue(object.getValue("null").isNull());
-        Assertions.assertTrue(object.getValue("boolean").toBoolean());
-        Assertions.assertEquals(object.getValue("double").toDouble(), 105.001d);
-        Assertions.assertEquals(object.getValue("int").toInt(), 100001);
-        Assertions.assertEquals(object.getValue("long").toLong(), 123L);
-        Assertions.assertEquals(object.getValue("string").toString(),
+        Assertions.assertTrue(object.get("boolean").isBoolean());
+        Assertions.assertTrue(object.get("double").isDouble());
+        Assertions.assertTrue(object.get("int").isNumber());
+        Assertions.assertTrue(object.get("long").isNumber());
+        Assertions.assertTrue(object.get("string").isString());
+        Assertions.assertTrue(object.get("null").isNull());
+        Assertions.assertTrue(object.get("boolean").toBoolean());
+        Assertions.assertEquals(object.get("double").toDouble(), 105.001d);
+        Assertions.assertEquals(object.get("int").toInt(), 100001);
+        Assertions.assertEquals(object.get("long").toLong(), 123L);
+        Assertions.assertEquals(object.get("string").toString(),
                                 "abcdefghij\r\njklmnopqrs\u0000\u0001\u0002tuvwxyz\r\n");
-        Assertions.assertTrue(object.getValue("null").isNull());
+        Assertions.assertTrue(object.get("null").isNull());
     }
 
 }

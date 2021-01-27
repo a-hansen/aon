@@ -49,6 +49,6 @@ interface MsgPack {
     int MIN5 = -(1 << 5);
     int MIN7 = -(1 << 7);
     int MIN15 = -(1 << 15);
-    long MIN31 = -(1 << 31);
+    long MIN31 = -(1L << 31);
 
 }

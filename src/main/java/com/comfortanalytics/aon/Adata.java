@@ -5,15 +5,14 @@ import java.math.BigInteger;
 import javax.annotation.Nonnull;
 
 /**
- * Marker interface for all Aon compatible data types.  Aprimitives map to the JSON type
- * system, however there may be types that serialize themselves as Aprimitives but represent
- * different Java classes.  For example, JSON can't distinguish between a float and a double,
- * so Aon uses Adouble as the primitive while Afloat is a non-primitive that implements this
- * interface.
+ * Marker interface for all Aon compatible data types.  Aprimitives map to the JSON type system,
+ * however there may be types that serialize themselves as Aprimitives but represent different Java
+ * classes.  For example, JSON can't distinguish between a float and a double, so Aon uses Adouble
+ * as the primitive while Afloat is a non-primitive that implements this interface.
  *
  * @author Aaron Hansen
  */
-@SuppressWarnings("unused")
+@SuppressWarnings({"unused", "unchecked"})
 public interface Adata {
 
     /**
@@ -23,8 +22,8 @@ public interface Adata {
     Atype aonType();
 
     /**
-     * If an object is mutable (list or object) then this should clone it,
-     * immutable objects can simply return themselves.
+     * If an object is mutable (list or object) then this should clone it, immutable objects can
+     * simply return themselves.
      */
     @Nonnull
     default Adata copy() {
@@ -104,8 +103,7 @@ public interface Adata {
     }
 
     /**
-     * Whether or not the object represents a long.  Be careful, longs can deserialize
-     * as ints.
+     * Whether or not the object represents a long.  Be careful, longs can deserialize as ints.
      */
     default boolean isLong() {
         return false;
@@ -174,9 +172,9 @@ public interface Adata {
     }
 
     /**
-     * Attempts to return a boolean value.  Numerics will return false for 0 and true for
-     * anything else.  Strings should return true for "true" or "1" and false for
-     * "false" or "0".  Anything else will throws a ClassCastException.
+     * Attempts to return a boolean value.  Numerics will return false for 0 and true for anything
+     * else.  Strings should return true for "true" or "1" and false for "false" or "0".  Anything
+     * else will throws a ClassCastException.
      *
      * @throws ClassCastException If not convertible.
      */
@@ -185,10 +183,9 @@ public interface Adata {
     }
 
     /**
-     * Attempts to return a double value.  Numerics of other types will cast the results.
-     * Booleans will return 0 for false and 1 for true.
-     * Strings will attempt to parse the numeric which may result in a parse
-     * exception.  Anything else will throw a ClassCastException.
+     * Attempts to return a double value.  Numerics of other types will cast the results. Booleans
+     * will return 0 for false and 1 for true. Strings will attempt to parse the numeric which may
+     * result in a parse exception.  Anything else will throw a ClassCastException.
      *
      * @throws ClassCastException If not convertible.
      */
@@ -197,10 +194,9 @@ public interface Adata {
     }
 
     /**
-     * Attempts to return a float value.  Numerics of other types will cast the results.
-     * Booleans will return 0 for false and 1 for true.
-     * Strings will attempt to parse the numeric which may result in a parse
-     * exception.  Anything else will throw a ClassCastException.
+     * Attempts to return a float value.  Numerics of other types will cast the results. Booleans
+     * will return 0 for false and 1 for true. Strings will attempt to parse the numeric which may
+     * result in a parse exception.  Anything else will throw a ClassCastException.
      *
      * @throws ClassCastException If not convertible.
      */
@@ -218,10 +214,9 @@ public interface Adata {
     }
 
     /**
-     * Attempts to return an int value.  Numerics of other types will cast the results.
-     * Booleans will return 0 for false and 1 for true.
-     * Strings will attempt to parse the numeric which may result in a parse
-     * exception.  Anything else will throw a ClassCastException.
+     * Attempts to return an int value.  Numerics of other types will cast the results. Booleans
+     * will return 0 for false and 1 for true. Strings will attempt to parse the numeric which may
+     * result in a parse exception.  Anything else will throw a ClassCastException.
      *
      * @throws ClassCastException If not convertible.
      */
@@ -239,10 +234,9 @@ public interface Adata {
     }
 
     /**
-     * Attempts to return a long value.  Numerics of other types will cast the results.
-     * Booleans will return 0 for false and 1 for true.
-     * Strings will attempt to parse the numeric which may result in a parse
-     * exception.  Anything else will throw a ClassCastException.
+     * Attempts to return a long value.  Numerics of other types will cast the results. Booleans
+     * will return 0 for false and 1 for true. Strings will attempt to parse the numeric which may
+     * result in a parse exception.  Anything else will throw a ClassCastException.
      *
      * @throws ClassCastException If not convertible.
      */

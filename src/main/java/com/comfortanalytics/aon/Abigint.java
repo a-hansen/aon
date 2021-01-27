@@ -132,6 +132,16 @@ public class Abigint implements Adata {
         return String.valueOf(value);
     }
 
+    public static Abigint valueOf(BigInteger arg) {
+        if (arg == null) {
+            return null;
+        }
+        if (arg.equals(BigInteger.ZERO)) {
+            return ZERO;
+        }
+        return new Abigint(arg);
+    }
+
     /**
      * Will attempt to convert numbers and strings, otherwise returns null.
      */
@@ -163,16 +173,6 @@ public class Abigint implements Adata {
         } catch (Exception ignore) {
         }
         return null;
-    }
-
-    public static Abigint valueOf(BigInteger arg) {
-        if (arg == null) {
-            return null;
-        }
-        if (arg.equals(BigInteger.ZERO)) {
-            return ZERO;
-        }
-        return new Abigint(arg);
     }
 
 }

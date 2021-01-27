@@ -22,8 +22,7 @@ import org.openjdk.jmh.annotations.Setup;
 import org.openjdk.jmh.annotations.State;
 
 /**
- * Benchmarks how much time applications spend submitting log records to various async
- * log handlers.
+ * Benchmarks various formats and 3rd party libs.
  *
  * @author Aaron Hansen
  */
@@ -49,6 +48,25 @@ public class AonBenchmark {
     ///////////////////////////////////////////////////////////////////////////
     // Methods
     ///////////////////////////////////////////////////////////////////////////
+
+    static {
+        aobjSmall = makeSmallObj();
+        aobjLarge = makeLargeObj();
+        aonLarge = Aon.aonBytes(aobjLarge);
+        aonSmall = Aon.aonBytes(aobjSmall);
+        jsonLarge = Aon.jsonBytes(aobjLarge);
+        jsonSmall = Aon.jsonBytes(aobjSmall);
+        msgPackLarge = Aon.msgPackBytes(aobjLarge);
+        msgPackSmall = Aon.msgPackBytes(aobjSmall);
+        /*
+        System.out.println("    AON small doc size: " + aonSmall.length);
+        System.out.println("   JSON small doc size: " + msgPackSmall.length);
+        System.out.println("MsgPack small doc size: " + jsonSmall.length);
+        System.out.println("    AON large doc size: " + aonLarge.length);
+        System.out.println("   JSON large doc size: " + jsonLarge.length);
+        System.out.println("MsgPack large doc size: " + msgPackLarge.length);
+        */
+    }
 
     static Aobj makeLargeObj() {
         Aobj primitiveObj = makeObj();
@@ -166,34 +184,35 @@ public class AonBenchmark {
     public static class DecodeLargeDoc {
 
         @Benchmark
-        public void Aon() {
-            Aon.aonReader(new ByteArrayInputStream(aonLarge)).getValue();
+        public Object Aon() {
+            return Aon.aonReader(new ByteArrayInputStream(aonLarge)).getValue();
         }
 
         @Benchmark
-        public void AonJson() {
-            Aon.jsonReader(new ByteArrayInputStream(jsonLarge)).getValue();
+        public Object AonJson() {
+            return Aon.jsonReader(new ByteArrayInputStream(jsonLarge)).getValue();
         }
 
         @Benchmark
-        public void AonMsgPack() {
-            Aon.msgPackReader(new ByteArrayInputStream(msgPackLarge)).getValue();
+        public Object AonMsgPack() {
+            return Aon.msgPackReader(new ByteArrayInputStream(msgPackLarge)).getValue();
         }
 
         @Benchmark
-        public void Genson() {
-            new Genson().deserialize(jsonLarge, Map.class);
+        public Object Genson() {
+            return new Genson().deserialize(jsonLarge, Map.class);
         }
 
         @Benchmark
-        public void Gson() {
-            JsonParser.parseReader(new InputStreamReader(new ByteArrayInputStream(jsonLarge)));
+        public Object Gson() {
+            return JsonParser
+                    .parseReader(new InputStreamReader(new ByteArrayInputStream(jsonLarge)));
         }
 
         @Benchmark
-        public void Jackson() {
+        public Object Jackson() {
             try {
-                new ObjectMapper().readTree(
+                return new ObjectMapper().readTree(
                         new InputStreamReader(new ByteArrayInputStream(jsonLarge)));
             } catch (IOException x) {
                 throw new RuntimeException(x);
@@ -201,9 +220,9 @@ public class AonBenchmark {
         }
 
         @Benchmark
-        public void JsonSimple() {
+        public Object JsonSimple() {
             try {
-                JSONValue.parse(new InputStreamReader(new ByteArrayInputStream(jsonLarge)));
+                return JSONValue.parse(new InputStreamReader(new ByteArrayInputStream(jsonLarge)));
             } catch (Exception x) {
                 throw new RuntimeException(x);
             }
@@ -215,34 +234,35 @@ public class AonBenchmark {
     public static class DecodeSmallDoc {
 
         @Benchmark
-        public void Aon() {
-            Aon.aonReader(new ByteArrayInputStream(aonSmall)).getValue();
+        public Object Aon() {
+            return Aon.aonReader(new ByteArrayInputStream(aonSmall)).getValue();
         }
 
         @Benchmark
-        public void AonJson() {
-            Aon.jsonReader(new ByteArrayInputStream(jsonSmall)).getValue();
+        public Object AonJson() {
+            return Aon.jsonReader(new ByteArrayInputStream(jsonSmall)).getValue();
         }
 
         @Benchmark
-        public void AonMsgPack() {
-            Aon.msgPackReader(new ByteArrayInputStream(msgPackSmall)).getValue();
+        public Object AonMsgPack() {
+            return Aon.msgPackReader(new ByteArrayInputStream(msgPackSmall)).getValue();
         }
 
         @Benchmark
-        public void Genson() {
-            new Genson().deserialize(jsonSmall, Map.class);
+        public Object Genson() {
+            return new Genson().deserialize(jsonSmall, Map.class);
         }
 
         @Benchmark
-        public void Gson() {
-            JsonParser.parseReader(new InputStreamReader(new ByteArrayInputStream(jsonSmall)));
+        public Object Gson() {
+            return JsonParser
+                    .parseReader(new InputStreamReader(new ByteArrayInputStream(jsonSmall)));
         }
 
         @Benchmark
-        public void Jackson() {
+        public Object Jackson() {
             try {
-                new ObjectMapper().readTree(
+                return new ObjectMapper().readTree(
                         new InputStreamReader(new ByteArrayInputStream(jsonSmall)));
             } catch (IOException x) {
                 throw new RuntimeException(x);
@@ -250,9 +270,9 @@ public class AonBenchmark {
         }
 
         @Benchmark
-        public void JsonSimple() {
+        public Object JsonSimple() {
             try {
-                JSONValue.parse(new InputStreamReader(new ByteArrayInputStream(jsonSmall)));
+                return JSONValue.parse(new InputStreamReader(new ByteArrayInputStream(jsonSmall)));
             } catch (Exception x) {
                 throw new RuntimeException(x);
             }
@@ -410,6 +430,10 @@ public class AonBenchmark {
         }
     }
 
+    ///////////////////////////////////////////////////////////////////////////
+    // Initialization
+    ///////////////////////////////////////////////////////////////////////////
+
     private static class NullWriter extends Writer {
 
         @Override
@@ -424,29 +448,6 @@ public class AonBenchmark {
         public void write(char[] cbuf, int off, int len) {
         }
 
-    }
-
-    ///////////////////////////////////////////////////////////////////////////
-    // Initialization
-    ///////////////////////////////////////////////////////////////////////////
-
-    static {
-        aobjSmall = makeSmallObj();
-        aobjLarge = makeLargeObj();
-        aonLarge = Aon.aonBytes(aobjLarge);
-        aonSmall = Aon.aonBytes(aobjSmall);
-        jsonLarge = Aon.jsonBytes(aobjLarge);
-        jsonSmall = Aon.jsonBytes(aobjSmall);
-        msgPackLarge = Aon.msgPackBytes(aobjLarge);
-        msgPackSmall = Aon.msgPackBytes(aobjSmall);
-        /*
-        System.out.println("    AON small doc size: " + aonSmall.length);
-        System.out.println("   JSON small doc size: " + msgPackSmall.length);
-        System.out.println("MsgPack small doc size: " + jsonSmall.length);
-        System.out.println("    AON large doc size: " + aonLarge.length);
-        System.out.println("   JSON large doc size: " + jsonLarge.length);
-        System.out.println("MsgPack large doc size: " + msgPackLarge.length);
-        */
     }
 
 }

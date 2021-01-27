@@ -11,6 +11,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
+import java.math.BigDecimal;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
@@ -30,6 +31,27 @@ public class JsonReader extends AbstractReader {
     private static final int[] ALSE = new int[]{'a', 'l', 's', 'e'};
     private static final int[] RUE = new int[]{'r', 'u', 'e'};
     private static final int[] ULL = new int[]{'u', 'l', 'l'};
+
+    static final long[] POWS = new long[]{
+            1,
+            10,
+            100,
+            1000,
+            10000,
+            100000,
+            1000000,
+            10000000,
+            100000000,
+            1000000000,
+            10000000000L,
+            100000000000L,
+            1000000000000L,
+            10000000000000L,
+            100000000000000L,
+            1000000000000000L,
+            10000000000000000L,
+            100000000000000000L,
+            1000000000000000000L};
 
     ///////////////////////////////////////////////////////////////////////////
     // Instance Fields
@@ -62,13 +84,13 @@ public class JsonReader extends AbstractReader {
         this(new InputStreamReader(in, charset));
     }
 
-    public JsonReader(Reader in) {
-        this.in = in;
-    }
-
     ///////////////////////////////////////////////////////////////////////////
     // Public Methods
     ///////////////////////////////////////////////////////////////////////////
+
+    public JsonReader(Reader in) {
+        this.in = in;
+    }
 
     @Override
     public void close() {
@@ -78,6 +100,10 @@ public class JsonReader extends AbstractReader {
             throw new RuntimeException(x);
         }
     }
+
+    ///////////////////////////////////////////////////////////////////////////
+    // Private Methods
+    ///////////////////////////////////////////////////////////////////////////
 
     @Override
     public Token next() {
@@ -129,56 +155,49 @@ public class JsonReader extends AbstractReader {
         }
     }
 
-    ///////////////////////////////////////////////////////////////////////////
-    // Private Methods
-    ///////////////////////////////////////////////////////////////////////////
-
     private void bufAppend(char b) {
-        if (bufLen >= bufChars.length) {
+        int len = bufLen;
+        if (len == bufChars.length) {
             bufGrow();
         }
-        bufChars[bufLen] = b;
-        bufLen++;
+        bufChars[len] = b;
+        ++bufLen;
     }
 
     private void bufGrow() {
         if (bufChars.length < 131072) {
-            bufChars = Arrays.copyOf(bufChars, bufChars.length * 2);
+            bufChars = Arrays.copyOf(bufChars, bufChars.length + bufChars.length);
         } else {
             bufChars = Arrays.copyOf(bufChars, bufChars.length + 131072);
         }
     }
 
     private static long decodeLong(char[] buf, int idx, int end) {
-        boolean neg = false;
         char ch = buf[idx];
-        if (ch == '+') {
-            idx++;
-        } else if (ch == '-') {
-            neg = true;
-            idx++;
-        }
         long ret = 0;
-        while (idx < end) {
-            ret = (ret * 10) + (buf[idx++] - '0');
+        if (ch == '-') {
+            ++idx;
+            while (idx < end) {
+                ret = ((ret << 1) + (ret << 3)) + buf[idx++] - '0';
+            }
+            return -ret;
         }
-        return neg ? -ret : ret;
+        if (ch == '+') {
+            ++idx;
+        }
+        while (idx < end) {
+            ret = ((ret << 1) + (ret << 3)) + buf[idx++] - '0';
+        }
+        return ret;
     }
 
     private Token decodeNumber(char[] buf, int len, int decIdx) {
-        int idx;
-        if (decIdx >= 0) {
-            idx = decIdx;
-        } else {
-            idx = len;
+        if (decIdx < 0) {
+            return setNext(decodeLong(buf, 0, len));
         }
-        long theLong = decodeLong(buf, 0, idx);
-        //parse fraction
-        if (decIdx >= 0) {
-            double num = decodeLong(buf, ++idx, len);
-            return setNext(theLong + (num / Math.pow(10d, len - idx)));
-        }
-        return setNext(theLong);
+        return setNext(
+                decodeLong(buf, 0, decIdx) +
+                        ((double) decodeLong(buf, ++decIdx, len) / POWS[len - decIdx]));
     }
 
     private static InputStream fis(File file) {
@@ -191,32 +210,33 @@ public class JsonReader extends AbstractReader {
 
     private int readChar() throws IOException {
         if (inLen == 0) {
-            inOff = 0;
             inLen = in.read(inChars, 0, inChars.length);
             if (inLen <= 0) {
                 return -1;
             }
+            inOff = 0;
         }
-        inLen--;
+        --inLen;
         return inChars[inOff++];
     }
 
     private Token readNumber(int ch) throws IOException {
         bufLen = 0;
-        int decIndex = -1;
-        boolean hasExp = false;
+        int dec = -1;
+        boolean exp = false;
         while (true) {
             if (ch < '0') {
                 if (ch == '.') {
-                    decIndex = bufLen;
+                    dec = bufLen;
                 } else if (ch == -1) {
                     return setEndInput();
                 } else if (ch != '-' && ch != '+') {
+                    unreadChar();
                     break;
                 }
             } else if (ch > '9') {
                 if (ch == 'e' || ch == 'E') {
-                    hasExp = true;
+                    exp = true;
                 } else {
                     unreadChar();
                     break;
@@ -225,14 +245,17 @@ public class JsonReader extends AbstractReader {
             bufAppend((char) ch);
             ch = readChar();
         }
-        if (hasExp) {
-            String s = new String(bufChars, 0, bufLen);
-            if (decIndex >= 0) {
-                return setNext(Double.parseDouble(s));
+        try {
+            if (exp) {
+                if (dec < 0) {
+                    return setNext(Long.parseLong(new String(bufChars, 0, bufLen)));
+                }
+                return setNext(Double.parseDouble(new String(bufChars, 0, bufLen)));
             }
-            return setNext(Long.parseLong(s));
+            return decodeNumber(bufChars, bufLen, dec);
+        } catch (Exception x) {
+            return setNext(new BigDecimal(new String(bufChars, 0, bufLen)));
         }
-        return decodeNumber(bufChars, bufLen, decIndex);
     }
 
     private String readString() throws IOException {
@@ -332,18 +355,18 @@ public class JsonReader extends AbstractReader {
     }
 
     private void unreadChar() {
-        inLen++;
-        inOff--;
+        ++inLen;
+        --inOff;
     }
 
     private void validateNextChars(int[] chars) throws IOException {
-        for (int i = 0; i < chars.length; i++) {
+        for (int aChar : chars) {
             int ch = readChar();
-            if (ch != chars[i]) {
+            if (ch != aChar) {
                 if (ch == -1) {
                     throw new EOFException();
                 }
-                throw new IllegalStateException("Expecting " + chars[i] + ", but got " + ch);
+                throw new IllegalStateException("Expecting " + aChar + ", but got " + ch);
             }
         }
     }

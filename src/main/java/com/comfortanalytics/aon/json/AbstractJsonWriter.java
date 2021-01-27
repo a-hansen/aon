@@ -27,31 +27,9 @@ public abstract class AbstractJsonWriter extends AbstractWriter implements Appen
     private static final char[] C_T = new char[]{'\\', 't'};
     private static final char[] C_TRUE = new char[]{'t', 'r', 'u', 'e'};
     private static final char[] C_U = new char[]{'\\', 'u'};
-    private static final char[] HEX =
-            {
-                    '0', '1', '2', '3', '4', '5', '6', '7',
-                    '8', '9', 'a', 'b', 'c', 'd', 'e', 'f'
-            };
-    private static final long POWS[] = new long[]{
-            1,
-            10,
-            100,
-            1000,
-            10000,
-            100000,
-            1000000,
-            10000000,
-            100000000,
-            1000000000,
-            10000000000L,
-            100000000000L,
-            1000000000000L,
-            10000000000000L,
-            100000000000000L,
-            1000000000000000L,
-            10000000000000000L,
-            100000000000000000L,
-            1000000000000000000L};
+    private static final char[] HEX = {
+            '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'a', 'b', 'c', 'd', 'e', 'f'
+    };
 
     ///////////////////////////////////////////////////////////////////////////
     // Public Methods
@@ -98,100 +76,86 @@ public abstract class AbstractJsonWriter extends AbstractWriter implements Appen
 
     @Override
     protected void write(double arg) throws IOException {
-        if (arg % 1 == 0) {
+        if (arg == StrictMath.rint(arg)) {
             write((long) arg);
             append('.').append('0');
         } else {
             if (Double.isInfinite(arg) || Double.isNaN(arg)) {
                 append(C_NULL, 0, 4);
+            } else {
+                append(Double.toString(arg));
             }
-            append(Double.toString(arg));
         }
     }
 
     @Override
     protected void write(float arg) throws IOException {
-        if (arg % 1 == 0) {
-            write((long) arg);
+        if (arg == StrictMath.rint(arg)) {
+            write((int) arg);
             append('.').append('0');
         } else {
             if (Float.isInfinite(arg) || Float.isNaN(arg)) {
                 append(C_NULL, 0, 4);
+            } else {
+                append(Float.toString(arg));
             }
-            append(Float.toString(arg));
         }
     }
 
-    @Override
     protected void write(int val) throws IOException {
         if (val == 0) {
             append('0');
             return;
         }
-        boolean minValue = (val == Integer.MIN_VALUE);
-        if (val < 0) {
-            append('-');
-            if (minValue) {
-                val++;
-            }
-            val = -val;
-        }
-        int pow = 0;
-        while (pow < POWS.length) {
-            if (val / POWS[pow] == 0) {
-                break;
-            }
-            pow++;
-        }
-        pow--;
-        while (pow > 0) {
-            append((char) ((val / POWS[pow]) + '0'));
-            val %= POWS[pow];
-            pow--;
-        }
-        if (minValue) {
-            val++;
-        }
-        append((char) (val + '0'));
+        append(Integer.toString(val));
     }
 
     @Override
     protected void write(long val) throws IOException {
-        boolean minValue;
+        if (val == 0) {
+            append('0');
+            return;
+        }
+        append(Long.toString(val));
+        /* so much work, save for now
+        long[] POWS = AbstractJsonWriter.POWS;
+        long pow;
         if (val < 0) {
-            if (val >= Integer.MIN_VALUE) {
-                write((int) val);
-                return;
-            }
             append('-');
-            minValue = val == Long.MIN_VALUE;
+            boolean minValue = (val == Long.MIN_VALUE);
             if (minValue) {
-                val++;
+                ++val;
             }
             val = -val;
-        } else if (val <= Integer.MAX_VALUE) {
-            write((int) val);
-            return;
-        } else {
-            minValue = false;
-        }
-        int pow = 0;
-        while (pow < POWS.length) {
-            if (val / POWS[pow] == 0) {
-                break;
+            int digit = digits(val);
+            while (--digit > 0) {
+                pow = POWS[digit];
+                if (val < pow) {
+                    append('0');
+                } else {
+                    append((char) ((val / pow) + '0'));
+                    val %= pow;
+                }
             }
-            pow++;
+            if (minValue) {
+                append((char) (++val + '0'));
+            } else {
+                append((char) (val + '0'));
+            }
+        } else {
+            int digit = digits(val);
+            while (--digit > 0) {
+                pow = POWS[digit];
+                if (val < pow) {
+                    append('0');
+                } else {
+                    append((char) ((val / pow) + '0'));
+                    val %= pow;
+                }
+            }
+            append((char) (val + '0'));
         }
-        pow--;
-        while (pow > 0) {
-            append((char) ((val / POWS[pow]) + '0'));
-            val %= POWS[pow];
-            pow--;
-        }
-        if (minValue) {
-            val++;
-        }
-        append((char) (val + '0'));
+        */
     }
 
     @Override
@@ -220,10 +184,10 @@ public abstract class AbstractJsonWriter extends AbstractWriter implements Appen
                     default:
                         writeUnicode(ch);
                 }
-            } else if ((ch == '"') || (ch == '\\')) {
-                append('\\');
-                append(ch);
             } else {
+                if ((ch == '"') || (ch == '\\')) {
+                    append('\\');
+                }
                 append(ch);
             }
         }
@@ -281,6 +245,97 @@ public abstract class AbstractJsonWriter extends AbstractWriter implements Appen
     protected void writeSeparator() throws IOException {
         append(',');
     }
+
+    /* so much faster than Long/Integer.stringSize
+    private int digits(int n) {
+        if (n < 1000) {
+            if (n < 10) {
+                return 1;
+            }
+            if (n < 100) {
+                return 2;
+            }
+            return 3;
+        }
+        if (n < 1000000) {
+            if (n < 10000) {
+                return 4;
+            }
+            if (n < 100000) {
+                return 5;
+            }
+            return 6;
+        }
+        if (n < 1000000000) {
+            if (n < 10000000) {
+                return 7;
+            }
+            if (n < 100000000) {
+                return 8;
+            }
+            return 9;
+        }
+        return 10;
+    }
+
+    private int digits(long n) {
+        if (n < 10000) {
+            if (n < 10) {
+                return 1;
+            }
+            if (n < 100) {
+                return 2;
+            }
+            if (n < 1000) {
+                return 3;
+            }
+            return 4;
+        }
+        if (n < 100000000) {
+            if (n < 100000) {
+                return 5;
+            }
+            if (n < 1000000) {
+                return 6;
+            }
+            if (n < 10000000) {
+                return 7;
+            }
+            return 8;
+        }
+        if (n < 1000000000000L) {
+            if (n < 1000000000) {
+                return 9;
+            }
+            if (n < 10000000000L) {
+                return 10;
+            }
+            if (n < 100000000000L) {
+                return 11;
+            }
+            return 12;
+        }
+        if (n < 10000000000000000L) {
+            if (n < 10000000000000L) {
+                return 13;
+            }
+            if (n < 100000000000000L) {
+                return 14;
+            }
+            if (n < 1000000000000000L) {
+                return 15;
+            }
+            return 16;
+        }
+        if (n < 1000000000000000000L) {
+            if (n < 100000000000000000L) {
+                return 17;
+            }
+            return 18;
+        }
+        return 19;
+    }
+    */
 
     ///////////////////////////////////////////////////////////////////////////
     // Package / Private Methods

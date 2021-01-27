@@ -143,22 +143,10 @@ public class Aint extends Aprimitive {
     }
 
     /**
-     * Will convert numbers, otherwise returns null.
-     */
-    @Override
-    public Aint valueOf(Aprimitive value) {
-        if (value.isNumber()) {
-            return valueOf(value.toNumber().intValue());
-        }
-        return null;
-    }
-
-    /**
      * Attempts to reuse some common values before creating a new instance.
      */
     public static Aint valueOf(int arg) {
-        int idx = arg + 128;
-        if ((idx < 0) || (idx > 255)) {
+        if ((arg < -128) || (arg > 127)) {
             if (arg == Integer.MAX_VALUE) {
                 return MAX;
             }
@@ -167,12 +155,24 @@ public class Aint extends Aprimitive {
             }
             return new Aint(arg);
         }
+        int idx = arg + 128;
         Aint ret = CACHE[idx];
         if (ret == null) {
             ret = new Aint(arg);
             CACHE[idx] = ret;
         }
         return ret;
+    }
+
+    /**
+     * Will convert numbers, otherwise returns null.
+     */
+    @Override
+    public Aint valueOf(Aprimitive value) {
+        if (value.isNumber()) {
+            return valueOf(value.toNumber().intValue());
+        }
+        return null;
     }
 
 }

@@ -5,8 +5,8 @@ import java.math.BigInteger;
 import javax.annotation.Nonnull;
 
 /**
- * Decimal values that exceed the min and max value of double (IEEE 754 floating-point
- * "double format" bit layout).
+ * Decimal values that exceed the min and max value of double (IEEE 754 floating-point "double
+ * format" bit layout).
  *
  * @author Aaron Hansen
  */
@@ -127,6 +127,16 @@ public class Adecimal implements Adata {
         return String.valueOf(value);
     }
 
+    public static Adecimal valueOf(BigDecimal arg) {
+        if (arg == null) {
+            return null;
+        }
+        if (arg.equals(BigDecimal.ZERO)) {
+            return ZERO;
+        }
+        return new Adecimal(arg);
+    }
+
     /**
      * Will convert numbers and strings, otherwise returns null.
      */
@@ -151,16 +161,6 @@ public class Adecimal implements Adata {
         } catch (Exception ignore) {
         }
         return null;
-    }
-
-    public static Adecimal valueOf(BigDecimal arg) {
-        if (arg == null) {
-            return null;
-        }
-        if (arg.equals(BigDecimal.ZERO)) {
-            return ZERO;
-        }
-        return new Adecimal(arg);
     }
 
 }

@@ -5,8 +5,8 @@ import java.io.Flushable;
 import java.io.IOException;
 
 /**
- * Json implementation of Awriter intended for Appendables such as StringBuilders.
- * This can be used for OutputStreams and Writers as well, but JsonWriter will be faster.
+ * Json implementation of Awriter intended for Appendables such as StringBuilders. This can be used
+ * for OutputStreams and Writers as well, but JsonWriter will be faster.
  *
  * @author Aaron Hansen
  */

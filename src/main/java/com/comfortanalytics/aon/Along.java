@@ -138,8 +138,7 @@ public class Along extends Aprimitive {
      * Attempts to reuse some common values before creating a new instance.
      */
     public static Along valueOf(long arg) {
-        long idx = arg + 128;
-        if ((idx < 0) || (idx > 255)) {
+        if ((arg < -128) || (arg > 127)) {
             if (arg == Long.MAX_VALUE) {
                 return MAX;
             }
@@ -148,13 +147,13 @@ public class Along extends Aprimitive {
             }
             return new Along(arg);
         }
-        int i = (int) idx;
-        Along ret = CACHE[i];
+        int idx = (int) arg + 128;
+        Along ret = CACHE[idx];
         if (ret != null) {
             return ret;
         }
         ret = new Along(arg);
-        CACHE[i] = ret;
+        CACHE[idx] = ret;
         return ret;
     }
 

@@ -47,6 +47,8 @@ public abstract class AbstractReader implements Areader {
                 return BigDecimal.valueOf(valInt);
             case LONG:
                 return BigDecimal.valueOf(valLong);
+            case NULL:
+                return null;
             case STRING:
                 return new BigDecimal(valString);
             default:
@@ -70,6 +72,8 @@ public abstract class AbstractReader implements Areader {
                 return BigInteger.valueOf(valInt);
             case LONG:
                 return BigInteger.valueOf(valLong);
+            case NULL:
+                return null;
             case STRING:
                 return new BigInteger(valString);
             default:
@@ -85,15 +89,59 @@ public abstract class AbstractReader implements Areader {
         if (last == Token.STRING) {
             return AonBase64.decode(valString);
         }
+        if (last == Token.NULL) {
+            return null;
+        }
         throw new IllegalStateException("Not binary");
     }
 
     @Override
     public boolean getBoolean() {
-        if (last != Token.BOOLEAN) {
-            throw new IllegalStateException("Not a boolean");
+        if (last == Token.BOOLEAN) {
+            return valBoolean;
         }
-        return valBoolean;
+        if (last == Token.NULL) {
+            throw new NullPointerException();
+        }
+        switch (last) {
+            case DECIMAL:
+                double d = valDecimal.doubleValue();
+                if (d == 0) {
+                    return false;
+                } else if (d == 1) {
+                    return true;
+                }
+                break;
+            case DOUBLE:
+                double dbl = valDouble;
+                if (dbl == 0) {
+                    return false;
+                } else if (dbl == 1) {
+                    return true;
+                }
+                break;
+            case FLOAT:
+                float f = valFloat;
+                if (f == 0) {
+                    return false;
+                } else if (f == 1) {
+                    return true;
+                }
+                break;
+            case BIGINT:
+            case INT:
+            case LONG:
+                int i = getInt();
+                if (i == 0) {
+                    return false;
+                } else if (i == 1) {
+                    return true;
+                }
+                break;
+            case STRING:
+                return Abool.valueOf(valString);
+        }
+        throw new IllegalStateException("Not a boolean");
     }
 
     @Override
@@ -102,12 +150,20 @@ public abstract class AbstractReader implements Areader {
             return valDouble;
         }
         switch (last) {
+            case DECIMAL:
+                return valDecimal.doubleValue();
+            case BIGINT:
+                return valBigint.doubleValue();
             case FLOAT:
                 return valFloat;
             case INT:
                 return valInt;
             case LONG:
                 return (double) valLong;
+            case STRING:
+                return Double.parseDouble(valString);
+            case NULL:
+                throw new NullPointerException();
             default:
                 throw new IllegalStateException("Not a double");
         }
@@ -129,6 +185,10 @@ public abstract class AbstractReader implements Areader {
                 return (float) valInt;
             case LONG:
                 return (float) valLong;
+            case STRING:
+                return Float.parseFloat(valString);
+            case NULL:
+                throw new NullPointerException();
             default:
                 throw new IllegalStateException("Not a float");
         }
@@ -150,6 +210,10 @@ public abstract class AbstractReader implements Areader {
                 return (int) valFloat;
             case LONG:
                 return (int) valLong;
+            case STRING:
+                return Integer.parseInt(valString);
+            case NULL:
+                throw new NullPointerException();
             default:
                 throw new IllegalStateException("Not an int");
         }
@@ -157,11 +221,14 @@ public abstract class AbstractReader implements Areader {
 
     @Override
     public Alist getList() {
-        if (last == Token.ROOT) {
-            next();
-        }
         if (last != Token.BEGIN_LIST) {
-            throw new IllegalStateException("Not a list");
+            if (last == Token.ROOT) {
+                next();
+            } else if (last == Token.NULL) {
+                return null;
+            } else {
+                throw new IllegalStateException("Not a list");
+            }
         }
         Alist ret = new Alist();
         while (true) {
@@ -230,18 +297,25 @@ public abstract class AbstractReader implements Areader {
                 return (long) valFloat;
             case INT:
                 return valInt;
+            case STRING:
+                return Long.parseLong(valString);
+            case NULL:
+                throw new NullPointerException();
             default:
-                throw new IllegalStateException("Not an int");
+                throw new IllegalStateException("Not a long");
         }
     }
 
     @Override
     public Aobj getObj() {
-        if (last == Token.ROOT) {
-            next();
-        }
         if (last != Token.BEGIN_OBJ) {
-            throw new IllegalStateException("Not a object");
+            if (last == Token.ROOT) {
+                next();
+            } else if (last == Token.NULL) {
+                return null;
+            } else {
+                throw new IllegalStateException("Not a object");
+            }
         }
         Aobj ret = new Aobj();
         String key;
@@ -307,10 +381,33 @@ public abstract class AbstractReader implements Areader {
 
     @Override
     public String getString() {
-        if (last != Token.STRING) {
-            throw new IllegalStateException("Not a string");
+        if (last == Token.STRING) {
+            return valString;
         }
-        return valString;
+        switch (last) {
+            case DECIMAL:
+                return valDecimal.toString();
+            case BIGINT:
+                return valBigint.toString();
+            case BOOLEAN:
+                return String.valueOf(valBoolean);
+            case DOUBLE:
+                return String.valueOf(valDouble);
+            case FLOAT:
+                return String.valueOf(valFloat);
+            case INT:
+                return String.valueOf(valInt);
+            case LONG:
+                return String.valueOf(valLong);
+            case BEGIN_LIST:
+                return getList().toString();
+            case BEGIN_OBJ:
+                return getObj().toString();
+            case NULL:
+                return null;
+            default:
+                throw new IllegalStateException("Not a string");
+        }
     }
 
     @Override

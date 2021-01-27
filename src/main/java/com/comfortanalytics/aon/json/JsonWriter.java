@@ -12,8 +12,8 @@ import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 
 /**
- * Json implementation of Awriter intended for OutputStreams and Writers.  While
- * JsonAppender can also handle OutputStreams and Writer, this is more performant.
+ * Json implementation of Awriter intended for OutputStreams and Writers.  While JsonAppender can
+ * also handle OutputStreams and Writer, this is more performant.
  *
  * @author Aaron Hansen
  * @see com.comfortanalytics.aon.Awriter
@@ -80,21 +80,19 @@ public class JsonWriter extends AbstractJsonWriter {
      */
     @Override
     public AbstractJsonWriter append(char[] ch, int off, int len) {
-        if (bufoff + len <= BUF_SIZE) {
-            System.arraycopy(ch, off, buf, bufoff, len);
-            bufoff += len;
-        } else if (len <= BUF_SIZE) {
-            flush();
+        if (len <= BUF_SIZE) {
+            if (bufoff + len > BUF_SIZE) {
+                flush();
+            }
             System.arraycopy(ch, off, buf, bufoff, len);
             bufoff += len;
         } else {
-            for (int i = off, end = off + len; i < end; i++) {
-                append(ch[i]);
+            for (int i = off, end = off + len; i < end; ) {
+                append(ch[i++]);
             }
         }
         return this;
     }
-
 
     /**
      * Append the chars and return this.  Can be used for custom formatting.
@@ -102,18 +100,16 @@ public class JsonWriter extends AbstractJsonWriter {
     @Override
     public Appendable append(CharSequence csq) {
         int len = csq.length();
-        if (bufoff + len < BUF_SIZE) {
-            for (int i = 0; i < len; i++) {
-                buf[bufoff++] = csq.charAt(i);
+        if (len <= BUF_SIZE) {
+            if (bufoff + len > BUF_SIZE) {
+                flush();
             }
-        } else if (len <= BUF_SIZE) {
-            flush();
-            for (int i = 0; i < len; i++) {
-                buf[bufoff++] = csq.charAt(i);
+            for (int i = 0; i < len; ) {
+                buf[bufoff++] = csq.charAt(i++);
             }
         } else {
-            for (int i = 0; i < len; i++) {
-                append(csq.charAt(i));
+            for (int i = 0; i < len; ) {
+                append(csq.charAt(i++));
             }
         }
         return this;
@@ -125,12 +121,10 @@ public class JsonWriter extends AbstractJsonWriter {
     @Override
     public Appendable append(CharSequence csq, int start, int end) {
         int len = end - start;
-        if (bufoff + len <= BUF_SIZE) {
-            while (start < end) {
-                buf[bufoff++] = csq.charAt(start++);
+        if (len <= BUF_SIZE) {
+            if (bufoff + len > BUF_SIZE) {
+                flush();
             }
-        } else if (len <= BUF_SIZE) {
-            flush();
             while (start < end) {
                 buf[bufoff++] = csq.charAt(start++);
             }

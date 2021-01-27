@@ -6,8 +6,8 @@ import java.util.Arrays;
 import javax.annotation.Nonnull;
 
 /**
- * Byte array value.  If the an encoding format doesn't support binary, this encodes to a
- * base 64 string.
+ * Byte array value.  If the an encoding format doesn't support binary, this encodes to a base 64
+ * string.
  *
  * @author Aaron Hansen
  */
@@ -111,16 +111,8 @@ public class Abinary implements Adata {
     }
 
     /**
-     * Decodes a base64 string.
-     */
-    @Override
-    public Abinary valueOf(Aprimitive value) {
-        return valueOf(value.toString());
-    }
-
-    /**
-     * Does not copy the byte array, which means it is possible to modify the underlying data -
-     * so be careful.
+     * Does not copy the byte array, which means it is possible to modify the underlying data - so
+     * be careful.
      */
     public static Abinary valueOf(byte[] arg) {
         if (arg == null) {
@@ -143,6 +135,14 @@ public class Abinary implements Adata {
             return EMPTY;
         }
         return valueOf(AonBase64.decode(str));
+    }
+
+    /**
+     * Decodes a base64 string.
+     */
+    @Override
+    public Abinary valueOf(Aprimitive value) {
+        return valueOf(value.toString());
     }
 
     /**

@@ -30,19 +30,24 @@ IMHO order matters when displaying object members on user interfaces such
 as property sheets.
 
 #### Stream Friendly
-Some formats encode object and array lengths at the start of the
-structure.  It can make parsing more efficient, but streaming very
-difficult and uses more memory. 
+
+Some formats encode object and array lengths at the start of the structure. It can make parsing more
+efficient, but streaming very difficult and uses more memory.
 
 #### Java Friendly
-All data types are supported by Java.  For example, it isn't
-possible to have a string or byte array whose length is specified as
-an unsigned 32 bit int.
+
+All data types are supported by Java. For example, it isn't possible to have a string or byte array
+whose length is specified as an unsigned 32 bit int.
+
+#### Fast
+
+See the [benchmarks](#benchmark) section.
 
 Dependency Management
 ---------------------
 
 Maven
+
 ```
 <repositories>
     <repository>
@@ -399,37 +404,37 @@ sorted from fastest to slowest in each category.
 ```
 Benchmark                               Mode  Cnt      Score       Error  Units
 
-AonBenchmark.DecodeLargeDoc.Aon         avgt    9   3656.512 ?  391.488  us/op
-AonBenchmark.DecodeLargeDoc.AonMsgPack  avgt    9   4359.576 ? 1520.838  us/op
-AonBenchmark.DecodeLargeDoc.Genson      avgt    9   6708.738 ?  732.679  us/op
-AonBenchmark.DecodeLargeDoc.AonJson     avgt    9   8722.492 ?  196.013  us/op
-AonBenchmark.DecodeLargeDoc.Jackson     avgt    9  10359.837 ?  946.803  us/op
-AonBenchmark.DecodeLargeDoc.Gson        avgt    9  10949.713 ? 1310.581  us/op
-AonBenchmark.DecodeLargeDoc.JsonSimple  avgt    9  17607.081 ? 1985.333  us/op
+AonBenchmark.DecodeLargeDoc.Aon         avgt    9   3419.839 ?   185.123  us/op
+AonBenchmark.DecodeLargeDoc.AonMsgPack  avgt    9   4165.519 ?   323.440  us/op
+AonBenchmark.DecodeLargeDoc.Genson      avgt    9   6427.920 ?   328.084  us/op
+AonBenchmark.DecodeLargeDoc.AonJson     avgt    9   7360.769 ?   228.854  us/op
+AonBenchmark.DecodeLargeDoc.Jackson     avgt    9   9924.880 ?   352.946  us/op
+AonBenchmark.DecodeLargeDoc.Gson        avgt    9  10572.789 ?   173.272  us/op
+AonBenchmark.DecodeLargeDoc.JsonSimple  avgt    9  16876.058 ?   473.287  us/op
 
-AonBenchmark.DecodeSmallDoc.Aon         avgt    9      1.577 ?    0.140  us/op
-AonBenchmark.DecodeSmallDoc.AonMsgPack  avgt    9      2.711 ?    0.030  us/op
-AonBenchmark.DecodeSmallDoc.Gson        avgt    9      8.607 ?    0.335  us/op
-AonBenchmark.DecodeSmallDoc.AonJson     avgt    9      9.551 ?    0.663  us/op
-AonBenchmark.DecodeSmallDoc.Jackson     avgt    9     11.954 ?    0.310  us/op
-AonBenchmark.DecodeSmallDoc.JsonSimple  avgt    9     24.672 ?    1.161  us/op
-AonBenchmark.DecodeSmallDoc.Genson      avgt    9     67.096 ?    5.936  us/op
+AonBenchmark.DecodeSmallDoc.Aon         avgt    9      1.595 ?     0.148  us/op
+AonBenchmark.DecodeSmallDoc.AonMsgPack  avgt    9      3.007 ?     0.028  us/op
+AonBenchmark.DecodeSmallDoc.Gson        avgt    9      8.963 ?     0.082  us/op
+AonBenchmark.DecodeSmallDoc.AonJson     avgt    9      9.066 ?     0.230  us/op
+AonBenchmark.DecodeSmallDoc.Jackson     avgt    9     12.245 ?     0.502  us/op
+AonBenchmark.DecodeSmallDoc.JsonSimple  avgt    9     25.409 ?     2.308  us/op
+AonBenchmark.DecodeSmallDoc.Genson      avgt    9     68.098 ?     3.890  us/op
 
-AonBenchmark.EncodeLargeDoc.Aon         avgt    9   2764.954 ?  132.043  us/op
-AonBenchmark.EncodeLargeDoc.AonMsgPack  avgt    9   3397.231 ?  265.818  us/op
-AonBenchmark.EncodeLargeDoc.Jackson     avgt    9   5196.017 ?  323.112  us/op
-AonBenchmark.EncodeLargeDoc.AonJson     avgt    9   8141.134 ?  328.242  us/op
-AonBenchmark.EncodeLargeDoc.Genson      avgt    9  11543.533 ?  619.295  us/op
-AonBenchmark.EncodeLargeDoc.Gson        avgt    9  63534.978 ? 6738.232  us/op
-AonBenchmark.EncodeLargeDoc.JsonSimple  avgt    9  81293.455 ? 7912.592  us/op
+AonBenchmark.EncodeLargeDoc.Aon         avgt    9   2703.654 ?    63.520  us/op
+AonBenchmark.EncodeLargeDoc.AonMsgPack  avgt    9   3227.385 ?   150.909  us/op
+AonBenchmark.EncodeLargeDoc.Jackson     avgt    9   5074.762 ?   121.484  us/op
+AonBenchmark.EncodeLargeDoc.AonJson     avgt    9   5873.044 ?   103.059  us/op
+AonBenchmark.EncodeLargeDoc.Genson      avgt    9  10597.127 ?   199.881  us/op
+AonBenchmark.EncodeLargeDoc.Gson        avgt    9  45463.300 ?  5782.904  us/op
+AonBenchmark.EncodeLargeDoc.JsonSimple  avgt    9  71455.978 ? 12125.037  us/op
 
-AonBenchmark.EncodeSmallDoc.Aon         avgt    9      1.303 ?    0.175  us/op
-AonBenchmark.EncodeSmallDoc.AonMsgPack  avgt    9      5.607 ?    0.340  us/op
-AonBenchmark.EncodeSmallDoc.Jackson     avgt    9      5.748 ?    0.460  us/op
-AonBenchmark.EncodeSmallDoc.AonJson     avgt    9      6.745 ?    0.291  us/op
-AonBenchmark.EncodeSmallDoc.Gson        avgt    9     31.643 ?    2.519  us/op
-AonBenchmark.EncodeSmallDoc.JsonSimple  avgt    9     42.043 ?    3.586  us/op
-AonBenchmark.EncodeSmallDoc.Genson      avgt    9     62.020 ?    7.317  us/op
+AonBenchmark.EncodeSmallDoc.Aon         avgt    9      1.212 ?     0.060  us/op
+AonBenchmark.EncodeSmallDoc.AonJson     avgt    9      5.033 ?     0.283  us/op
+AonBenchmark.EncodeSmallDoc.Jackson     avgt    9      5.777 ?     0.456  us/op
+AonBenchmark.EncodeSmallDoc.AonMsgPack  avgt    9      6.187 ?     0.632  us/op
+AonBenchmark.EncodeSmallDoc.Gson        avgt    9     30.124 ?     1.284  us/op
+AonBenchmark.EncodeSmallDoc.JsonSimple  avgt    9     34.294 ?     2.915  us/op
+AonBenchmark.EncodeSmallDoc.Genson      avgt    9     61.220 ?     6.336  us/op
 
 Benchmark document sizes in bytes:
     AON small doc size: 145
@@ -489,15 +494,22 @@ Type Cheat Sheet
 
 History
 -------
+_6.1.0_
+
+- Improve JSON performance.
+- Convenience api updates.
+
 _6.0.1_
-  - Bug fix, needed to push back char that terminated a number.
-  
+
+- Bug fix, needed to push back char that terminated a number.
+
 _6.0.0_
-  - Moved to Java 1.8.
-  - Model changes revolving around the addition of Aprimitive and Adata.
-  - Added msgpack support.
-  - Reworked jmh for the benchmark.
-  - Switch to JUnit.
+
+- Moved to Java 1.8.
+- Model changes revolving around the addition of Aprimitive and Adata.
+- Added msgpack support.
+- Reworked jmh for the benchmark.
+- Switch to JUnit.
   - Performance improvements.
   - Lots of refactoring.
   
