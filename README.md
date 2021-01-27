@@ -489,15 +489,22 @@ Type Cheat Sheet
 
 History
 -------
+_6.1.0_
+
+- Improve JSON performance.
+- Convenience api updates.
+
 _6.0.1_
-  - Bug fix, needed to push back char that terminated a number.
-  
+
+- Bug fix, needed to push back char that terminated a number.
+
 _6.0.0_
-  - Moved to Java 1.8.
-  - Model changes revolving around the addition of Aprimitive and Adata.
-  - Added msgpack support.
-  - Reworked jmh for the benchmark.
-  - Switch to JUnit.
+
+- Moved to Java 1.8.
+- Model changes revolving around the addition of Aprimitive and Adata.
+- Added msgpack support.
+- Reworked jmh for the benchmark.
+- Switch to JUnit.
   - Performance improvements.
   - Lots of refactoring.
   
