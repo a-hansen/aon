@@ -16,9 +16,9 @@ public class Aint extends Aprimitive {
     // Class Fields
     ///////////////////////////////////////////////////////////////////////////
 
+    private static final Aint[] CACHE = new Aint[256];
     public static final Aint MAX = new Aint(Integer.MAX_VALUE);
     public static final Aint MIN = new Aint(Integer.MIN_VALUE);
-    private static final Aint[] CACHE = new Aint[256];
     public static final Aint ZERO = valueOf(0);
 
     ///////////////////////////////////////////////////////////////////////////
