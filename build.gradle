@@ -3,7 +3,7 @@ plugins {
     id 'maven-publish'
 }
 
-version = '6.1.1'
+version = '6.1.2'
 group = 'com.comfortanalytics'
 description = "Another Object Notation"
 
@@ -23,8 +23,6 @@ dependencies {
     testImplementation 'com.google.code.gson:gson:+'
     testImplementation 'com.googlecode.json-simple:json-simple:+'
     testImplementation 'com.owlike:genson:+'
-    //testImplementation 'org.openjdk.jmh:jmh-core:+'
-    //testImplementation 'org.openjdk.jmh:jmh-generator-annprocess:+'
     testImplementation 'org.junit.jupiter:junit-jupiter-engine:+'
 
 }
@@ -40,6 +38,14 @@ jar {
 java {
     withSourcesJar()
     withJavadocJar()
+}
+
+publishing {
+    publications {
+        mavenJava(MavenPublication) {
+            from components.java
+        }
+    }
 }
 
 tasks.withType(Javadoc) {
