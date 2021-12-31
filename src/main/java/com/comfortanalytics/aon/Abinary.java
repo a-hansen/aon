@@ -152,5 +152,4 @@ public class Abinary implements Adata {
         out.write(value);
     }
 
-
 }

@@ -545,5 +545,4 @@ public abstract class AbstractReader implements Areader {
         return last = Token.NULL;
     }
 
-
 }

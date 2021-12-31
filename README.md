@@ -1,8 +1,8 @@
 Aon
 ===
 [![](https://jitpack.io/v/a-hansen/aon.svg)](https://jitpack.io/#a-hansen/aon)
-* JDK 1.8+
 
+* Java 8+
 
 Overview
 --------
@@ -13,21 +13,22 @@ Aon is:
 * A streaming parser generator for the Aon, JSON and MsgPack formats.
 * An [API](#java-library) like JSONObject for dealing with data in memory.
 
-The Aon format is like JSON except is it more compact, has more data
-types, and preserves the order of object members.  To be stream
-friendly, Aon doesn't encode object or list lengths.
+The Aon format is like JSON except is it more compact, has more data types, and preserves the order
+of object members. To be stream friendly, Aon doesn't encode object or list lengths.
 
 #### Compact
+
 Uses a binary encoding that borrows techniques from
 [UBJSON](http://www.ubjson.org) and [MsgPack](http://www.msgpack.org).
 
 #### More Data Types
-Big decimal, big integer, binary, boolean, double, float, list, long,
-null, object, string and many flavors of signed and unsigned integers.
+
+Big decimal, big integer, binary, boolean, double, float, list, long, null, object, string and many
+flavors of signed and unsigned integers.
 
 #### Ordered Objects
-IMHO order matters when displaying object members on user interfaces such
-as property sheets.
+
+IMHO order matters when displaying object members on user interfaces such as property sheets.
 
 #### Stream Friendly
 
@@ -46,31 +47,35 @@ See the [benchmarks](#benchmark) section.
 Dependency Management
 ---------------------
 
+Use [JitPack](https://jitpack.io/#a-hansen/aon).
+
 Maven
 
 ```
 <repositories>
-    <repository>
-      <id>jcenter</id>
-      <url>https://jcenter.bintray.com/</url>
-    </repository>
+  <repository>
+    <id>jitpack.io</id>
+    <url>https://jitpack.io</url>
+  </repository>
 </repositories>
-
+	
 <dependency>
-  <groupId>com.comfortanalytics</groupId>
+  <groupId>com.github.a-hansen</groupId>
   <artifactId>aon</artifactId>
-  <version>n.n.n</version>
-  <type>pom</type>
+  <version>Tag</version>
 </dependency>
 ```
 
 Gradle
+
 ```
 repositories {
-    jcenter()
+  ...
+  maven { url 'https://jitpack.io' }
 }
+
 dependencies {
-    implementation 'com.comfortanalytics:aon:+'
+  implementation 'com.github.a-hansen:aon:Tag'
 }
 ```
 
@@ -78,21 +83,25 @@ Comparing Formats
 -----------------
 
 **JSON** (42 bytes)
+
 ```
 {"name":"aon","born":20180602,"cool":true}
 ```
 
 **UBJSON** (32 bytes)
+
 ```
 { i 0x04 name s i 0x03 aon i 0x04 born I 0x01 0x33 0xEE 0x7A i 0x04 cool T }
 ```
 
 **Aon** (27 bytes)
+
 ```
 { 0xA4 name 0xA3 aon 0xA4 born j 0x01 0x33 0xEE 0x7A 0xA4 cool T }
 ```
 
 **MsgPack** (26 bytes)
+
 ```
 0x83 0xA4 name 0xA3 aon 0xA4 born 0xCE 0x01 0x33 0xEE 0x7A 0xA4 cool 0xC3
 ```
@@ -107,16 +116,13 @@ for all types:
 <Prefix> [Length] [Data]
 ```
 
-* Prefix - A single byte ASCII character or bitmask.  There are
-three bitmasks used for compaction; a small negative int (-32 to -1),
-a small positive int (0 - 31) and a small string (&lt;= 31 chars).
+* Prefix - A single byte ASCII character or bitmask. There are three bitmasks used for compaction; a
+  small negative int (-32 to -1), a small positive int (0 - 31) and a small string (&lt;= 31 chars).
 * Length - An optional positive int specifying the length of the data.
-* Data - Optional bytes representing data such as 32 bit integers or
-UTF8 strings.
+* Data - Optional bytes representing data such as 32 bit integers or UTF8 strings.
 
-The subsequent Aon format is represented using a pseudo-BNF syntax.
-There is a [cheat sheet](#type-cheat-sheet) towards the end of this document.
-
+The subsequent Aon format is represented using a pseudo-BNF syntax. There is
+a [cheat sheet](#type-cheat-sheet) towards the end of this document.
 
 ```
 <Document> ::= <Object> | <List>
@@ -126,54 +132,68 @@ There is a [cheat sheet](#type-cheat-sheet) towards the end of this document.
 ```
 
 #### Object
-A collection of key value pairs surrounded by curly braces. Objects
-must preserve the order addition and encoding.  Object implementations
-must provide a mechanism to iterate memebers in order.
+
+A collection of key value pairs surrounded by curly braces. Objects must preserve the order addition
+and encoding. Object implementations must provide a mechanism to iterate memebers in order.
+
 ```
 <Object> ::= "{" <Member-Pair>* "}"
 <Member-Pair> ::= <String> <Value>
 ```
+
 * There can be 0 or more key value pairs.
 * The string key must be unique among all members of the same object.
 
 #### List
+
 An array of values surrounded by brackets.
+
 ```
 <List> ::= "[" <Value>* "]"
 ```
+
 * There can be 0 or more values in a list.
 
 #### Boolean
+
 A single byte character, 'T' for true, or 'F' for false.
+
 ```
 <Boolean> ::= "T" | "F"
 ```
 
 #### Double
-Requires 9 bytes, the letter 'D' followed by 8 bytes in the IEEE 754
-floating-point "double format" bit layout.
+
+Requires 9 bytes, the letter 'D' followed by 8 bytes in the IEEE 754 floating-point "double format"
+bit layout.
+
 ```
 <Double> ::= "D" byte[8]
 ```
 
 #### Float
-Requires 5 bytes, the letter 'd' followed by 4 bytes in the IEEE 754
-floating-point "single format" bit layout.
+
+Requires 5 bytes, the letter 'd' followed by 4 bytes in the IEEE 754 floating-point "single format"
+bit layout.
+
 ```
 <Float> ::= "d" byte[4]
 ```
 
 #### Null
+
 A single byte, the letter 'Z'.
+
 ```
 <Null> ::= "Z"
 ```
 
 #### Signed Integer
-Uses 1 to 5 bytes.  All signed ints start with a type byte that
-describes the value.  If the value is small enough (-32 to -1), a
-single byte can be used for both the type and the value.  If the
-signed int is in the range 0 to 31, use unsigned-int5.
+
+Uses 1 to 5 bytes. All signed ints start with a type byte that describes the value. If the value is
+small enough (-32 to -1), a single byte can be used for both the type and the value. If the signed
+int is in the range 0 to 31, use unsigned-int5.
+
 ```
 <Signed-Int> ::= <signed-int5> | <signed-int8> | <signed-int16> | <signed-int32> | <signed-int64>
 <signed-int5>  ::= 0xC0
@@ -182,15 +202,17 @@ signed int is in the range 0 to 31, use unsigned-int5.
 <signed-int32> ::= "j" int32
 <signed-int64> ::= "J" int64
 ```
-* Signed-int5 can be identified with the bitmask 0xC0.  The value is
-stored in the 5 lowest order bits, without a sign bit.
+
+* Signed-int5 can be identified with the bitmask 0xC0. The value is stored in the 5 lowest order
+  bits, without a sign bit.
 * To encode: (value & 0x1F) | 0xC0
 * To decode (into 32 bit int): (read() & 0x1F) | 0xFFFFFFE0
 
 #### String
-Strings require a type byte, a length, and a UTF8 encoded string. If
-the length is 31 bytes or less, a single byte can be used for both the
-type and the length.
+
+Strings require a type byte, a length, and a UTF8 encoded string. If the length is 31 bytes or less,
+a single byte can be used for both the type and the length.
+
 ```
 <String> ::= <str5> | <str8> | <str16> | <str32>
 <str5>  ::= 0xA0 UTF8
@@ -198,17 +220,18 @@ type and the length.
 <str16> ::= "S" uint16-length UTF8
 <str32> ::= "r" int32-length UTF8
 ```
-* Str5 can be identified with the bitmask 0xA0.  The value is
-stored in the 5 lowest order bits.
+
+* Str5 can be identified with the bitmask 0xA0. The value is stored in the 5 lowest order bits.
 * To encode: value | 0xA0
 * To decode: read() & 0x1F
 * The length can be 0 for an empty string with no data field.
 * The str32 length must be a positive signed int.
 
 #### Unsigned Integers
-Uses 1 to 5 bytes.  All unsigned ints start with a type byte that
-describes the value.  If the value is small enough (0 to 31), a single
-byte can be used for both the type and the value.
+
+Uses 1 to 5 bytes. All unsigned ints start with a type byte that describes the value. If the value
+is small enough (0 to 31), a single byte can be used for both the type and the value.
+
 ```
 <Unsigned-Int> ::= <unsigned-int5> | <unsigned-int8> | <unsigned-int16> | <unsigned-int32>
 <unsigned-int5>  ::= 0xE0
@@ -216,51 +239,58 @@ byte can be used for both the type and the value.
 <unsigned-int16> ::= "U" uint16
 <unsigned-int32> ::= "v" uint32
 ```
-* Unsigned-int5 can be identified with the bitmask 0xE0.  The value
-is stored in the 5 lowest order bits.
+
+* Unsigned-int5 can be identified with the bitmask 0xE0. The value is stored in the 5 lowest order
+  bits.
 * To encode: value | 0xE0
 * To decode: read() & 0x1F
 
 #### Binary (byte array)
+
 Requires 2 to 5 bytes in addition to the byte array.
+
 ```
 <Binary> ::= <bin8> | <bin16> | <bin32>
 <bin8>   ::= "b" uint8-length bytes
 <bin16>  ::= "B" uint16-length bytes
 <bin32>  ::= "c" int32-length bytes
 ```
+
 * The bin32 length must be a positive signed int.
 
 #### Big Integer
+
 An integer so large it has to be encoded as a byte array.
+
 ```
 <Big-Integer> ::= <bigint8> | <bigint16> | <bigint32>
 <bigint>   ::= "n" uint8-length bytes
 <bigint16> ::= "N" uint16-length bytes
 <bigint32> ::= "o" int32-length bytes
 ```
+
 * The bigint32 length must be a positive signed int.
-* The array represents the two's-complement represention of the big
-integer.  The array must be in big endian byte order, with the most
-significant byte in the zeroth element (left most byte).  The array
-must include at least one sign bit.
+* The array represents the two's-complement represention of the big integer. The array must be in
+  big endian byte order, with the most significant byte in the zeroth element (left most byte). The
+  array must include at least one sign bit.
 
 #### Big Decimal
+
 A decimal so large it has to be encoded as a string.
+
 ```
 <Big-Decimal> ::= <bigdec8> | <bigdec16> | <bigdec32>
 <bigdec8>  ::= "g" uint8-length UTF8
 <bigdec16> ::= "G" uint16-length UTF8
 <bigdec32> ::= "h" int32-length UTF8
 ```
+
 * The decimal32 length must be a positive signed int.
-* The string should consist of an optional sign, '+' or '-',
-followed by a sequence of zero or more digits ("the integer"),
-optionally followed by a fraction, optionally followed by an exponent.
-The fraction consists of a decimal point followed by zero or more
-digits. The string must contain at least one digit in either the
-integer or the fraction. The exponent consists of the character 'e'
-or 'E' followed by one or more digits.
+* The string should consist of an optional sign, '+' or '-', followed by a sequence of zero or more
+  digits ("the integer"), optionally followed by a fraction, optionally followed by an exponent. The
+  fraction consists of a decimal point followed by zero or more digits. The string must contain at
+  least one digit in either the integer or the fraction. The exponent consists of the character 'e'
+  or 'E' followed by one or more digits.
 
 Endianness
 ----------
@@ -277,8 +307,7 @@ File Extension
 Java Library
 ------------
 
-This includes a Java library for representing Aon values in memory as
-well as encoding and decoding.
+This includes a Java library for representing Aon values in memory as well as encoding and decoding.
 
 Usage
 -----
@@ -372,8 +401,7 @@ public void encode(Aobj map) throws IOException {
 }
 ```
 
-Streaming IO is supported as well.  The following two methods produce
-the same result.
+Streaming IO is supported as well. The following two methods produce the same result.
 
 ```
 import com.comfortanalytics.aon.*;
@@ -398,8 +426,8 @@ Benchmark
 There is a benchmark that compares Aon encodings with other popular JSON libs.  
 The benchmark uses JMH and takes @45 minutes.
 
-There are 4 categories of tests (large/small docs, encode/decode).  The results are 
-sorted from fastest to slowest in each category.
+There are 4 categories of tests (large/small docs, encode/decode). The results are sorted from
+fastest to slowest in each category.
 
 ```
 Benchmark                               Mode  Cnt      Score       Error  Units
@@ -450,7 +478,6 @@ To run the benchmark, use the gradle task jmh:
 ```
 gradlew jmh
 ```
-
 
 Type Cheat Sheet
 ----------------
@@ -512,43 +539,53 @@ _6.0.0_
 - Switch to JUnit.
   - Performance improvements.
   - Lots of refactoring.
-  
+
 _5.0.1_
-  - Fix reading numbers.
-  - TestNG.
-  - jcenter.
-  
+
+- Fix reading numbers.
+- TestNG.
+- jcenter.
+
 _5.0.0_
-  - New native Aon encoding format, major rewrite.
+
+- New native Aon encoding format, major rewrite.
 
 _4.0.1_
-  - Fixed NPE in Amap.put(String,String).
-  - Fix zip encoding.
+
+- Fixed NPE in Amap.put(String,String).
+- Fix zip encoding.
 
 _4.0.0_
-  - Added AbstractReader and AbstractWriter, json now uses these.
-  - Minor parenting fixes.
-  
+
+- Added AbstractReader and AbstractWriter, json now uses these.
+- Minor parenting fixes.
+
 _3.1.0_
-  - Now compatible with jdk 1.5
-  - Removed idea and findbugs from the gradle script.
-  
+
+- Now compatible with jdk 1.5
+- Removed idea and findbugs from the gradle script.
+
 _3.0.0_
-  - Split JsonAppender from JsonWriter for performance reasons.
-  - Better performance!
-  - Addressed some FindBugs issues.
+
+- Split JsonAppender from JsonWriter for performance reasons.
+- Better performance!
+- Addressed some FindBugs issues.
 
 _2.0.0_
-  - Package change.
+
+- Package change.
 
 _1.1.0_
-  - Made JsonWriter Appendable.
-  - Added parenting to groups.
-  - Added JSON-Simple to the benchmark.
-  - Changed how benchmark results are printed.
-  
+
+- Made JsonWriter Appendable.
+- Added parenting to groups.
+- Added JSON-Simple to the benchmark.
+- Changed how benchmark results are printed.
+
 _1.0.1_
-  - Minor performance improvement in JsonWriter.
-  
+
+- Minor performance improvement in JsonWriter.
+
 _1.0.0_
-  - Hello World.
+
+- Hello World.

@@ -45,7 +45,7 @@ public class Anull extends Aprimitive {
      * Returns null
      */
     @Override
-    public Object get() {
+    public <T> T get() {
         return null;
     }
 
@@ -62,6 +62,5 @@ public class Anull extends Aprimitive {
     public String toString() {
         return "null";
     }
-
 
 }

@@ -133,8 +133,6 @@ public class AonWriter extends AbstractWriter implements AonConstants {
             } else {
                 write4Bytes(I32, arg);
             }
-            //} else if (arg < 10){ //TODO - Future?
-            //out.write('0' + arg);
         } else {
             if (arg <= MAX_U5) {
                 out.write(U5 | arg);

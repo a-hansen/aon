@@ -122,19 +122,6 @@ public class AonReader extends AbstractReader implements AonConstants {
                     return setNext(readU16(in));
                 case U32:
                     return setNext(readU32(in));
-                /* TODO - Future?
-                case '0' :
-                case '1' :
-                case '2' :
-                case '3' :
-                case '4' :
-                case '5' :
-                case '6' :
-                case '7' :
-                case '8' :
-                case '9' :
-                    return setNext(ch - '0');
-                */
                 default:
                     if ((ch & MSB5) == S5) {
                         return setNext(readString(ch & LSB5));

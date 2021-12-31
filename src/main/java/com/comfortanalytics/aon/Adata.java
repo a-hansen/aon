@@ -286,5 +286,4 @@ public interface Adata {
         return arg;
     }
 
-
 }

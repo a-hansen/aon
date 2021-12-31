@@ -156,6 +156,7 @@ public class JsonWriter extends AbstractJsonWriter {
                 out.write(buf, 0, bufoff);
                 bufoff = 0;
             }
+            out.flush();
         } catch (IOException x) {
             throw new RuntimeException(x);
         }
@@ -178,6 +179,5 @@ public class JsonWriter extends AbstractJsonWriter {
             throw new RuntimeException(x);
         }
     }
-
 
 }

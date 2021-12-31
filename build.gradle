@@ -1,9 +1,9 @@
 plugins {
-    id 'java'
-    id 'com.jfrog.bintray' version '1.8.4' apply false
+    id 'java-library'
+    id 'maven-publish'
 }
 
-version = '6.1.0'
+version = '6.1.1'
 group = 'com.comfortanalytics'
 description = "Another Object Notation"
 
@@ -12,10 +12,7 @@ targetCompatibility = JavaVersion.VERSION_1_8
 
 repositories {
     mavenLocal()
-    jcenter()
-    maven {
-        url "https://plugins.gradle.org/m2/"
-    }
+    mavenCentral()
 }
 
 dependencies {
@@ -26,8 +23,8 @@ dependencies {
     testImplementation 'com.google.code.gson:gson:+'
     testImplementation 'com.googlecode.json-simple:json-simple:+'
     testImplementation 'com.owlike:genson:+'
-    testImplementation 'org.openjdk.jmh:jmh-core:+'
-    testImplementation 'org.openjdk.jmh:jmh-generator-annprocess:+'
+    //testImplementation 'org.openjdk.jmh:jmh-core:+'
+    //testImplementation 'org.openjdk.jmh:jmh-generator-annprocess:+'
     testImplementation 'org.junit.jupiter:junit-jupiter-engine:+'
 
 }
@@ -35,7 +32,7 @@ dependencies {
 jar {
     manifest {
         attributes(
-                'Automatic-Module-Name': 'com.comfortanalytics.aon'
+                "Automatic-Module-Name": "com.comfortanalytics.aon"
         )
     }
 }
@@ -53,7 +50,6 @@ test {
     useJUnitPlatform()
 }
 
-apply from: 'bintray.gradle'
 apply from: 'jmh.gradle'
 
 

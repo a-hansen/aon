@@ -13,7 +13,7 @@ import javax.annotation.Nonnull;
  * @author Aaron Hansen
  */
 @SuppressWarnings("unused")
-public abstract class Aprimitive implements Adata, Cloneable {
+public abstract class Aprimitive implements Adata {
 
     @Override
     public boolean isPrimitive() {
@@ -29,6 +29,10 @@ public abstract class Aprimitive implements Adata, Cloneable {
         return this;
     }
 
+    @Nonnull
+    @Override
+    public abstract String toString();
+
     /**
      * Appends the JSON encoding to the given buffer and returns the buffer.
      */
@@ -37,6 +41,5 @@ public abstract class Aprimitive implements Adata, Cloneable {
         new JsonAppender(buf).value(this);
         return buf;
     }
-
 
 }

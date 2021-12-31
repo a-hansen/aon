@@ -102,7 +102,7 @@ public interface Areader extends Closeable {
     Token last();
 
     /**
-     * Advances the reader to the next item and returns the token representing it's current state.
+     * Advances the reader to the next item and returns the token representing its current state.
      */
     Token next();
 
