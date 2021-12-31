@@ -521,6 +521,10 @@ Type Cheat Sheet
 
 History
 -------
+_6.1.1-2_
+
+- Fix JsonWriter.flush()
+
 _6.1.0_
 
 - Improve JSON performance.
